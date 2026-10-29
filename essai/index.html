@@ -233,7 +233,7 @@
     <!-- 1. Groupe et date -->
     <div class="carte pas-imprime">
       <h2>1. Votre groupe</h2>
-      <p class="sous">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
+      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
       <label class="champ" for="personnes">Nombre de personnes</label>
       <div class="compteur">
         <input type="range" id="personnes" min="12" max="30" value="20">
@@ -246,7 +246,7 @@
     </div>
 
     <!-- 2. Moment et menu -->
-    <div class="carte pas-imprime">
+    <div class="carte pas-imprime" id="carte-moment">
       <h2>2. Votre moment</h2>
       <p class="sous">Prix TVA incluse.</p>
       <div class="formules" id="types"></div>
@@ -485,9 +485,9 @@
       { id: "soir", nom: "Soirée privatisée", quand: "19h00–23h30, prolongation possible jusqu'à 00h30",
         desc: "Le Bossa Nova ferme ses portes pour vous. Menu à composer.", privatise: true },
       { id: "midi", nom: "Déjeuner de groupe", quand: "12h00–14h00",
-        desc: "Un repas de fête à midi. Menu à composer.", privatise: false },
+        desc: "Un repas de fête à midi. Menu à composer.", privatise: false, actif: false },
       { id: "afterwork", nom: "Afterwork Caipi", quand: "17h30–20h30", prix: 42,
-        desc: "Apéro dînatoire brésilien (pão de queijo, coxinhas, pastéis) et une caipirinha ou boisson sans alcool.", privatise: false }
+        desc: "Apéro dînatoire brésilien (pão de queijo, coxinhas, pastéis) et une caipirinha ou boisson sans alcool.", privatise: false, actif: false }
     ],
     // Menu à composer : un choix par étape pour tout le groupe (prix par personne)
     menu: [
@@ -607,8 +607,21 @@
   // ---------- Construction de l'interface ----------
   function construireTypes() {
     const zone = $("types");
-    zone.style.gridTemplateColumns = "1fr 1fr 1fr";
-    CONFIG.types.forEach(t => {
+    const actifs = CONFIG.types.filter(t => t.actif !== false);
+    zone.style.gridTemplateColumns = `repeat(${Math.max(1, actifs.length)}, 1fr)`;
+    if (!actifs.some(t => t.id === etat.type)) etat.type = (actifs[0] || CONFIG.types[0]).id;
+    // Un seul moment proposé : l'étape disparaît et les suivantes sont renumérotées
+    if (actifs.length <= 1) {
+      $("carte-moment").classList.add("cache");
+      const seul = actifs[0];
+      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à 30 personnes. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
+      let k = 0;
+      document.querySelectorAll(".carte > h2").forEach(h => {
+        if (h.closest(".cache") || !/^\d+\.\s/.test(h.textContent)) return;
+        h.textContent = h.textContent.replace(/^\d+\./, ++k + ".");
+      });
+    }
+    actifs.forEach(t => {
       const el = document.createElement("label");
       el.className = "formule";
       el.dataset.id = t.id;
