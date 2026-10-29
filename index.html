@@ -1373,7 +1373,7 @@
     return { dep: c.from && c.from.departure, arr: c.to && c.to.arrival, chg: Number(c.transfers) || 0, ligne };
   }
   // Le service d'horaires limite le nombre de demandes : 3 à la fois, une seconde chance, et mémoire de 12 heures
-  const CLE_RETOUR = "festa-retour:";
+  const CLE_RETOUR = "festa-retour2:";
   function lireRetourMemo(cle) {
     try { const m = JSON.parse(localStorage.getItem(CLE_RETOUR + cle)); return m && Date.now() - m.t < 12 * 3600 * 1000 ? m.res : null; } catch (e) { return null; }
   }
@@ -1414,8 +1414,13 @@
     if (!Array.isArray(js.connections)) throw new Error("réponse vide");
     return js.connections.map(lireSearch).filter(x => x.dep);
   }
+  // Garde les départs utiles : dans les 2 h 30 après la fin, trajet de 2 h au plus,
+  // et pas beaucoup plus long que le plus rapide (évite les attentes de nuit en gare)
   function garder(liste, finAbs) {
-    return liste.filter(x => { const t = new Date(x.dep), a = new Date(x.arr); return (t - finAbs) / 60000 >= 0 && (t - finAbs) / 60000 <= 150 && (a - t) / 60000 <= 180; }).slice(0, 2);
+    const duree = x => (new Date(x.arr) - new Date(x.dep)) / 60000;
+    const ok = liste.filter(x => { const t = (new Date(x.dep) - finAbs) / 60000; return t >= 0 && t <= 150 && duree(x) <= 120; });
+    const min = Math.min(...ok.map(duree));
+    return ok.filter(x => duree(x) <= Math.max(min * 1.6, min + 20)).slice(0, 2);
   }
   async function chercherUne(d, date, temps, finAbs) {
     if (retour.secours) {
@@ -1438,9 +1443,7 @@
         const rep = await fetch(url);
         if (!rep.ok) throw new Error(rep.status);
         const js = await rep.json();
-        const liste = (js.connections || []).map(lireConnexion).filter(x => x.dep)
-          .filter(x => { const t = new Date(x.dep), a = new Date(x.arr); return (t - finAbs) / 60000 >= 0 && (t - finAbs) / 60000 <= 150 && (a - t) / 60000 <= 180; })
-          .slice(0, 2);
+        const liste = garder((js.connections || []).map(lireConnexion).filter(x => x.dep), finAbs);
         return { nom: d.nom, groupe: d.groupe, liste, ok: true };
       } catch (e) { return { nom: d.nom, groupe: d.groupe, liste: [], ok: false }; }
     }
