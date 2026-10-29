@@ -1,0 +1,1547 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Votre soirée privée — Bossa Nova Café</title>
+<meta property="og:title" content="Votre soirée privée au Bossa Nova Café, Vevey">
+<meta property="og:description" content="Privatisé, clé en main, personnalisable : composez votre soirée et voyez votre budget en direct.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Chango&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vert: #0f3d2e;
+    --vert-clair: #1d5a45;
+    --jaune: #f2c230;
+    --violet: #6b3fa0;
+    --creme: #fbf6e9;
+    --texte: #1d1d1b;
+    --gris: #6b6b66;
+    --bord: #e2dac3;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Poppins", system-ui, sans-serif; background: var(--vert); color: var(--texte); }
+  header { text-align: center; padding: 30px 16px 18px; color: var(--creme); }
+  header .marque { font-family: "Chango", serif; color: var(--jaune); font-size: 15px; letter-spacing: 1px; }
+  header h1 { font-family: "Anton", sans-serif; font-weight: 400; font-size: 40px; margin: 6px 0 4px; text-transform: uppercase; letter-spacing: 1px; }
+  header p { margin: 0 auto; max-width: 560px; opacity: .88; font-size: 14px; line-height: 1.5; }
+  .offre-bandeau { max-width: 760px; margin: 16px auto 0; background: var(--jaune); color: var(--vert); border-radius: 14px; padding: 14px 18px; text-align: left; font-size: 14px; line-height: 1.5; }
+  .offre-bandeau strong { display: block; font-size: 16px; }
+  .offre-bandeau .note-offre { margin-top: 6px; font-style: italic; }
+  .offre-bandeau.expiree { background: #fdecea; color: #7a1a14; }
+  .atouts { display: flex; gap: 12px; max-width: 760px; margin: 18px auto 4px; text-align: left; }
+  .atouts div { flex: 1; background: rgba(255,255,255,.07); border: 1px solid rgba(242,194,48,.35); border-radius: 14px; padding: 12px 14px; }
+  .atouts strong { display: block; color: var(--jaune); font-size: 15px; margin-bottom: 3px; }
+  .atouts span { font-size: 12.5px; opacity: .9; line-height: 1.45; }
+  @media (max-width: 640px) { .atouts { flex-direction: column; gap: 8px; } }
+  main { max-width: 980px; margin: 0 auto; padding: 0 16px 40px; display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
+  .carte { background: var(--creme); border-radius: 18px; padding: 22px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+  .carte h2 { font-family: "Anton", sans-serif; font-weight: 400; color: var(--vert); font-size: 22px; margin: 0 0 4px; text-transform: uppercase; }
+  .carte .sous { color: var(--gris); font-size: 13px; margin: 0 0 14px; }
+  label.champ { display: block; font-weight: 500; font-size: 14px; margin: 12px 0 6px; }
+  input[type=text], input[type=email], input[type=tel], input[type=date], input[type=number], textarea, select {
+    width: 100%; font: inherit; font-size: 15px; padding: 10px 12px; border: 1.5px solid var(--bord); border-radius: 10px; background: #fff;
+  }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--jaune); border-color: var(--jaune); }
+  textarea { min-height: 80px; resize: vertical; }
+  .rangee { display: flex; gap: 12px; }
+  .rangee > div { flex: 1; }
+  .aide { color: var(--gris); font-size: 12.5px; margin-top: 6px; line-height: 1.45; }
+  .alerte { background: #fff4d6; border-left: 4px solid var(--jaune); padding: 9px 12px; border-radius: 8px; font-size: 13px; margin-top: 10px; }
+
+  /* Curseur nombre de personnes */
+  .compteur { display: flex; align-items: center; gap: 14px; }
+  .compteur input[type=range] { flex: 1; accent-color: var(--vert); }
+  .compteur .valeur { font-family: "Anton", sans-serif; font-size: 30px; color: var(--vert); min-width: 54px; text-align: right; }
+
+  /* Formules */
+  .formules { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .formule { position: relative; border: 2px solid var(--bord); border-radius: 14px; padding: 14px; cursor: pointer; background: #fff; transition: border-color .15s; }
+  .formule:hover { border-color: var(--jaune); }
+  .formule input { position: absolute; opacity: 0; pointer-events: none; }
+  .formule.choisie { border-color: var(--vert); box-shadow: inset 0 0 0 1px var(--vert); background: #f4f9f5; }
+  .formule .nom { font-weight: 600; color: var(--vert); font-size: 15px; }
+  .formule .prix { font-family: "Anton", sans-serif; font-size: 22px; color: var(--violet); margin: 2px 0 6px; }
+  .formule .prix small { font-family: "Poppins", sans-serif; font-size: 12px; color: var(--gris); }
+  .formule .desc { font-size: 12.5px; line-height: 1.45; color: #3c3c38; }
+  .formule .quand { font-size: 11.5px; color: var(--gris); margin-top: 6px; }
+  .formule.indispo { opacity: .45; cursor: not-allowed; }
+
+  /* Options */
+  .option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--bord); }
+  .option:last-child { border-bottom: 0; }
+  .option .texte { flex: 1; }
+  .option .titre { font-weight: 500; font-size: 14.5px; }
+  .option .detail { color: var(--gris); font-size: 12.5px; line-height: 1.4; }
+  .option .montant { font-weight: 600; font-size: 13.5px; color: var(--violet); white-space: nowrap; }
+  .option input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--vert); margin-top: 2px; flex-shrink: 0; }
+  .option select, .option input[type=number] { width: auto; padding: 6px 8px; font-size: 14px; }
+  .option.desactivee { opacity: .45; }
+
+  .choix-boissons label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1.5px solid var(--bord); border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: #fff; font-size: 14px; line-height: 1.45; }
+  .choix-boissons label.choisie { border-color: var(--vert); background: #f4f9f5; }
+  .choix-boissons input { accent-color: var(--vert); margin-top: 3px; }
+  .choix-boissons small { color: var(--gris); display: block; font-size: 12.5px; }
+  #bloc-plafond { margin: 4px 0 6px 32px; }
+
+  /* Récapitulatif */
+  .recap { position: sticky; top: 16px; }
+  .recap .carte { background: #fff; }
+  .ligne { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 6px 0; }
+  .ligne .lib { color: #3c3c38; }
+  .ligne .mt, .acompte strong { white-space: nowrap; }
+  .ligne.remise .mt { color: #1e7a3e; }
+  .ligne.sep { border-top: 1px dashed var(--bord); margin-top: 6px; padding-top: 10px; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--vert); margin-top: 10px; padding-top: 12px; }
+  .total .lib { font-weight: 600; color: var(--vert); }
+  .total .mt { font-family: "Anton", sans-serif; font-size: 32px; color: var(--vert); }
+  .parpers { text-align: right; color: var(--gris); font-size: 13px; }
+  .acompte { background: var(--creme); border-radius: 10px; padding: 10px 12px; margin-top: 12px; font-size: 13.5px; display: flex; justify-content: space-between; }
+  .acompte { gap: 10px; align-items: baseline; }
+  .acompte span { flex: 1; min-width: 0; }
+  .nego { margin-top: 14px; border: 1.5px dashed var(--violet); border-radius: 12px; padding: 12px 14px; }
+  .nego-titre { font-weight: 600; color: var(--violet); font-size: 14px; }
+  .nego p { font-size: 12.5px; line-height: 1.45; margin: 4px 0 10px; color: #3c3c38; }
+  .nego-champs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .nego-champs input { flex: 1 1 130px; min-width: 0; padding: 8px 10px; font-size: 14px; }
+  .nego-champs select { flex: 1 1 130px; width: auto; padding: 8px 6px; font-size: 13px; }
+  .bouton.rappel { background: transparent; color: var(--vert); border: 2px solid var(--vert); }
+  .rappel-bloc { margin-top: 10px; border: 1.5px solid var(--bord); border-radius: 12px; padding: 12px 14px; background: var(--creme); }
+  .rappel-bloc p { font-size: 13px; margin: 0 0 8px; line-height: 1.45; }
+  .nego-ecart { font-size: 12.5px; margin-top: 8px; line-height: 1.45; color: var(--vert); }
+  .notes { font-size: 12px; color: var(--gris); margin-top: 12px; line-height: 1.5; }
+  .notes p { margin: 4px 0; }
+
+  button, .bouton { font: inherit; font-weight: 600; border: 0; border-radius: 999px; padding: 12px 18px; cursor: pointer; text-decoration: none; display: block; text-align: center; width: 100%; margin-top: 10px; }
+  .wa { background: #25d366; color: #fff; }
+  .mail { background: var(--jaune); color: var(--vert); }
+  .imprimer { background: transparent; color: var(--violet); text-decoration: underline; font-weight: 500; padding: 6px; }
+  .erreur { color: #b3261e; font-size: 13px; margin-top: 8px; }
+
+  footer { text-align: center; color: var(--creme); opacity: .75; font-size: 12.5px; padding: 0 16px 28px; }
+  .cache { display: none !important; }
+  .impression-seule { display: none; }
+
+  .placement { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bord); font-size: 14px; }
+  .placement:last-child { border-bottom: 0; }
+  .placement select { width: auto; max-width: 60%; padding: 7px 8px; font-size: 13.5px; }
+  .programme { background: #fff; border-top: 8px solid var(--jaune); }
+  .prog-entete { text-align: center; margin-bottom: 14px; }
+  .marque-prog { font-family: "Chango", serif; color: var(--violet); font-size: 12px; letter-spacing: 1px; }
+  .programme h2 { font-size: 30px; margin: 6px 0 2px; }
+  .prog-date { color: var(--gris); font-size: 14px; }
+  .prog-sur { color: var(--vert); font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 10px; }
+  .prog-titre-vide { color: #b8b2a0 !important; }
+  .prog-liste { list-style: none; margin: 0; padding: 0; border-left: 3px solid var(--jaune); margin-left: 58px; }
+  .prog-liste li { position: relative; padding: 0 0 14px 18px; }
+  .prog-liste li::before { content: ""; position: absolute; left: -8px; top: 5px; width: 13px; height: 13px; border-radius: 50%; background: var(--vert); border: 2px solid #fff; }
+  .prog-liste li.evenement::before { background: var(--violet); }
+  .prog-liste .h { position: absolute; left: -66px; top: 1px; width: 50px; text-align: right; font-weight: 600; color: var(--vert); font-size: 14px; }
+  .prog-liste .t { font-weight: 600; font-size: 15px; }
+  .prog-liste li.evenement .t { color: var(--violet); }
+  .prog-liste .d { color: var(--gris); font-size: 13px; line-height: 1.45; }
+  .retour { border-top: 1px dashed var(--bord); margin: 6px 0 10px; padding-top: 12px; }
+  .retour h3 { font-size: 15px; margin: 0 0 2px; color: var(--vert); }
+  .retour .sous-retour { font-size: 12px; color: var(--gris); margin-bottom: 8px; }
+  .retour-ligne { display: flex; gap: 10px; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid #efe8d6; }
+  .retour-ligne:last-child { border-bottom: 0; }
+  .retour-ligne .dest { flex: 0 0 120px; font-weight: 600; }
+  .retour-ligne .dep { flex: 1; }
+  .retour-ligne .dep small { color: var(--gris); }
+  .retour-note { font-size: 12px; color: var(--gris); margin-top: 6px; }
+  .retour-note a { color: inherit; }
+  .prog-pied { text-align: center; color: var(--gris); font-size: 12px; border-top: 1px dashed var(--bord); padding-top: 10px; margin-top: 4px; }
+  .prog-boutons { margin-top: 10px; }
+  @media print {
+    body.imprime-programme header, body.imprime-programme aside, body.imprime-programme .colonne > .carte:not(.programme), body.imprime-programme .barre-mobile { display: none !important; }
+    body.imprime-programme .programme { border: 0; border-top: 8px solid var(--jaune); }
+    body:not(.imprime-programme) .programme { display: none !important; }
+  }
+  .cours { margin-bottom: 16px; }
+  .cours h3 { font-family: "Anton", sans-serif; font-weight: 400; color: var(--vert); font-size: 17px; text-transform: uppercase; margin: 0 0 8px; letter-spacing: .5px; }
+  .plats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .plat { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1.5px solid var(--bord); border-radius: 12px; background: #fff; cursor: pointer; font-size: 13.5px; line-height: 1.4; }
+  .plat:hover { border-color: var(--jaune); }
+  .plat.choisie { border-color: var(--vert); background: #f4f9f5; }
+  .plat input { accent-color: var(--vert); margin-top: 3px; flex-shrink: 0; }
+  .plat .n { font-weight: 600; color: var(--texte); }
+  .plat .ds { color: var(--gris); font-size: 12.5px; }
+  .plat .px { margin-left: auto; font-weight: 600; color: var(--violet); white-space: nowrap; padding-left: 6px; }
+  .plat .vg { display: inline-block; font-size: 11px; color: #1e7a3e; border: 1px solid #1e7a3e; border-radius: 6px; padding: 0 5px; margin-left: 4px; font-weight: 500; }
+  .plat .qte { margin-top: 8px; font-size: 13px; color: var(--vert); font-weight: 500; }
+  .plat .qte input { width: 64px; padding: 5px 8px; font-size: 14px; margin-left: 6px; }
+  .compteur-portions { text-align: right; font-size: 13.5px; font-weight: 600; margin: -6px 0 12px; }
+  .compteur-portions.ok { color: #1e7a3e; }
+  .compteur-portions.ok::before { content: "✓ "; }
+  .compteur-portions.ko { color: #b3261e; }
+  .bols { background: #fff8e1; border: 1.5px dashed var(--jaune); border-radius: 12px; padding: 12px 14px; margin: -4px 0 16px; }
+  .bols-titre { font-weight: 600; color: var(--vert); font-size: 13.5px; margin-bottom: 8px; }
+  .bols-liste { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bols-liste span { background: #fff; border: 1px solid var(--bord); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; }
+  .menu-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--vert); padding-top: 10px; font-weight: 600; color: var(--vert); }
+  .menu-total .mt { font-family: "Anton", sans-serif; font-size: 24px; font-weight: 400; color: var(--violet); }
+  .digestif { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bord); font-size: 14px; }
+  .digestif:last-child { border-bottom: 0; }
+  .digestif .texte { flex: 1; }
+  .digestif .detail { color: var(--gris); font-size: 12.5px; }
+  .digestif .montant { font-weight: 600; color: var(--violet); white-space: nowrap; }
+  .digestif input { width: 64px; padding: 6px 8px; }
+  @media (max-width: 560px) { .plats { grid-template-columns: 1fr; } }
+  .barre-mobile { display: none; }
+  @media (max-width: 820px) {
+    main { grid-template-columns: 1fr; padding-bottom: 90px; }
+    .recap { position: static; }
+    .barre-mobile { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--creme); border-top: 3px solid var(--jaune);
+      padding: 10px 16px; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -6px 18px rgba(0,0,0,.2); }
+    .barre-mobile .t { font-family: "Anton", sans-serif; font-size: 24px; color: var(--vert); white-space: nowrap; }
+    .barre-mobile .p { font-size: 12px; color: var(--gris); }
+    .barre-mobile a { background: var(--vert); color: var(--creme); border-radius: 999px; padding: 10px 16px; font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap; }
+  }
+  @media (max-width: 480px) {
+    header h1 { font-size: 32px; }
+    .formules { grid-template-columns: 1fr; }
+    .rangee { flex-direction: column; gap: 0; }
+  }
+  @media print {
+    body { background: #fff; }
+    header { color: var(--vert); padding: 0 0 10px; }
+    header p, footer, .pas-imprime, button, .bouton { display: none !important; }
+    main { display: block; padding: 0; }
+    .carte { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .recap { position: static; }
+    .impression-seule { display: block; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="marque">BOSSA NOVA CAFÉ</div>
+  <h1>Votre soirée privée</h1>
+  <p>La nouvelle façon de fêter entre collègues, membres ou amis : un lieu rien que pour vous, tout organisé, et à votre image jusqu'à la musique. Composez votre soirée et voyez votre budget en direct.</p>
+  <div class="atouts">
+    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour votre groupe, de 12 à 30 personnes.</span></div>
+    <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour vos invités : nous nous occupons de tout.</span></div>
+    <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
+  </div>
+  <div class="offre-bandeau cache" id="offre-bandeau"></div>
+</header>
+
+<main>
+  <div class="colonne">
+    <!-- 1. Groupe et date -->
+    <div class="carte pas-imprime">
+      <h2>1. Votre groupe</h2>
+      <p class="sous">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
+      <label class="champ" for="personnes">Nombre de personnes</label>
+      <div class="compteur">
+        <input type="range" id="personnes" min="12" max="30" value="20">
+        <span class="valeur" id="personnes-val">20</span>
+      </div>
+      <label class="champ" for="date">Date souhaitée</label>
+      <input type="date" id="date">
+      <div class="aide" id="date-aide"></div>
+      <div class="alerte cache" id="date-alerte"></div>
+    </div>
+
+    <!-- 2. Moment et menu -->
+    <div class="carte pas-imprime">
+      <h2>2. Votre moment</h2>
+      <p class="sous">Prix TVA incluse.</p>
+      <div class="formules" id="types"></div>
+    </div>
+
+    <div class="carte pas-imprime" id="carte-menu">
+      <h2>3. Votre menu</h2>
+      <p class="sous">Composez le menu de votre groupe. Le café ou thé est compris. Le prix se calcule selon vos choix.</p>
+      <div class="alerte" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Comme à Bahia, les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Composez vos plats principaux en nombre de portions, selon les goûts de vos invités. Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
+      <div id="menu"></div>
+      <div class="compteur-portions" id="compteur-portions"></div>
+      <div class="menu-total" id="menu-total"></div>
+    </div>
+
+    <!-- Moments à l'honneur -->
+    <div class="carte pas-imprime">
+      <h2>4. Moments à l'honneur</h2>
+      <p class="sous">Mettez vos collègues ou vos membres à l'honneur pendant la soirée. Chaque moment comprend une annonce sur scène par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
+      <div id="honneurs"></div>
+      <div id="bloc-production" class="cache">
+        <label class="champ">Trophées et cadeaux</label>
+        <div class="choix-boissons" id="choix-production">
+          <label><input type="radio" name="production" value="client" checked>
+            <span><strong>Vous apportez vos trophées</strong> · offert<small>Nous les remettons au bon moment, avec l'annonce, le diplôme et la photo souvenir. Aucun frais.</small></span></label>
+          <label><input type="radio" name="production" value="bossanova">
+            <span><strong>Le Bossa Nova les réalise</strong> <span id="prix-production"></span><small id="texte-production"></small></span></label>
+        </div>
+        <div class="alerte cache" id="production-alerte"></div>
+      </div>
+      <div class="aide">Vous nous donnerez les noms et quelques mots sur chaque personne lors de la préparation de la soirée.</div>
+    </div>
+
+    <!-- 3. Options -->
+    <div class="carte pas-imprime">
+      <h2>5. Options</h2>
+      <p class="sous">Pour faire de la soirée la vôtre.</p>
+      <div id="options"></div>
+    </div>
+
+    <!-- Boissons -->
+    <div class="carte pas-imprime">
+      <h2>6. Boissons</h2>
+      <p class="sous" id="boissons-incluses"></p>
+      <label class="champ">1. Les vins, à la bouteille</label>
+      <div class="choix-boissons" id="choix-vins">
+        <label><input type="radio" name="vins" value="oui" checked>
+          <span><strong>Oui, des vins vaudois sur les tables</strong><small>Facturés à la bouteille de 70 cl. Nous calculons le nombre de bouteilles selon vos invités ; vous pouvez l’ajuster.</small></span></label>
+        <label><input type="radio" name="vins" value="apporte">
+          <span><strong>Vous apportez votre propre vin</strong><small id="bouchon-detail">Nous le servons à table. Droit de bouchon : CHF 10 par bouteille consommée.</small></span></label>
+        <label><input type="radio" name="vins" value="non">
+          <span><strong>Pas de vin sur les tables</strong><small>Les invités pourront en commander au bar.</small></span></label>
+      </div>
+      <div class="bols" id="bloc-vins" style="margin-top:4px">
+        <div class="bols-titre">Vos vins</div>
+        <select id="consommation" style="margin-bottom:10px"></select>
+        <div id="vins"></div>
+        <div class="compteur-portions ok" id="vins-total" style="margin:8px 0 0"></div>
+      </div>
+      <div class="bols cache" id="bloc-apporte" style="margin-top:4px">
+        <div class="bols-titre">Votre vin</div>
+        <div class="digestif">
+          <div class="texte"><div class="titre">Bouteilles prévues</div><div class="detail" id="apporte-detail"></div></div>
+          <div class="montant" id="apporte-prix"></div>
+          <input type="number" min="0" max="60" id="apporte-nb" aria-label="Nombre de bouteilles apportées">
+        </div>
+        <div class="aide" style="margin:8px 0 0">Une estimation pour votre budget. Seules les bouteilles ouvertes le soir même sont facturées.</div>
+      </div>
+      <label class="champ">2. Les eaux et les softs, par personne</label>
+      <div class="choix-boissons" id="forfaits"></div>
+      <label class="champ">3. Les digestifs, à la bouteille</label>
+      <div class="aide" style="margin-top:0">Posées sur la table pour le groupe, à un prix de bouteille avantageux. Non inclus : ajoutez celles que vous voulez.</div>
+      <div id="digestifs"></div>
+      <label class="champ">4. Les boissons commandées en plus au bar</label>
+      <div class="aide" style="margin-top:0;margin-bottom:8px">Un cocktail, une bière, un apéritif : tout ce qui n’est pas prévu ci-dessus. Ces boissons ne sont pas dans le total estimé. Qui les paie ?</div>
+      <div class="choix-boissons" id="choix-boissons">
+        <label><input type="radio" name="boissons" value="individuel" checked>
+          <span><strong>Chaque invité paie ce qu’il commande</strong><small>Les invités règlent eux-mêmes au bar, par carte ou TWINT. Rien n’est ajouté à votre facture.</small></span></label>
+        <label><input type="radio" name="boissons" value="facture">
+          <span><strong>L’organisateur paie, jusqu’à un montant maximum</strong><small>Les invités commandent librement : c’est ajouté à votre facture. Quand le montant maximum est atteint, nous vous prévenons et vous choisissez : soit vous augmentez le montant, soit les invités paient eux-mêmes leurs boissons à partir de ce moment.</small></span></label>
+        <div id="bloc-plafond">
+          <div class="rangee" style="align-items:center">
+            <div style="flex:0 0 auto">Montant maximum : CHF</div>
+            <div><input type="number" id="plafond" min="0" step="50" value="300"></div>
+          </div>
+        </div>
+        <label><input type="radio" name="boissons" value="mixte">
+          <span><strong>L’organisateur paie jusqu’au dessert, les invités ensuite</strong><small>Pendant le repas, les boissons commandées au bar vont sur votre facture. Après le dessert, chacun paie les siennes.</small></span></label>
+      </div>
+    </div>
+
+    <!-- 5. Coordonnées -->
+    <div class="carte pas-imprime">
+      <h2>7. Vos coordonnées</h2>
+      <div class="rangee">
+        <div><label class="champ" for="nom">Nom et prénom</label><input type="text" id="nom" autocomplete="name"></div>
+        <div><label class="champ" for="societe">Entreprise ou association</label><input type="text" id="societe" autocomplete="organization"></div>
+      </div>
+      <div class="rangee">
+        <div><label class="champ" for="email">E-mail</label><input type="email" id="email" autocomplete="email"></div>
+        <div><label class="champ" for="tel">Téléphone</label><input type="tel" id="tel" autocomplete="tel"></div>
+      </div>
+      <label class="champ" for="remarques">Remarques <span class="aide">(allergies, souhaits, déroulement…)</span></label>
+      <textarea id="remarques"></textarea>
+    </div>
+
+    <!-- Programme -->
+    <div class="carte pas-imprime">
+      <h2>8. Le programme de votre soirée</h2>
+      <p class="sous">Choisissez à quel moment de la soirée chaque animation a lieu. Le programme se met à jour, prêt à être envoyé à vos invités.</p>
+      <label class="champ" for="societe-prog" style="margin-top:0">Nom affiché en titre du programme</label>
+      <input type="text" id="societe-prog" placeholder="Le nom de votre entreprise ou association">
+      <div id="placements" style="margin-top:12px"></div>
+      <div class="aide" id="placements-vide">Ajoutez un Amigo Secreto ou un moment à l'honneur pour choisir quand il a lieu.</div>
+    </div>
+
+    <div class="carte programme" id="programme">
+      <div class="prog-entete">
+        <div class="marque-prog">BOSSA NOVA CAFÉ · VEVEY</div>
+        <div class="prog-sur" id="prog-sur">Notre Confra</div>
+        <h2 id="prog-titre">Notre Confra</h2>
+        <div class="prog-date" id="prog-date"></div>
+      </div>
+      <ol class="prog-liste" id="prog-liste"></ol>
+      <div class="alerte cache pas-imprime" id="prog-alerte"></div>
+      <div class="retour" id="retour">
+        <h3>Pour rentrer</h3>
+        <div class="sous-retour" id="retour-sous"></div>
+        <div id="retour-liste"></div>
+        <div class="retour-note" id="retour-note"></div>
+      </div>
+      <div class="prog-pied">Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</div>
+      <div class="pas-imprime prog-boutons">
+        <a class="bouton wa" id="prog-wa" href="#" target="_blank" rel="noopener">Envoyer le programme par WhatsApp</a>
+        <a class="bouton mail" id="prog-mail" href="#">Envoyer le programme par e-mail</a>
+        <button class="imprimer" id="prog-pdf">Imprimer le programme ou l'enregistrer en PDF</button>
+        <div class="aide" style="text-align:center">Les noms des personnes à l'honneur ne figurent pas sur le programme : la surprise reste entière.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Récapitulatif -->
+  <aside class="recap" id="budget">
+    <div class="carte">
+      <h2>Votre budget</h2>
+      <p class="sous" id="recap-titre"></p>
+      <div class="impression-seule" id="recap-client"></div>
+      <div id="recap-lignes"></div>
+      <div class="total"><span class="lib">Total estimé</span><span class="mt" id="total">CHF 0</span></div>
+      <div class="parpers" id="parpers"></div>
+      <div class="acompte"><span id="acompte-lib">Acompte à la réservation</span><strong id="acompte"></strong></div>
+
+      <div class="nego pas-imprime">
+        <div class="nego-titre">Ce budget ne vous convient pas tout à fait ?</div>
+        <p>Ce montant est une base de discussion, sans engagement. Indiquez votre budget : nous adaptons avec vous le menu, les quantités ou les conditions.</p>
+        <div class="nego-champs">
+          <input type="number" id="budget-cible" min="0" step="50" placeholder="Votre budget" aria-label="Votre budget en CHF">
+          <select id="budget-unite" aria-label="Unité du budget"><option value="total">CHF au total</option><option value="pers">CHF par personne</option></select>
+        </div>
+        <div class="nego-ecart cache" id="budget-ecart"></div>
+      </div>
+      <div class="impression-seule" id="recap-boissons" style="font-size:13px;margin-top:10px"></div>
+
+      <div class="erreur" id="erreur"></div>
+      <a class="bouton wa" id="envoyer-wa" href="#" target="_blank" rel="noopener">Envoyer ma demande par WhatsApp</a>
+      <a class="bouton mail" id="envoyer-mail" href="#">Envoyer ma demande par e-mail</a>
+      <button type="button" class="bouton rappel" id="rappel-ouvrir">Être rappelé par le Bossa Nova</button>
+      <div class="rappel-bloc cache" id="rappel-bloc">
+        <p>Laissez-nous votre numéro : nous vous appelons pour parler de votre soirée, sans engagement.</p>
+        <label class="champ" for="rappel-tel" style="margin-top:0">Votre téléphone</label>
+        <input type="tel" id="rappel-tel" autocomplete="tel" placeholder="079 123 45 67">
+        <label class="champ" for="rappel-moment">Quand vous appeler ?</label>
+        <select id="rappel-moment">
+          <option>Dès que possible</option>
+          <option>Le matin (8h – 12h)</option>
+          <option>En début d’après-midi (13h – 15h)</option>
+          <option>En fin d’après-midi (15h – 18h)</option>
+        </select>
+        <div class="erreur" id="rappel-erreur"></div>
+        <a class="bouton wa" id="rappel-wa" href="#" target="_blank" rel="noopener">Demander un rappel par WhatsApp</a>
+        <a class="bouton mail" id="rappel-mail" href="#">Demander un rappel par e-mail</a>
+      </div>
+      <button class="imprimer" id="imprimer">Imprimer ou enregistrer en PDF</button>
+
+      <div class="notes">
+        <p>Demande sans engagement, prix TVA incluse. Nous vous répondons avec une proposition, que nous pouvons ajuster ensemble avant toute confirmation.</p>
+        <p>Nombre définitif de convives 5 jours avant. Acompte remboursé en cas d'annulation jusqu'à 14 jours avant la soirée.</p>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div class="barre-mobile pas-imprime"><div><div class="t" id="barre-total"></div><div class="p" id="barre-pp"></div></div><a href="#budget">Voir le détail</a></div>
+
+<footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
+
+<script src="firebase-config.js"></script>
+<script src="catalogue.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ===================== PARAMÈTRES (à modifier ici) =====================
+  const CONFIG = {
+    whatsapp: "41766390495",
+    email: "vevey@bossanova-cafe.ch",
+    saisonDebut: "2026-11-16",
+    saisonFin: "2027-02-28",
+    droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
+    earlyBirdJours: 30,               // gâteau offert si la réservation est faite au moins 30 jours avant
+    // Early bird : le gâteau de fête est offert
+    minimumPrivatisation: 1200,       // CHF, soirées privatisées
+    acompteTaux: 0.30,
+    prolongationParHeure: 200,        // CHF, vendredi et samedi
+    // Moment : soirée privatisée, déjeuner ou afterwork
+    // Retour en transports publics : départs depuis la gare de Vevey après la fin
+    retour: {
+      depart: "Vevey",
+      destinations: [
+        { nom: "Lausanne", q: "Lausanne" },
+        { nom: "Montreux", q: "Montreux" },
+        { nom: "Genève", q: "Genève" },
+        { nom: "Fribourg", q: "Fribourg" },
+        { nom: "Berne", q: "Bern" },
+        { nom: "Sion", q: "Sion" },
+        { nom: "Blonay", q: "Blonay" },
+        { nom: "La Tour-de-Peilz", q: "La Tour-de-Peilz" },
+        { nom: "Corsier-sur-Vevey", q: "Corsier-sur-Vevey" }
+      ]
+    },
+    types: [
+      { id: "soir", nom: "Soirée privatisée", quand: "19h00–23h30, prolongation possible jusqu'à 00h30",
+        desc: "Le Bossa Nova ferme ses portes pour vous. Menu à composer.", privatise: true },
+      { id: "midi", nom: "Déjeuner de groupe", quand: "12h00–14h00",
+        desc: "Un repas de fête à midi. Menu à composer.", privatise: false },
+      { id: "afterwork", nom: "Afterwork Caipi", quand: "17h30–20h30", prix: 42,
+        desc: "Apéro dînatoire brésilien (pão de queijo, coxinhas, pastéis) et une caipirinha ou boisson sans alcool.", privatise: false }
+    ],
+    // Menu à composer : un choix par étape pour tout le groupe (prix par personne)
+    menu: [
+      { id: "bienvenue", titre: "Bienvenue, comprise", choix: [
+        { id: "caipi", nom: "Caipirinha et pão de queijo", ds: "Le cocktail national, citron vert et cachaça, avec les petits pains au fromage", prix: 0 },
+        { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 0 },
+        { id: "virgem", nom: "Cocktail sans alcool et pão de queijo", ds: "Fruit de la passion, citron vert et menthe", prix: 0 }
+      ]},
+      { id: "entree", titre: "Entrée", choix: [
+        { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12 },
+        { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13 },
+        { id: "veloute", nom: "Velouté de potiron au lait de coco", ds: "Gingembre et graines torréfiées", prix: 10, vg: true },
+        { id: "aucune", nom: "Sans entrée", ds: "", prix: 0 }
+      ]},
+      { id: "plat", titre: "Plat principal", choix: [
+        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5 },
+        { id: "moqueca", nom: "Moqueca de poisson de Bahia", ds: "Poisson au lait de coco et huile de dendê, pirão", prix: 26 },
+        { id: "boeuf", nom: "Filet de bœuf grillé", ds: "Grillé et tranché, à la brésilienne", prix: 28 },
+        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29 },
+        { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22 },
+        { id: "moqueca-vg", nom: "Moqueca de cœurs de palmier et plantain", ds: "Lait de coco et poivrons", prix: 25, vg: true }
+      ]},
+      { id: "dessert", titre: "Dessert, café ou thé compris", choix: [
+        { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7 },
+        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8 },
+        { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8 },
+        { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, pudim et mousse de fruit de la passion", prix: 11 }
+      ]}
+    ],
+    accompagnements: "Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four, en bols sur les tables",
+    bols: ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"],
+    menuDefaut: { bienvenue: "caipi", entree: "bouchees", plat: "feijoada", dessert: "brigadeiros" },
+    // Boissons pendant le repas (prix par personne)
+    forfaits: [
+      { id: "aucun", nom: "À la consommation", ds: "Chacun commande ce qu’il souhaite pendant le repas.", prix: 0 },
+      { id: "vin", nom: "Eaux minérales", ds: "Plates et gazeuses, à volonté pendant le repas.", prix: 4 },
+      { id: "soft", nom: "Eaux, softs et jus", ds: "À volonté pendant le repas.", prix: 12 },
+      { id: "complet", nom: "Eaux, softs, jus et bière", ds: "À volonté pendant le repas.", prix: 14 }
+    ],
+    // Vins en bouteilles de 70 cl (prix de vente par bouteille)
+    vins: [
+      { id: "blanc", nom: "Saint-Saphorin", ds: "Blanc · Lavaux AOC, chasselas", prix: 44, part: 0.4 },
+      { id: "rouge", nom: "Gamay La Côte", ds: "Rouge · La Côte AOC", prix: 39, part: 0.4 },
+      { id: "rose", nom: "Rosé de Gamay La Côte", ds: "Rosé · La Côte AOC", prix: 39, part: 0.2 }
+    ],
+    consommations: [
+      { id: "leger", lib: "Léger : 1 bouteille pour 3 (≈ 2,3 dl / pers.)", ratio: 1 / 3 },
+      { id: "classique", lib: "Classique : 1 bouteille pour 2 (≈ 3,5 dl / pers.)", ratio: 1 / 2 },
+      { id: "genereux", lib: "Généreux : 2 bouteilles pour 3 (≈ 4,7 dl / pers.)", ratio: 2 / 3 }
+    ],
+    // Digestifs à la bouteille (une bouteille de 70 cl = environ 17 verres de 4 cl)
+    digestifs: [
+      { id: "cachaca", nom: "Cachaça artisanale", ds: "Minas Gerais, 70 cl · environ 17 verres", prix: 65 },
+      { id: "cachaca-vieille", nom: "Cachaça vieillie en fût", ds: "Bois d'umburana, 70 cl · environ 17 verres", prix: 85 },
+      { id: "williamine", nom: "Williamine du Valais", ds: "Eau-de-vie de poire, 70 cl · environ 17 verres", prix: 79 },
+      { id: "maracuja", nom: "Liqueur de fruit de la passion", ds: "50 cl · environ 12 verres", prix: 49 }
+    ],
+    honneurs: [
+      { id: "trofeu", nom: "Trophées de l'année", sous: "Employé·e·s ou membres de l'année", max: 3, prix: 15, duree: (k) => 5 + 4 * k, titreProg: "Remise des Trophées de l'année", sousProg: "Les employé·e·s ou membres de l'année", defaut: "avant_dessert",
+        detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de votre entreprise ou de votre association." },
+      { id: "revelacao", nom: "Révélation de l'année", sous: "La jeune promesse", max: 2, prix: 15, duree: (k) => 3 + 4 * k, titreProg: "Révélation de l'année", sousProg: "La jeune promesse de l'année", defaut: "avant_dessert",
+        detail: "Un apprenti, un nouveau venu, un jeune talent qui s'est fait remarquer." },
+      { id: "anos", nom: "Jubilés de fidélité", sous: "10, 20, 25 ans et plus", max: 10, prix: 10, duree: (k) => 3 + 3 * k, titreProg: "Jubilés de fidélité", sousProg: "Nous fêtons les années passées ensemble", defaut: "entre_plats",
+        detail: "Les personnes qui fêtent 10, 20, 25 ans ou plus dans l'entreprise ou l'association." },
+      { id: "boaviagem", nom: "Bonne retraite", sous: "Départ à la retraite", max: 5, prix: 30, duree: (k) => 10 * k, titreProg: "Bonne retraite !", sousProg: "Un hommage pour un départ à la retraite", defaut: "apres_dessert",
+        detail: "En plus : une carte signée par tout le groupe et un grand brigadeiro à son nom." }
+    ],
+    production: { supplement: 20, delaiJours: 15 },
+    creneaux: [
+      { id: "apres_bienvenue", lib: "Après le mot de bienvenue", apres: "bienvenue" },
+      { id: "entre_plats", lib: "Entre les bouchées et le plat", apres: "bouchees" },
+      { id: "avant_dessert", lib: "Avant le dessert", apres: "plat" },
+      { id: "apres_dessert", lib: "Après le dessert, avec le café", apres: "dessert" }
+    ],
+    options: [
+      { id: "gateau", titre: "Gâteau de fête", detail: "Gâteau brésilien pour tout le groupe.",
+        type: "case", prixParPersonne: 6 },
+      { id: "amigo", titreProg: "Amigo Secreto", sousProg: "Chacun fait deviner son ami secret avec trois indices, puis lui offre son cadeau", defaut: "apres_dessert", titre: "Amigo Secreto", detail: "L'ami secret brésilien : tirage en ligne avant la soirée et jeu animé le soir même.",
+        type: "case", prix: 0 },
+      { id: "plan", titre: "Plan de table et noms sur les tables", detail: "Les tables sont dressées en lignes. Chevalets au nom de chaque invité, aux couleurs du Bossa Nova. Vous nous envoyez la liste des noms et la répartition par table 5 jours avant la soirée. Sinon, chacun s'installe librement.",
+        type: "case", prix: 0 },
+      { id: "ambiance", titre: "Ambiance musicale", detail: "Choisissez le son de votre soirée, ou envoyez-nous votre propre playlist.",
+        type: "choix", choix: ["Bossa nova et MPB", "Samba et pagode, pour danser", "Tubes des années 80 et 90", "Votre propre playlist", "Mélange brésilien et international"] },
+      { id: "musique", titre: "Duo bossa nova live", detail: "Musique live pendant la soirée. Tarif selon les musiciens, communiqué avec le devis.",
+        type: "case", surDevis: true, soirSeulement: true },
+      { id: "prolongation", titre: "Prolongation jusqu'à 00h30", detail: "Tous les soirs, taxis réservés pour la fin de soirée.",
+        type: "heures", prixParHeure: 200, soirSeulement: true }
+    ]
+  };
+  // ======================================================================
+
+  const $ = id => document.getElementById(id);
+  const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  // Montant en francs suisses : CHF 1'234 ou CHF 25.50 quand il y a des centimes
+  const chf = n => {
+    const c = Math.round(n * 100) / 100;
+    const ent = Math.trunc(Math.abs(c)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+    const cts = Math.round(Math.abs(c) * 100) % 100;
+    return "CHF " + (c < 0 ? "-" : "") + ent + (cts ? "." + String(cts).padStart(2, "0") : "");
+  };
+  const aujourdHui = () => { const d = new Date(); return d.toISOString().slice(0, 10); };
+  function dateLisible(iso) {
+    if (!iso) return "";
+    const [a, m, j] = iso.split("-").map(Number);
+    const jour = new Date(Date.UTC(a, m - 1, j)).getUTCDay();
+    return `${JOURS[jour]} ${j} ${MOIS[m - 1]} ${a}`;
+  }
+  function jourSemaine(iso) {
+    if (!iso) return null;
+    const [a, m, j] = iso.split("-").map(Number);
+    return new Date(Date.UTC(a, m - 1, j)).getUTCDay();
+  }
+
+  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
+
+  // ---------- Construction de l'interface ----------
+  function construireTypes() {
+    const zone = $("types");
+    zone.style.gridTemplateColumns = "1fr 1fr 1fr";
+    CONFIG.types.forEach(t => {
+      const el = document.createElement("label");
+      el.className = "formule";
+      el.dataset.id = t.id;
+      el.innerHTML = `<input type="radio" name="type" value="${t.id}"><div class="nom"></div><div class="prix"></div><div class="desc"></div><div class="quand"></div>`;
+      el.querySelector(".nom").textContent = t.nom;
+      el.querySelector(".prix").innerHTML = t.prix ? `CHF ${t.prix} <small>/ pers.</small>` : `<small>Selon votre menu</small>`;
+      el.querySelector(".desc").textContent = t.desc;
+      el.querySelector(".quand").textContent = t.quand;
+      el.querySelector("input").addEventListener("change", () => { etat.type = t.id; maj(); });
+      zone.appendChild(el);
+    });
+  }
+
+  function construireMenu() {
+    const zone = $("menu");
+    CONFIG.menu.forEach(c => {
+      etat.menu[c.id] = CONFIG.menuDefaut[c.id];
+      const bloc = document.createElement("div");
+      bloc.className = "cours";
+      bloc.innerHTML = `<h3></h3><div class="plats"></div>`;
+      bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, en portions" : c.titre;
+      c.choix.forEach(p => {
+        const el = document.createElement("label");
+        el.className = "plat";
+        el.dataset.cours = c.id; el.dataset.id = p.id;
+        el.innerHTML = c.id === "plat"
+          ? `<div style="flex:1"><div class="n"></div><div class="ds"></div><div class="qte">Portions : <input type="number" min="0" max="30" value="0"></div></div><div class="px"></div>`
+          : `<input type="radio" name="menu-${c.id}" value="${p.id}"><div><div class="n"></div><div class="ds"></div></div><div class="px"></div>`;
+        el.querySelector(".n").textContent = p.nom;
+        if (p.vg) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg">végétarien</span>');
+        if (p.special) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg" style="color:var(--violet);border-color:var(--violet)">proposé pour vous</span>');
+        el.querySelector(".ds").textContent = p.ds;
+        el.querySelector(".px").textContent = p.inclus ? "Compris" : (p.prix ? chf(p.prix) : "—");
+        const r = el.querySelector("input");
+        if (c.id === "plat") {
+          etat.portions[p.id] = 0;
+          el.querySelector(".px").textContent = p.inclus ? "Compris" : `${chf(p.prix)} / portion`;
+          r.addEventListener("input", () => {
+            etat.portionsAuto = false;
+            etat.portions[p.id] = Math.max(0, Math.min(30, Math.floor(Number(r.value) || 0)));
+            maj();
+          });
+          el.addEventListener("click", e => { if (e.target !== r) r.focus(); });
+        } else {
+          r.checked = p.id === etat.menu[c.id];
+          r.addEventListener("change", () => { etat.menu[c.id] = p.id; maj(); });
+        }
+        bloc.querySelector(".plats").appendChild(el);
+      });
+      zone.appendChild(bloc);
+      if (c.id === "plat") {
+        const b = document.createElement("div");
+        b.className = "bols";
+        b.innerHTML = `<div class="bols-titre">Sur toutes les tables, en bols renouvelés · compris</div><div class="bols-liste"></div>`;
+        CONFIG.bols.forEach(x => { const t = document.createElement("span"); t.textContent = x; b.querySelector(".bols-liste").appendChild(t); });
+        zone.appendChild(b);
+      }
+    });
+  }
+
+  function construireBoissons() {
+    const zone = $("forfaits");
+    CONFIG.forfaits.forEach(f => {
+      const el = document.createElement("label");
+      el.innerHTML = `<input type="radio" name="forfait" value="${f.id}"><span><strong></strong> <span class="pxf"></span><small></small></span>`;
+      el.querySelector("strong").textContent = f.nom;
+      el.querySelector(".pxf").textContent = f.prix ? `· CHF ${f.prix} / pers.` : "";
+      el.querySelector("small").textContent = f.ds;
+      const r = el.querySelector("input");
+      r.checked = f.id === etat.forfait;
+      r.addEventListener("change", () => { etat.forfait = f.id; maj(); });
+      zone.appendChild(el);
+    });
+    const cs = $("consommation");
+    CONFIG.consommations.forEach(c => { const o = document.createElement("option"); o.value = c.id; o.textContent = c.lib; o.selected = c.id === etat.conso; cs.appendChild(o); });
+    cs.addEventListener("change", () => { etat.conso = cs.value; etat.vinsAuto = true; repartirVins(Number($("personnes").value)); maj(); });
+    const vz = $("vins");
+    CONFIG.vins.forEach(v => {
+      const el = document.createElement("div");
+      el.className = "digestif";
+      el.innerHTML = `<div class="texte"><div class="titre"></div><div class="detail"></div></div><div class="montant"></div><input type="number" min="0" max="40" aria-label="Nombre de bouteilles">`;
+      el.querySelector(".titre").textContent = v.nom;
+      el.querySelector(".detail").textContent = v.ds;
+      el.querySelector(".montant").textContent = `CHF ${v.prix} la bouteille`;
+      const q = el.querySelector("input"); q.id = "vin-" + v.id;
+      q.addEventListener("input", () => { etat.vinsAuto = false; etat.bouteilles[v.id] = Math.max(0, Math.min(40, Math.floor(Number(q.value) || 0))); maj(); });
+      vz.appendChild(el);
+    });
+    const dz = $("digestifs");
+    CONFIG.digestifs.forEach(d => {
+      etat.digestifs[d.id] = 0;
+      const el = document.createElement("div");
+      el.className = "digestif";
+      el.innerHTML = `<div class="texte"><div class="titre"></div><div class="detail"></div></div><div class="montant"></div><input type="number" min="0" max="10" value="0" aria-label="Nombre de bouteilles">`;
+      el.querySelector(".titre").textContent = d.nom;
+      el.querySelector(".detail").textContent = d.ds;
+      el.querySelector(".montant").textContent = `CHF ${d.prix} la bouteille`;
+      const q = el.querySelector("input");
+      q.addEventListener("input", () => { etat.digestifs[d.id] = Math.max(0, Math.min(10, Math.floor(Number(q.value) || 0))); maj(); });
+      dz.appendChild(el);
+    });
+  }
+
+  // Nombre de bouteilles conseillé selon les invités, réparti blanc / rouge / rosé
+  function repartirVins(n) {
+    if (!etat.vinsAuto) return;
+    const c = CONFIG.consommations.find(x => x.id === etat.conso);
+    const total = Math.ceil(n * c.ratio);
+    let reste = total;
+    CONFIG.vins.forEach((v, i) => {
+      const b = i === CONFIG.vins.length - 1 ? reste : Math.round(total * v.part);
+      etat.bouteilles[v.id] = Math.max(0, b); reste -= etat.bouteilles[v.id];
+    });
+  }
+  function estimerApport(n) {
+    if (!etat.apporteAuto) return;
+    const c = CONFIG.consommations.find(x => x.id === etat.conso) || { ratio: 1 / 2 };
+    etat.bouteillesApportees = Math.ceil(n * c.ratio);
+  }
+  const totalBouteilles = () => CONFIG.vins.reduce((a, v) => a + (etat.bouteilles[v.id] || 0), 0);
+
+  // Prix par personne de la bienvenue, de l'entrée et du dessert
+  function prixAutres() {
+    return CONFIG.menu.filter(c => c.id !== "plat").reduce((a, c) => a + (choixMenu(c.id) || { prix: 0 }).prix, 0);
+  }
+  const platsListe = () => CONFIG.menu.find(c => c.id === "plat").choix.filter(p => etat.portions[p.id] > 0).map(p => ({ ...p, q: etat.portions[p.id] }));
+  const totalPortions = () => platsListe().reduce((a, p) => a + p.q, 0);
+  const totalPlats = () => platsListe().reduce((a, p) => a + p.q * p.prix, 0);
+  function repartirPortions(n) {
+    if (!etat.portionsAuto) return;
+    CONFIG.menu.find(c => c.id === "plat").choix.forEach(p => { etat.portions[p.id] = 0; });
+    const ps = CONFIG.menu.find(c => c.id === "plat").choix;
+    if (ps[0]) etat.portions[ps[0].id] = ps[1] ? Math.ceil(n / 2) : n;
+    if (ps[1]) etat.portions[ps[1].id] = Math.floor(n / 2);
+  }
+  // Prix moyen par personne du menu complet
+  function prixMenu() {
+    const n = Number($("personnes").value);
+    return Math.round((prixAutres() * n + totalPlats()) / n);
+  }
+  function choixMenu(id) {
+    const c = CONFIG.menu.find(x => x.id === id);
+    if (id === "plat") {
+      const ps = platsListe();
+      return { id: "plats", nom: ps.length ? ps.map(p => p.nom).join(", ") : "Plats principaux à choisir", ds: CONFIG.accompagnements, prix: 0 };
+    }
+    return c.choix.find(p => p.id === etat.menu[id]);
+  }
+
+  function construireHonneurs() {
+    const zone = $("honneurs");
+    CONFIG.honneurs.forEach(h => {
+      etat.honneurs[h.id] = 0;
+      const el = document.createElement("div");
+      el.className = "option";
+      el.innerHTML = `<div class="texte"><div class="titre"></div><div class="detail"></div>
+        <div style="margin-top:6px">Nombre de personnes : <input type="number" id="hon-${h.id}" min="0" max="${h.max}" value="0" style="width:72px"></div></div>
+        <div class="montant" data-hon="${h.id}"></div>`;
+      el.querySelector(".titre").textContent = `${h.nom} — ${h.sous}`;
+      el.querySelector(".detail").textContent = h.detail;
+      zone.appendChild(el);
+      const champ = $("hon-" + h.id);
+      champ.addEventListener("input", () => {
+        let v = Math.max(0, Math.min(h.max, Math.floor(Number(champ.value) || 0)));
+        etat.honneurs[h.id] = v;
+        maj();
+      });
+      champ.addEventListener("change", () => { champ.value = etat.honneurs[h.id]; });
+    });
+  }
+
+  function construireOptions() {
+    const zone = $("options");
+    CONFIG.options.forEach(o => {
+      const el = document.createElement("div");
+      el.className = "option";
+      el.dataset.id = o.id;
+      let controle = "";
+      if (o.type === "case") controle = `<input type="checkbox" id="opt-${o.id}">`;
+      el.innerHTML = `${controle}<div class="texte"><div class="titre"></div><div class="detail"></div><div class="extra"></div></div><div class="montant"></div>`;
+      el.querySelector(".titre").textContent = o.titre;
+      el.querySelector(".detail").textContent = o.detail;
+      const extra = el.querySelector(".extra");
+      if (o.type === "nombre") {
+        extra.innerHTML = `<div style="margin-top:6px">Nombre de personnes : <input type="number" id="opt-${o.id}" min="0" value="0" style="width:72px"></div>`;
+      }
+      if (o.type === "choix") {
+        extra.innerHTML = `<div style="margin-top:6px"><select id="opt-${o.id}">${o.choix.map(c => `<option>${c}</option>`).join("")}</select></div>`;
+      }
+      if (o.type === "heures") {
+        extra.innerHTML = `<div style="margin-top:6px"><select id="opt-${o.id}">
+          <option value="0">Sans prolongation (fin à 23h30)</option>
+          <option value="0.5">Jusqu'à minuit (+30 min)</option>
+          <option value="1">Jusqu'à 00h30 (+1 h)</option></select></div>`;
+      }
+      zone.appendChild(el);
+      const champ = $("opt-" + o.id);
+      champ.addEventListener(o.type === "case" ? "change" : "input", () => {
+        etat.options[o.id] = o.type === "case" ? champ.checked : (o.type === "choix" ? champ.value : Number(champ.value) || 0);
+        maj();
+      });
+    });
+    $("opt-amigo").checked = true;
+  }
+
+  // ---------- Calcul ----------
+  function calculer() {
+    const n = Number($("personnes").value);
+    const t = CONFIG.types.find(x => x.id === etat.type);
+    const date = $("date").value;
+    const jour = jourSemaine(date);
+    const moment = t.id;
+    const privatise = t.privatise;
+    const lignes = [];
+
+    let base;
+    if (t.prix) {
+      base = t.prix * n;
+      lignes.push({ lib: `${t.nom} · ${n} × CHF ${t.prix}`, mt: base });
+    } else {
+      const pa = prixAutres();
+      base = pa * n + totalPlats();
+      lignes.push({ lib: `Bienvenue, entrée${CONFIG.cafe.inclus ? ", dessert et café" : " et dessert"} · ${n} × CHF ${pa}`, mt: pa * n });
+      platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} × ${chf(p.prix)}`, mt: p.q * p.prix }));
+    }
+
+    let boissons = 0;
+    if (!CONFIG.cafe.inclus && moment !== "afterwork" && CONFIG.cafe.prix) {
+      boissons += CONFIG.cafe.prix * n;
+      lignes.push({ lib: `${CONFIG.cafe.nom} · ${n} × ${chf(CONFIG.cafe.prix)}`, mt: CONFIG.cafe.prix * n });
+    }
+    const fo = CONFIG.forfaits.find(x => x.id === etat.forfait);
+    if (etat.avecVins) {
+      CONFIG.vins.forEach(v => {
+        const b = etat.bouteilles[v.id] || 0;
+        if (b) { boissons += b * v.prix; lignes.push({ lib: `${v.nom}${v.id === "rose" ? "" : " (" + v.ds.split(" · ")[0].toLowerCase() + ")"} · ${b} bouteille${b > 1 ? "s" : ""} × CHF ${v.prix}`, mt: b * v.prix }); }
+      });
+    }
+    if (etat.vinApporte && etat.bouteillesApportees) {
+      const nb = etat.bouteillesApportees, pb = CONFIG.droitBouchon;
+      boissons += nb * pb;
+      lignes.push({ lib: `Droit de bouchon, votre vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
+    }
+    if (fo.prix) { boissons += fo.prix * n; lignes.push({ lib: `${fo.nom} · ${n} × CHF ${fo.prix}`, mt: fo.prix * n }); }
+    CONFIG.digestifs.forEach(d => {
+      const q = etat.digestifs[d.id] || 0;
+      if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
+    });
+
+    const remise = 0;
+    const earlyBird = earlyBirdActif(date);
+    const gateauOffre = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau;
+    if (earlyBird) lignes.push({ lib: gateauOffre ? "Gâteau de fête offert" : `Early bird : gâteau de fête offert (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: 0, cls: "remise" });
+
+    const avertissements = [];
+    if (!t.prix && totalPortions() !== n) avertissements.push(`Vous avez choisi ${totalPortions()} portions de plats principaux pour ${n} invités. Ajustez les portions pour que chacun ait sa part.`);
+    let options = 0, surDevis = [];
+    CONFIG.options.forEach(o => {
+      const v = etat.options[o.id];
+      if (o.id === "gateau" && earlyBird) return;
+      if (o.type === "case" && v) {
+        if (o.soirSeulement && moment !== "soir") return;
+        if (o.surDevis) { surDevis.push(o.titre); return; }
+        const mt = o.prixParPersonne ? o.prixParPersonne * n : (o.prix || 0);
+        options += mt;
+        lignes.push({ lib: o.prixParPersonne ? `${o.titre} · ${n} × CHF ${o.prixParPersonne}` : `${o.titre}${mt ? "" : " (offert)"}`, mt });
+      }
+      if (o.type === "heures" && v > 0 && moment === "soir") {
+        const mt = v * o.prixParHeure;
+        options += mt;
+        lignes.push({ lib: `Prolongation +${String(v).replace(".", ",")} h`, mt });
+      }
+      if (o.type === "nombre" && v > 0) {
+        lignes.push({ lib: `Dont ${Math.min(v, n)} repas végétarien${v > 1 ? "s" : ""}`, mt: 0 });
+      }
+    });
+
+    CONFIG.honneurs.forEach(h => {
+      const k = etat.honneurs[h.id] || 0;
+      if (!k) return;
+      if (modeProduction() === "bossanova") {
+        const pu = h.prix;
+        options += k * pu;
+        lignes.push({ lib: `${h.nom} (${h.sous.toLowerCase()}), trophées par le Bossa Nova · ${k} × CHF ${pu}`, mt: k * pu });
+      } else {
+        lignes.push({ lib: `${h.nom} (${h.sous.toLowerCase()}) · ${k} personne${k > 1 ? "s" : ""}, offert`, mt: 0 });
+      }
+    });
+
+    // Remises négociées (offre personnalisée)
+    let remiseOffre = 0;
+    const of = CONFIG.offre;
+    if (of) {
+      const rm = Math.round(base * (Number(of.remiseMenu) || 0)) / 100;
+      const rb = Math.round(boissons * (Number(of.remiseBoissons) || 0)) / 100;
+      if (rm) { remiseOffre += rm; lignes.push({ lib: `Remise négociée : −${of.remiseMenu} % sur ${t.prix ? "l’afterwork" : "le menu"}`, mt: -rm, cls: "remise" }); }
+      if (rb) { remiseOffre += rb; lignes.push({ lib: `Remise négociée : −${of.remiseBoissons} % sur les boissons`, mt: -rb, cls: "remise" }); }
+    }
+    let sousTotal = base - remise + options + boissons - remiseOffre;
+    let complement = 0;
+    if (privatise && sousTotal < CONFIG.minimumPrivatisation) {
+      complement = CONFIG.minimumPrivatisation - sousTotal;
+      lignes.push({ lib: `Complément privatisation (minimum ${chf(CONFIG.minimumPrivatisation)})`, mt: complement, cls: "sep" });
+      avertissements.push(`La privatisation complète du Bossa Nova est garantie dès ${chf(CONFIG.minimumPrivatisation)}. Avec quelques convives de plus, un menu plus complet ou des boissons, ce complément disparaît.`);
+    }
+    surDevis.forEach(t => lignes.push({ lib: `${t}`, mt: null }));
+
+    const total = sousTotal + complement;
+    return { n, date, jour, moment, privatise, lignes, total, acompte: total * CONFIG.acompteTaux, avertissements };
+  }
+
+  // ---------- Affichage ----------
+  function synchroInclus() {}
+
+  function maj() {
+    synchroInclus();
+    $("erreur").textContent = "";
+    const r = calculer();
+    $("personnes-val").textContent = r.n;
+
+    document.querySelectorAll("#types .formule").forEach(el => {
+      el.classList.toggle("choisie", el.dataset.id === etat.type);
+      el.querySelector("input").checked = el.dataset.id === etat.type;
+    });
+    document.querySelectorAll(".plat").forEach(el => {
+      const inp = el.querySelector("input");
+      if (el.dataset.cours === "plat") {
+        const q = etat.portions[el.dataset.id] || 0;
+        if (document.activeElement !== inp) inp.value = q;
+        el.classList.toggle("choisie", q > 0);
+      } else {
+        const sel = etat.menu[el.dataset.cours] === el.dataset.id;
+        inp.checked = sel;
+        el.classList.toggle("choisie", sel);
+      }
+    });
+    const tp = totalPortions();
+    $("compteur-portions").textContent = `${tp} portion${tp > 1 ? "s" : ""} pour ${r.n} invités`;
+    $("compteur-portions").className = "compteur-portions " + (tp === r.n ? "ok" : "ko");
+    $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
+    $("menu-total").innerHTML = `<span>Votre menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
+    $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
+      const bv = choixMenu("bienvenue") && choixMenu("bienvenue").inclus, cf = CONFIG.cafe.inclus;
+      if (bv && cf) return "Le cocktail de bienvenue et le café ou thé avec le dessert sont compris dans le menu.";
+      if (bv) return `Le cocktail de bienvenue est compris dans le menu. Café ou thé avec le dessert : ${chf(CONFIG.cafe.prix)} par personne.`;
+      if (cf) return "Le café ou thé avec le dessert est compris dans le menu.";
+      return `Café ou thé avec le dessert : ${chf(CONFIG.cafe.prix)} par personne.`;
+    })();
+    document.querySelectorAll("#forfaits label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
+    const avecVins = etat.avecVins;
+    document.querySelectorAll("#choix-vins label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
+    $("bloc-vins").classList.toggle("cache", !avecVins);
+    $("bloc-apporte").classList.toggle("cache", !etat.vinApporte);
+    if (document.activeElement !== $("apporte-nb")) $("apporte-nb").value = etat.bouteillesApportees;
+    const txtBouchon = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} par bouteille consommée` : "offert";
+    $("bouchon-detail").textContent = `Nous le servons à table. Droit de bouchon : ${txtBouchon}.`;
+    $("apporte-prix").textContent = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} la bouteille` : "Offert";
+    $("apporte-detail").textContent = `Pour ${r.n} invités, environ ${(etat.bouteillesApportees * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
+    CONFIG.vins.forEach(v => { const q = $("vin-" + v.id); if (document.activeElement !== q) q.value = etat.bouteilles[v.id] || 0; });
+    const tb = totalBouteilles();
+    $("vins-total").textContent = `${tb} bouteille${tb > 1 ? "s" : ""} pour ${r.n} invités, soit environ ${(tb * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
+
+
+    // Disponibilité des options
+    const og = CONFIG.options.find(o => o.id === "gateau");
+    if (og.forceEB && !earlyBirdActif(r.date)) { $("opt-gateau").checked = false; etat.options.gateau = false; og.forceEB = false; }
+    CONFIG.options.forEach(o => {
+      const el = document.querySelector(`.option[data-id="${o.id}"]`);
+      const champ = $("opt-" + o.id);
+      let off = false, montant = "";
+      if (o.soirSeulement && r.moment !== "soir") off = true;
+      if (o.jours) {
+        if (r.jour === null || !o.jours.includes(r.jour)) off = true;
+      }
+      if (o.type === "choix") montant = "Inclus";
+      else if (o.id === "gateau" && earlyBirdActif(r.date)) { montant = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau ? "Offert" : "Offert (early bird)"; champ.checked = true; off = true; o.forceEB = true; }
+      else if (o.surDevis) montant = "Sur devis";
+      else if (o.prixParPersonne) montant = `CHF ${o.prixParPersonne} / pers.`;
+      else if (o.prixParHeure) montant = `CHF ${o.prixParHeure} / h`;
+      else montant = "Offert";
+      el.classList.toggle("desactivee", off);
+      champ.disabled = off;
+      el.querySelector(".montant").textContent = montant;
+      if (o.type === "nombre") champ.max = r.n;
+    });
+
+    // Date
+    const alerte = $("date-alerte");
+    let msg = "";
+    if (r.date) {
+      if (r.date < CONFIG.saisonDebut || r.date > CONFIG.saisonFin) msg = "Cette date est en dehors de la saison des Confras. Envoyez quand même votre demande : nous regarderons ce qui est possible.";
+    }
+    alerte.textContent = msg;
+    alerte.classList.toggle("cache", !msg);
+    $("date-aide").textContent = r.date ? `${dateLisible(r.date).replace(/^./, c => c.toUpperCase())}.` : `Saison des Confras : du ${dateCourte(CONFIG.saisonDebut)} au ${dateCourte(CONFIG.saisonFin)}.`;
+
+    // Boissons
+    document.querySelectorAll("#choix-boissons label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
+    const modeBoissons = document.querySelector("input[name=boissons]:checked").value;
+    $("bloc-plafond").classList.toggle("cache", modeBoissons !== "facture");
+
+    // Récapitulatif
+    const moments = { soir: "Soirée privatisée", midi: "Déjeuner", afterwork: "Afterwork" };
+    $("recap-titre").textContent = `${r.n} personnes · ${moments[r.moment]}${r.date ? " · " + dateLisible(r.date) : ""}`;
+    const zone = $("recap-lignes");
+    zone.innerHTML = "";
+    r.lignes.forEach(l => {
+      const d = document.createElement("div");
+      d.className = "ligne" + (l.cls ? " " + l.cls : "");
+      const a = document.createElement("span"); a.className = "lib"; a.textContent = l.lib;
+      const b = document.createElement("span"); b.className = "mt"; b.textContent = l.mt === null ? "sur devis" : (l.mt === 0 ? "—" : (l.mt < 0 ? "−" + chf(-l.mt) : chf(l.mt)));
+      d.append(a, b);
+      zone.appendChild(d);
+    });
+    r.avertissements.forEach(t => {
+      const d = document.createElement("div"); d.className = "alerte"; d.textContent = t; zone.appendChild(d);
+    });
+    $("total").textContent = chf(r.total);
+    $("parpers").textContent = `soit ${chf(r.total / r.n)} par personne, hors autres boissons`;
+    $("acompte").textContent = chf(r.acompte);
+    $("acompte-lib").textContent = `Acompte à la réservation (${Math.round(CONFIG.acompteTaux * 100)} %)`;
+    const bc = budgetCible(r);
+    $("budget-ecart").classList.toggle("cache", !bc);
+    if (bc) {
+      const ecart = r.total - bc.total;
+      $("budget-ecart").textContent = ecart > 0
+        ? `Votre budget : ${chf(bc.total)}, soit ${chf(ecart)} de moins que l’estimation. Envoyez votre demande : nous vous proposerons des ajustements.`
+        : `Votre budget de ${chf(bc.total)} couvre l’estimation.`;
+    }
+    $("envoyer-wa").textContent = bc && r.total > bc.total ? "Demander une proposition par WhatsApp" : "Envoyer ma demande par WhatsApp";
+    $("envoyer-mail").textContent = bc && r.total > bc.total ? "Demander une proposition par e-mail" : "Envoyer ma demande par e-mail";
+    $("barre-total").textContent = chf(r.total);
+    $("barre-pp").textContent = `${chf(r.total / r.n)} / pers. · ${CONFIG.types.find(x => x.id === etat.type).nom}`;
+
+    // Trophées : production et délai
+    const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
+    $("bloc-production").classList.toggle("cache", nbH === 0);
+    const pus = CONFIG.honneurs.map(h => h.prix);
+    $("prix-production").textContent = `· CHF ${Math.min(...pus)} à ${Math.max(...pus)} par personne honorée`;
+    const prod = modeProduction() === "bossanova";
+    CONFIG.honneurs.forEach(h => {
+      const m = document.querySelector(`.montant[data-hon="${h.id}"]`);
+      m.textContent = prod ? `CHF ${h.prix} / pers.` : "Offert";
+    });
+    $("texte-production").textContent = `Trophées au nom et au logo de votre entreprise ou association, gravés au nom de chaque lauréat, ou cadeaux brésiliens. À commander au plus tard ${CONFIG.production.delaiJours} jours avant la soirée.`;
+    document.querySelectorAll("#choix-production label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
+    const ja = joursAvant(r.date);
+    const tropTard = nbH > 0 && modeProduction() === "bossanova" && ja !== null && ja < CONFIG.production.delaiJours;
+    $("production-alerte").textContent = tropTard ? `Votre soirée est dans ${ja} jours : le délai de ${CONFIG.production.delaiJours} jours pour réaliser les trophées est dépassé. Contactez-nous, ou apportez vos propres trophées.` : "";
+    $("production-alerte").classList.toggle("cache", !tropTard);
+
+    afficherProgramme(r);
+
+    const recapBoissons = texteBoissons();
+    $("recap-boissons").textContent = "Boissons commandées en plus au bar : " + recapBoissons;
+    $("recap-client").textContent = [$("nom").value, $("societe").value, $("email").value, $("tel").value].filter(Boolean).join(" · ");
+
+    // Liens d'envoi
+    const message = composerMessage(r);
+    $("envoyer-wa").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(message)}`;
+    majRappel(r);
+    $("envoyer-mail").href = `mailto:${CONFIG.email}?subject=${encodeURIComponent((budgetCible(r) && r.total > budgetCible(r).total ? "Demande de proposition — " : "Demande de Confra — ") + ($("societe").value || $("nom").value || "Bossa Nova"))}&body=${encodeURIComponent(message)}`;
+  }
+
+  // Early bird : réservation au moins N jours avant la date choisie
+  function earlyBirdActif(date) {
+    const j = joursAvant(date);
+    if (CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau) return true;
+    return CONFIG.earlyBirdJours > 0 && j !== null && j >= CONFIG.earlyBirdJours;
+  }
+
+  // Budget indiqué par le client pour négocier
+  function budgetCible(r) {
+    const v = Number($("budget-cible").value);
+    if (!v || v <= 0) return null;
+    const total = $("budget-unite").value === "pers" ? v * r.n : v;
+    return { total, parPers: total / r.n, saisi: v, unite: $("budget-unite").value };
+  }
+
+  function modeProduction() {
+    const x = document.querySelector("input[name=production]:checked");
+    return x ? x.value : "client";
+  }
+  function joursAvant(iso) {
+    if (!iso) return null;
+    const [a, m, j] = iso.split("-").map(Number);
+    const d = new Date(); const t0 = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+    return Math.round((Date.UTC(a, m - 1, j) - t0) / 864e5);
+  }
+  const heure = min => `${String(Math.floor(min / 60) % 24).padStart(2, "0")}h${String(min % 60).padStart(2, "0")}`;
+
+  // Animations à placer dans le programme
+  function evenementsChoisis(r) {
+    const ev = [];
+    const amigo = CONFIG.options.find(o => o.id === "amigo");
+    if (etat.options.amigo && r.moment !== "afterwork") ev.push({ id: "amigo", titre: amigo.titreProg, sous: amigo.sousProg, defaut: amigo.defaut, duree: Math.max(20, Math.round(r.n * 1.5 / 5) * 5) });
+    CONFIG.honneurs.forEach(h => {
+      const k = etat.honneurs[h.id] || 0;
+      if (k) ev.push({ id: h.id, titre: (h.id === "trofeu" && $("societe").value.trim()) ? `Remise des Trophées ${$("societe").value.trim()}` : h.titreProg, sous: h.sousProg, defaut: h.defaut, duree: Math.ceil(h.duree(k) / 5) * 5 });
+    });
+    return ev;
+  }
+
+  function construirePlacements(r) {
+    const ev = evenementsChoisis(r);
+    const zone = $("placements");
+    zone.innerHTML = "";
+    $("placements-vide").classList.toggle("cache", ev.length > 0);
+    ev.forEach(e => {
+      if (!etat.placements[e.id]) etat.placements[e.id] = e.defaut;
+      const ligne = document.createElement("div");
+      ligne.className = "placement";
+      const nom = document.createElement("strong"); nom.textContent = e.titre;
+      const sel = document.createElement("select");
+      CONFIG.creneaux.forEach(c => {
+        const o = document.createElement("option"); o.value = c.id; o.textContent = c.lib;
+        if (c.id === etat.placements[e.id]) o.selected = true;
+        sel.appendChild(o);
+      });
+      sel.addEventListener("change", () => { etat.placements[e.id] = sel.value; maj(); });
+      ligne.append(nom, sel);
+      zone.appendChild(ligne);
+    });
+    return ev;
+  }
+
+  function construireProgramme(r, ev) {
+    const bv = choixMenu("bienvenue"), en = choixMenu("entree"), pl = choixMenu("plat"), de = choixMenu("dessert");
+    const gateau = etat.options.gateau || earlyBirdActif(r.date);
+    const dessert = de.nom + (gateau ? " et gâteau de fête" : "");
+    const dessertD = [de.ds, "café ou thé"].filter(Boolean).join(" · ");
+    const musique = etat.options.musique;
+    let debut, fin, blocs;
+    if (r.moment === "afterwork") {
+      debut = 17 * 60 + 30; fin = 20 * 60 + 30;
+      blocs = [
+        { cle: "accueil", t: "Accueil caipirinha", d: "Ou caipirinha sans alcool", duree: 20 },
+        { cle: "bienvenue", t: "Mot de bienvenue", duree: 10 },
+        { cle: "bouchees", t: "Apéro dînatoire brésilien", d: "Pão de queijo, coxinhas, pastéis", duree: 0, remplir: true }
+      ];
+    } else if (r.moment === "midi") {
+      debut = 12 * 60; fin = 14 * 60;
+      blocs = [
+        { cle: "accueil", t: "Accueil : " + bv.nom.charAt(0).toLowerCase() + bv.nom.slice(1), duree: 15 },
+        { cle: "bienvenue", t: "Mot de bienvenue", duree: 5 },
+        { cle: "bouchees", t: en.nom, d: en.ds, duree: en.prix ? 15 : 0 },
+        { cle: "plat", t: "Plats à partager : " + pl.nom.split(", ").map(x => x.charAt(0).toLowerCase() + x.slice(1)).join(", "), d: pl.ds, duree: 40 },
+        { cle: "dessert", t: dessert, d: dessertD, duree: 20 }
+      ].filter(b => b.cle !== "bouchees" || en.prix);
+    } else {
+      debut = 19 * 60;
+      const prol = (etat.options.prolongation || 0) * 60;
+      fin = 23 * 60 + 30 + prol;
+      blocs = [
+        { cle: "accueil", t: "Accueil : " + bv.nom.charAt(0).toLowerCase() + bv.nom.slice(1), d: bv.ds, duree: 30 },
+        { cle: "bienvenue", t: "Mot de bienvenue", d: "Et l'histoire de la confra brésilienne", duree: 10 },
+        { cle: "bouchees", t: en.nom, d: en.ds, duree: 35 },
+        { cle: "plat", t: "Plats à partager : " + pl.nom.split(", ").map(x => x.charAt(0).toLowerCase() + x.slice(1)).join(", "), d: pl.ds, duree: 55 },
+        { cle: "dessert", t: dessert, d: dessertD, duree: 25 },
+        { cle: "libre", t: musique ? "Duo bossa nova live et soirée libre" : "Soirée libre en musique", d: etat.options.ambiance || "Bossa nova et MPB", duree: 0, remplir: true }
+      ].filter(b => b.cle !== "bouchees" || en.prix);
+    }
+    // Insertion des animations après leur repère
+    const ordre = ["bienvenue", "bouchees", "plat", "dessert"];
+    const sequence = [];
+    blocs.forEach(b => {
+      sequence.push(b);
+      ev.forEach(e => {
+        const cr = CONFIG.creneaux.find(c => c.id === etat.placements[e.id]);
+        // repère absent dans ce format (déjeuner, afterwork) : on prend le dernier repère présent
+        let cible = cr.apres;
+        const presents = blocs.map(x => x.cle);
+        let i = ordre.indexOf(cible);
+        while (i > 0 && !presents.includes(ordre[i])) i--;
+        cible = ordre[i];
+        if (b.cle === cible) sequence.push({ t: e.titre, d: e.sous, duree: e.duree, evenement: true });
+      });
+    });
+    // Horaires
+    let h = debut;
+    const fixe = sequence.filter(x => !x.remplir).reduce((a, x) => a + x.duree, 0);
+    const reste = fin - debut - fixe;
+    sequence.forEach(x => { x.h = h; h += x.remplir ? Math.max(reste, 0) : x.duree; });
+    sequence.push({ h: Math.max(fin, h), t: r.moment === "soir" ? "Fin de la soirée" : "Fin", d: r.moment === "soir" ? "Taxis et derniers trains à deux pas" : "" });
+    return { sequence, deborde: reste < 0 ? -reste : 0 };
+  }
+
+  // ---------- Retour en train et en bus (horaire officiel, transport.opendata.ch) ----------
+  const retour = { cle: null, etat: "vide", resultats: [], cache: {}, minuterie: null };
+  const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+  const heureIso = s => { const d = new Date(s); return String(d.getHours()).padStart(2, "0") + "h" + String(d.getMinutes()).padStart(2, "0"); };
+  function decalerDate(iso, jours) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + jours); return d.toISOString().slice(0, 10); }
+  function lireConnexion(c) {
+    const sec = (c.sections || []).find(s => s.journey);
+    const j = sec ? sec.journey : {};
+    const ligne = [j.category, j.number].filter(Boolean).join(" ").trim();
+    return { dep: c.from && c.from.departure, arr: c.to && c.to.arrival, chg: Number(c.transfers) || 0, ligne };
+  }
+  async function chercherRetour(date, temps, finAbs) {
+    const r = CONFIG.retour;
+    return Promise.all(r.destinations.map(async d => {
+      const url = "https://transport.opendata.ch/v1/connections?" + new URLSearchParams({ from: r.depart, to: d.q, date, time: temps, limit: "4" });
+      try {
+        const rep = await fetch(url);
+        if (!rep.ok) throw new Error(rep.status);
+        const js = await rep.json();
+        const liste = (js.connections || []).map(lireConnexion).filter(x => x.dep)
+          .filter(x => { const t = new Date(x.dep); return (t - finAbs) / 60000 >= -2 && (t - finAbs) / 60000 <= 150; })
+          .slice(0, 2);
+        return { nom: d.nom, liste, ok: true };
+      } catch (e) { return { nom: d.nom, liste: [], ok: false }; }
+    }));
+  }
+  function majRetour(r, finMin) {
+    const sous = $("retour-sous"), note = $("retour-note");
+    if (!r.date) { retour.cle = null; retour.etat = "vide"; sous.textContent = ""; $("retour-liste").innerHTML = ""; note.textContent = "Choisissez une date : les prochains trains et bus depuis la gare de Vevey s’afficheront ici."; return; }
+    const date = finMin >= 1440 ? decalerDate(r.date, 1) : r.date;
+    const temps = hhmm(finMin);
+    const cle = date + "|" + temps;
+    sous.textContent = `Prochains départs depuis la gare de Vevey, à une minute, après ${temps.replace(":", "h")}`;
+    if (cle === retour.cle && retour.etat !== "vide") return;
+    retour.cle = cle;
+    if (retour.cache[cle]) { retour.etat = "ok"; retour.resultats = retour.cache[cle]; dessinerRetour(); return; }
+    retour.etat = "charge"; retour.resultats = []; dessinerRetour();
+    clearTimeout(retour.minuterie);
+    retour.minuterie = setTimeout(async () => {
+      const finAbs = new Date(date + "T" + temps + ":00");
+      const res = await chercherRetour(date, temps, finAbs);
+      if (retour.cle !== cle) return;
+      const aucunAcces = res.every(x => !x.ok);
+      retour.etat = aucunAcces ? "erreur" : "ok";
+      retour.resultats = res;
+      if (!aucunAcces) retour.cache[cle] = res;
+      dessinerRetour();
+      maj();
+    }, 500);
+  }
+  function dessinerRetour() {
+    const z = $("retour-liste"), note = $("retour-note");
+    const lienCff = `Horaires officiels CFF. À revérifier sur <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> le jour même.`;
+    z.innerHTML = "";
+    if (retour.etat === "charge") { note.textContent = "Recherche des horaires…"; return; }
+    if (retour.etat === "erreur") { note.innerHTML = `Les horaires ne sont pas disponibles pour le moment. Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`; return; }
+    const avec = retour.resultats.filter(x => x.liste.length);
+    if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
+    retour.resultats.forEach(d => {
+      const el = document.createElement("div"); el.className = "retour-ligne";
+      el.innerHTML = `<div class="dest"></div><div class="dep"></div>`;
+      el.querySelector(".dest").textContent = d.nom;
+      el.querySelector(".dep").innerHTML = d.liste.length
+        ? d.liste.map(x => `<b>${heureIso(x.dep)}</b> <small>${esc(x.ligne)} · arrivée ${heureIso(x.arr)}${x.chg ? ` · ${x.chg} changement${x.chg > 1 ? "s" : ""}` : " · direct"}</small>`).join("<br>")
+        : `<small>Plus de liaison ce soir : nous pouvons vous réserver un taxi.</small>`;
+      z.appendChild(el);
+    });
+    note.innerHTML = lienCff;
+  }
+  function texteRetour() {
+    if (retour.etat !== "ok") return [];
+    return retour.resultats.filter(d => d.liste.length).map(d => `• ${d.nom} : ` + d.liste.map(x => `${heureIso(x.dep)} (${x.chg ? x.chg + " chg" : "direct"}, arr. ${heureIso(x.arr)})`).join(", "));
+  }
+  const esc = s => String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function texteProgramme(r, prog) {
+    const l = [];
+    l.push($("societe").value.trim() ? `${$("societe").value.trim()}` : "Notre Confra");
+    l.push("Programme de notre Confra au Bossa Nova Café");
+    if (r.date) l.push(dateLisible(r.date).replace(/^./, c => c.toUpperCase()));
+    l.push("");
+    prog.sequence.forEach(x => l.push(`${heure(x.h)}  ${x.t}${x.d ? " — " + x.d : ""}`));
+    const rt = texteRetour();
+    if (rt.length) { l.push(""); l.push("Pour rentrer (prochains départs depuis la gare de Vevey) :"); rt.forEach(x => l.push(x)); l.push("Horaires CFF : à revérifier sur sbb.ch le jour même."); }
+    l.push("");
+    l.push("Bossa Nova Café, Place de la Gare 3, 1800 Vevey — à une minute du quai.");
+    return l.join("\n");
+  }
+
+  function afficherProgramme(r) {
+    const ev = construirePlacements(r);
+    const prog = construireProgramme(r, ev);
+    const nomGroupe = $("societe").value.trim();
+    $("prog-titre").textContent = nomGroupe || "Nom de votre entreprise";
+    $("prog-titre").classList.toggle("prog-titre-vide", !nomGroupe);
+    if (document.activeElement !== $("societe-prog")) $("societe-prog").value = nomGroupe;
+    $("prog-date").textContent = r.date ? dateLisible(r.date).replace(/^./, c => c.toUpperCase()) : "";
+    const liste = $("prog-liste");
+    liste.innerHTML = "";
+    prog.sequence.forEach(x => {
+      const li = document.createElement("li");
+      if (x.evenement) li.className = "evenement";
+      li.innerHTML = `<span class="h"></span><div class="t"></div><div class="d"></div>`;
+      li.querySelector(".h").textContent = heure(x.h);
+      li.querySelector(".t").textContent = x.t;
+      li.querySelector(".d").textContent = x.d || "";
+      liste.appendChild(li);
+    });
+    const al = $("prog-alerte");
+    al.textContent = prog.deborde ? `Le programme dépasse l'heure de fin d'environ ${prog.deborde} minutes. Retirez une animation, ou ajoutez une prolongation jusqu'à 00h30.` : "";
+    al.classList.toggle("cache", !prog.deborde);
+    majRetour(r, prog.sequence[prog.sequence.length - 1].h);
+    const txt = texteProgramme(r, prog);
+    $("prog-wa").href = "https://wa.me/?text=" + encodeURIComponent(txt);
+    $("prog-mail").href = `mailto:?subject=${encodeURIComponent(($("societe").value.trim() ? $("societe").value.trim() + " — " : "") + "Programme de notre Confra au Bossa Nova Café")}&body=${encodeURIComponent(txt)}`;
+    return { prog, txt };
+  }
+
+  function texteBoissons() {
+    const mode = document.querySelector("input[name=boissons]:checked").value;
+    if (mode === "facture") return `l’organisateur paie, jusqu’à ${chf(Number($("plafond").value) || 0)} au maximum`;
+    if (mode === "individuel") return "chaque invité paie ce qu’il commande";
+    return "l’organisateur paie jusqu’au dessert, les invités ensuite";
+  }
+
+  function composerMessage(r) {
+    const l = [];
+    l.push("Bonjour le Bossa Nova,");
+    l.push("");
+    l.push("Voici notre demande pour une Confra :");
+    if (CONFIG.offre) l.push(`• Offre personnalisée n° ${CONFIG.offre.code}`);
+    l.push(`• Groupe : ${$("societe").value || "—"}`);
+    l.push(`• Contact : ${$("nom").value || "—"}${$("tel").value ? ", " + $("tel").value : ""}${$("email").value ? ", " + $("email").value : ""}`);
+    l.push(`• Date souhaitée : ${r.date ? dateLisible(r.date) : "à définir"}`);
+    l.push(`• Nombre de personnes : ${r.n}`);
+    const ty = CONFIG.types.find(x => x.id === etat.type);
+    l.push(`• Moment : ${ty.nom} (${ty.quand.split(",")[0]})`);
+    if (r.moment !== "afterwork") {
+      l.push(`• Menu à la brésilienne, en moyenne CHF ${prixMenu()} par personne :`);
+      ["bienvenue", "entree"].forEach(id => { const p = choixMenu(id); if (p.prix || id === "bienvenue") l.push(`   – ${CONFIG.menu.find(c => c.id === id).titre} : ${p.nom}`); });
+      l.push(`   – Plats principaux à partager (${totalPortions()} portions) :`);
+      platsListe().forEach(p => l.push(`        ${p.q} × ${p.nom}`));
+      l.push(`   – Dessert : ${choixMenu("dessert").nom}, café ou thé`);
+    }
+    r.lignes.slice(1).filter(x => !platsListe().some(p => x.lib.startsWith(p.nom + " · "))).forEach(x => l.push(`• ${x.lib}${x.mt === null ? " : sur devis" : (x.mt ? " : " + (x.mt < 0 ? "−" + chf(-x.mt) : chf(x.mt)) : "")}`));
+    l.push(`• Ambiance musicale : ${etat.options.ambiance || "Bossa nova et MPB"}`);
+    if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
+    if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille consommée" : "offert"})`);
+    else if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
+    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}`);
+    l.push(`• Boissons commandées en plus au bar : ${texteBoissons()}`);
+    const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
+    if (nbH) l.push(`• Trophées et cadeaux : ${modeProduction() === "bossanova" ? "réalisés par le Bossa Nova" : "apportés par nos soins"}`);
+    const p = construireProgramme(r, evenementsChoisis(r));
+    l.push("");
+    l.push("Programme souhaité :");
+    p.sequence.forEach(x => l.push(`${heure(x.h)}  ${x.t}`));
+    l.push("");
+    l.push(`Total estimé : ${chf(r.total)} (acompte ${Math.round(CONFIG.acompteTaux * 100)} % : ${chf(r.acompte)})`);
+    const bc = budgetCible(r);
+    if (bc) l.push(`Notre budget : ${chf(bc.total)} au total, soit ${chf(Math.round(bc.parPers * 100) / 100)} par personne.`);
+    if ($("remarques").value.trim()) { l.push(""); l.push("Remarques : " + $("remarques").value.trim()); }
+    l.push("");
+    l.push(bc && r.total > bc.total
+      ? "Pouvez-vous nous faire une proposition adaptée à notre budget ? Nous sommes ouverts à des ajustements du menu ou des options."
+      : "Merci de nous confirmer la disponibilité.");
+    return l.join("\n");
+  }
+
+  function messageRappel(r) {
+    const l = [];
+    l.push("Bonjour le Bossa Nova,");
+    l.push("");
+    l.push(`Pouvez-vous me rappeler au ${$("rappel-tel").value.trim()} pour parler d’une soirée privée ?`);
+    l.push(`Moment préféré : ${$("rappel-moment").value.toLowerCase()}.`);
+    l.push("");
+    if ($("nom").value.trim()) l.push(`Nom : ${$("nom").value.trim()}`);
+    if ($("societe").value.trim()) l.push(`Groupe : ${$("societe").value.trim()}`);
+    l.push(`Date envisagée : ${r.date ? dateLisible(r.date) : "à définir"}`);
+    l.push(`Nombre de personnes : ${r.n}`);
+    l.push(`Estimation du calculateur : ${chf(r.total)}`);
+    const bc = budgetCible(r);
+    if (bc) l.push(`Notre budget : ${chf(bc.total)}`);
+    if (CONFIG.offre) l.push(`Offre personnalisée n° ${CONFIG.offre.code}`);
+    l.push("");
+    l.push("Merci !");
+    return l.join("\n");
+  }
+  function majRappel(r) {
+    const txt = messageRappel(r);
+    $("rappel-wa").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(txt)}`;
+    $("rappel-mail").href = `mailto:${CONFIG.email}?subject=${encodeURIComponent("Demande de rappel — " + ($("societe").value || $("nom").value || "soirée privée"))}&body=${encodeURIComponent(txt)}`;
+  }
+  function verifierRappel(e) {
+    const tel = $("rappel-tel").value.replace(/[^\d+]/g, "");
+    if (tel.length < 9) { e.preventDefault(); $("rappel-erreur").textContent = "Indiquez votre numéro de téléphone."; return; }
+    $("rappel-erreur").textContent = "";
+  }
+
+  function verifierAvantEnvoi(e) {
+    const manque = [];
+    if (!$("nom").value.trim()) manque.push("votre nom");
+    if (!$("email").value.trim() && !$("tel").value.trim()) manque.push("un e-mail ou un téléphone");
+    if (!$("date").value) manque.push("la date souhaitée");
+    if (manque.length) {
+      e.preventDefault();
+      $("erreur").textContent = "Il manque " + manque.join(", ") + ".";
+    } else {
+      $("erreur").textContent = "";
+    }
+  }
+
+  // ---------- Catalogue (plats, vins, prix) géré dans admin.html ----------
+  function dateCourte(iso) { const [a, m, j] = iso.split("-").map(Number); return `${j} ${MOIS[m - 1]} ${a}`; }
+  const visibles = l => (l || []).filter(x => x.actif !== false);
+  function appliquerCatalogue(cat) {
+    CONFIG.whatsapp = String(cat.contacts.whatsapp).replace(/\D/g, "");
+    CONFIG.email = cat.contacts.email;
+    CONFIG.saisonDebut = cat.saison.debut; CONFIG.saisonFin = cat.saison.fin;
+    CONFIG.earlyBirdJours = Number(cat.regles.earlyBirdJours) || 0;
+    CONFIG.options.find(o => o.id === "gateau").detail = CONFIG.earlyBirdJours
+      ? `Gâteau brésilien pour tout le groupe. Offert si vous réservez au moins ${CONFIG.earlyBirdJours} jours avant la soirée.`
+      : "Gâteau brésilien pour tout le groupe.";
+    const rg = cat.regles;
+    CONFIG.minimumPrivatisation = Number(rg.minimumPrivatisation) || 0;
+    CONFIG.acompteTaux = (Number(rg.acomptePourcent) || 0) / 100;
+    CONFIG.prolongationParHeure = Number(rg.prolongationParHeure) || 0;
+    CONFIG.types.find(t => t.id === "afterwork").prix = Number(rg.afterworkPrix) || 0;
+    CONFIG.options.find(o => o.id === "gateau").prixParPersonne = Number(rg.gateauParPersonne) || 0;
+    CONFIG.options.find(o => o.id === "prolongation").prixParHeure = Number(rg.prolongationParHeure) || 0;
+    CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
+    CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
+    const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg });
+    ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
+      const cours = CONFIG.menu.find(c => c.id === k);
+      cours.choix = visibles(cat.menu[k]).map(nettoie);
+      if (k === "bienvenue") cours.titre = cours.choix.length && cours.choix.every(x => x.inclus) ? "Bienvenue, comprise" : "Bienvenue";
+      if (k === "entree") cours.choix.push({ id: "aucune", nom: "Sans entrée", ds: "", prix: 0 });
+      CONFIG.menuDefaut[k] = (cours.choix[0] || {}).id;
+    });
+    CONFIG.cafe = { nom: cat.cafe.nom || "Café, espresso ou thé", inclus: !!cat.cafe.inclus, prix: Number(cat.cafe.prix) || 0 };
+    CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
+    CONFIG.bols = (cat.bols || []).filter(Boolean);
+    CONFIG.accompagnements = CONFIG.bols.length
+      ? CONFIG.bols.map((b, i) => i ? b.charAt(0).toLowerCase() + b.slice(1) : b).join(", ") + ", en bols sur les tables"
+      : "Accompagnements en bols sur les tables";
+    CONFIG.forfaits.forEach(f => { if (cat.forfaits[f.id] != null) f.prix = Number(cat.forfaits[f.id]) || 0; });
+    const vins = visibles(cat.vins);
+    const somme = vins.reduce((a, v) => a + (Number(v.part) || 0), 0) || 1;
+    CONFIG.vins = vins.map(v => ({ id: v.id, nom: v.nom, ds: v.ds || "", prix: Number(v.prix) || 0, part: (Number(v.part) || 0) / somme }));
+    CONFIG.digestifs = visibles(cat.digestifs).map(d => ({ id: d.id, nom: d.nom, ds: d.ds || "", prix: Number(d.prix) || 0 }));
+    CONFIG.honneurs.forEach(h => { if (cat.honneurs[h.id] != null) h.prix = Number(cat.honneurs[h.id]) || 0; });
+  }
+
+  // ---------- Offre personnalisée (lien #offre=…) ----------
+  function appliquerOffre(o) {
+    CONFIG.offre = o;
+    const px = o.prix || {};
+    Object.keys(px).forEach(k => {
+      const v = Number(px[k]); if (isNaN(v)) return;
+      const [type, a, b] = k.split(".");
+      if (type === "menu") {
+        const it = (CONFIG.menu.find(c => c.id === a) || { choix: [] }).choix.find(x => x.id === b);
+        if (it) { it.prix = v; it.inclus = v === 0 ? it.inclus : false; }
+      }
+      if (type === "vin") { const it = CONFIG.vins.find(x => x.id === a); if (it) it.prix = v; }
+      if (type === "digestif") { const it = CONFIG.digestifs.find(x => x.id === a); if (it) it.prix = v; }
+      if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; }
+      if (type === "cafe") { CONFIG.cafe.prix = v; CONFIG.cafe.inclus = v === 0; }
+      if (type === "bouchon") CONFIG.droitBouchon = v;
+      if (type === "afterwork") CONFIG.types.find(x => x.id === "afterwork").prix = v;
+      if (type === "gateau") CONFIG.options.find(x => x.id === "gateau").prixParPersonne = v;
+      if (type === "prolongation") { CONFIG.prolongationParHeure = v; CONFIG.options.find(x => x.id === "prolongation").prixParHeure = v; }
+    });
+    // Plats créés pour ce client : en tête de leur étape, choisis par défaut
+    (o.plats || []).forEach(x => {
+      const cours = CONFIG.menu.find(c => c.id === x.cours);
+      if (!cours || !x.nom) return;
+      cours.choix.unshift({ id: x.id, nom: x.nom, ds: x.ds || "", prix: Number(x.prix) || 0, inclus: false, vg: !!x.vg, special: true });
+      if (x.cours !== "plat") CONFIG.menuDefaut[x.cours] = x.id;
+    });
+    const off = o.offerts || {};
+    if (off.cafe) CONFIG.cafe.inclus = true;
+    if (off.prolongation) { CONFIG.prolongationParHeure = 0; CONFIG.options.find(x => x.id === "prolongation").prixParHeure = 0; }
+    if (o.minimum !== "" && o.minimum != null) CONFIG.minimumPrivatisation = Number(o.minimum) || 0;
+    if (o.acompte !== "" && o.acompte != null) CONFIG.acompteTaux = (Number(o.acompte) || 0) / 100;
+    CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
+  }
+  function preremplirOffre(o) {
+    if (o.personnes) $("personnes").value = Math.max(12, Math.min(30, Number(o.personnes)));
+    if (o.client) $("societe").value = o.client;
+    if (o.date) $("date").value = o.date;
+    const b = $("offre-bandeau");
+    const expiree = o.validite && o.validite < aujourdHui();
+    b.classList.remove("cache");
+    b.classList.toggle("expiree", !!expiree);
+    b.innerHTML = "";
+    const t = document.createElement("strong");
+    t.textContent = `Offre personnalisée pour ${o.client || "vous"}`;
+    const d = document.createElement("div");
+    d.textContent = expiree
+      ? `Cette offre (n° ${o.code}) a expiré le ${dateCourte(o.validite)}. Envoyez-nous votre demande : nous la renouvellerons volontiers.`
+      : `Offre n° ${o.code}${o.validite ? ", valable jusqu’au " + dateCourte(o.validite) : ""}. Les prix ci-dessous tiennent compte des conditions convenues avec vous.`;
+    b.append(t, d);
+    if (o.note) { const n = document.createElement("div"); n.className = "note-offre"; n.textContent = o.note; b.appendChild(n); }
+  }
+
+  // ---------- Démarrage ----------
+  function demarrer() {
+  const offre = CONFIG.offre;
+  if (offre) preremplirOffre(offre);
+  construireTypes();
+  construireMenu();
+  construireBoissons();
+  repartirPortions(Number($("personnes").value));
+  repartirVins(Number($("personnes").value));
+  estimerApport(Number($("personnes").value));
+  $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
+  $("personnes").addEventListener("input", () => { repartirPortions(Number($("personnes").value)); repartirVins(Number($("personnes").value)); estimerApport(Number($("personnes").value)); });
+  construireHonneurs();
+  construireOptions();
+  $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
+  $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;
+  $("societe-prog").addEventListener("input", () => { $("societe").value = $("societe-prog").value; maj(); });
+  ["personnes", "date", "plafond", "nom", "societe", "email", "tel", "remarques", "budget-cible"].forEach(id => $(id).addEventListener("input", maj));
+  $("budget-unite").addEventListener("change", maj);
+  $("rappel-ouvrir").addEventListener("click", () => {
+    const b = $("rappel-bloc"); b.classList.toggle("cache");
+    if (!b.classList.contains("cache")) { if (!$("rappel-tel").value) $("rappel-tel").value = $("tel").value; $("rappel-tel").focus(); maj(); }
+  });
+  $("rappel-tel").addEventListener("input", () => { $("rappel-erreur").textContent = ""; maj(); });
+  $("rappel-moment").addEventListener("change", maj);
+  $("rappel-wa").addEventListener("click", verifierRappel);
+  $("rappel-mail").addEventListener("click", verifierRappel);
+  document.querySelectorAll("input[name=vins]").forEach(x => x.addEventListener("change", () => { etat.avecVins = x.value === "oui"; etat.vinApporte = x.value === "apporte"; maj(); }));
+  document.querySelectorAll("input[name=boissons]").forEach(x => x.addEventListener("change", maj));
+  $("envoyer-wa").addEventListener("click", verifierAvantEnvoi);
+  $("envoyer-mail").addEventListener("click", verifierAvantEnvoi);
+  $("imprimer").addEventListener("click", () => { document.body.classList.remove("imprime-programme"); window.print(); });
+  $("prog-pdf").addEventListener("click", () => { document.body.classList.add("imprime-programme"); window.print(); });
+  window.addEventListener("afterprint", () => document.body.classList.remove("imprime-programme"));
+  document.querySelectorAll("input[name=production]").forEach(x => x.addEventListener("change", maj));
+  maj();
+  }
+
+  window.Catalogue.charger().then(cat => {
+    appliquerCatalogue(cat);
+    const offre = window.Catalogue.lireOffreDuLien();
+    if (offre) appliquerOffre(offre);
+    demarrer();
+  });
+})();
+</script>
+</body>
+</html>
