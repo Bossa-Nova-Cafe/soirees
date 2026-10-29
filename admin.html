@@ -60,6 +60,9 @@
   .entete-liste { display: grid; grid-template-columns: 58px minmax(190px, 1.6fr) minmax(170px, 2fr) 150px 80px 112px; gap: 8px; padding: 0 9px; font-size: 11.5px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--gris); }
   .vis { width: 20px; height: 20px; accent-color: var(--vert); justify-self: center; }
   .vg { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
+  .c-photo { grid-column: 2 / 4; display: flex; align-items: center; gap: 8px; }
+  .c-photo img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex: 0 0 40px; }
+  .c-photo input { font-size: 12.5px !important; height: 32px !important; color: var(--gris); }
   .prix-inclus { display: flex; flex-direction: row; align-items: center; gap: 8px; }
   .prix-inclus .vg { white-space: nowrap; }
   .prix-inclus input[type=number] { width: 72px; flex: 0 0 72px; }
@@ -214,7 +217,7 @@
 
       <h3>Offert</h3>
       <div style="display:flex;flex-wrap:wrap;gap:8px 22px">
-        <label class="vg"><input type="checkbox" id="o-off-gateau"> Gâteau de fête</label>
+        <label class="vg"><input type="checkbox" id="o-off-gateau"> Remise early bird, même hors délai</label>
         <label class="vg"><input type="checkbox" id="o-off-cafe"> Café ou thé</label>
         <label class="vg"><input type="checkbox" id="o-off-prolongation"> Prolongation jusqu’à 00h30</label>
       </div>
@@ -355,11 +358,11 @@
       ["Minimum de privatisation", "minimumPrivatisation", "CHF", "50"],
       ["Acompte à la réservation", "acomptePourcent", "%", "1"],
       ["Prolongation jusqu’à 00h30", "prolongationParHeure", "CHF / heure", "10"],
-      ["Gâteau de fête", "gateauParPersonne", "CHF / pers.", "0.5"],
       ["Afterwork Caipi", "afterworkPrix", "CHF / pers.", "0.5"],
       ["Droit de bouchon (vin du client)", "droitBouchon", "CHF / bouteille", "1"],
       ["Délai de commande des trophées", "productionDelaiJours", "jours", "1"],
-      ["Early bird : gâteau offert dès", "earlyBirdJours", "jours avant", "1"]
+      ["Early bird : réservation dès", "earlyBirdJours", "jours avant", "1"],
+      ["Early bird : remise sur le menu", "earlyBirdRemise", "%", "1"]
     ].forEach(([lib, cle, unite, step]) => champ(z, lib, "number", () => R[cle], v => R[cle] = v, { unite, step, min: 0, id: "f-" + cle }));
 
     z = $("champs-forfaits"); z.innerHTML = "";
@@ -441,6 +444,15 @@
       p.classList.add("c-extra", "num"); l.appendChild(p);
     } else l.appendChild(document.createElement("span"));
     l.appendChild(actions(liste, i, rendre));
+    if (cfg.photo) {
+      // Photo du plat : chemin dans le dépôt (photos/…) ou lien complet
+      const ph = document.createElement("div"); ph.className = "c-photo";
+      const apercu = document.createElement("img"); apercu.alt = "";
+      const montrer = () => { const v = String(x.photo || "").trim(); apercu.hidden = !v; if (v) apercu.src = v.startsWith("http") ? v : "./" + v; };
+      apercu.addEventListener("error", () => { apercu.hidden = true; });
+      const champ = entree(x.photo || "", v => { x.photo = v.trim(); montrer(); }, { placeholder: "Photo : photos/nom-du-plat.jpg ou lien https://…", label: "Photo" });
+      ph.append(apercu, champ); montrer(); l.appendChild(ph);
+    }
     return l;
   }
 
@@ -455,7 +467,7 @@
       const liste = cat.menu[c.id];
       const zl = document.createElement("div"); zl.className = "liste"; zl.id = "liste-" + c.id;
       const rendre = () => rendreMenu();
-      liste.forEach((_, i) => zl.appendChild(ligneArticle(liste, i, rendre, { inclus: true, vg: true })));
+      liste.forEach((_, i) => zl.appendChild(ligneArticle(liste, i, rendre, { inclus: true, vg: true, photo: true })));
       z.appendChild(zl);
       const b = document.createElement("button"); b.type = "button"; b.className = "btn ajouter";
       b.textContent = "+ Ajouter " + c.ajout;
@@ -597,7 +609,6 @@
     l.push({ cle: "bouchon", lib: "Droit de bouchon, vin apporté (bouteille)", prix: Number(cat.regles.droitBouchon) || 0 });
     cat.bulles.filter(x => x.actif !== false).forEach(x => l.push({ cle: `bulle.${x.id}`, lib: `Bulles : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     cat.digestifs.filter(x => x.actif !== false).forEach(x => l.push({ cle: `digestif.${x.id}`, lib: `Digestif : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
-    l.push({ cle: "gateau", lib: "Gâteau de fête (par personne)", prix: Number(cat.regles.gateauParPersonne) || 0 });
     l.push({ cle: "prolongation", lib: "Prolongation (par heure)", prix: Number(cat.regles.prolongationParHeure) || 0 });
     return l;
   }

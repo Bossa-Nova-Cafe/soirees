@@ -21,10 +21,10 @@
       minimumPrivatisation: 1200,
       acomptePourcent: 30,
       prolongationParHeure: 200,
-      gateauParPersonne: 6,
       afterworkPrix: 42,
       productionDelaiJours: 15,
       earlyBirdJours: 30,
+      earlyBirdRemise: 5,
       droitBouchon: 10
     },
     menu: {
@@ -39,11 +39,11 @@
         { id: "veloute", nom: "Velouté de potiron au lait de coco", ds: "Gingembre et graines torréfiées", prix: 10, vg: true, actif: true }
       ],
       plat: [
-        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5, actif: true },
+        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5, photo: "photos/feijoada.jpg", actif: true },
         { id: "moqueca", nom: "Moqueca de poisson de Bahia", ds: "Poisson au lait de coco et huile de dendê, pirão", prix: 26, actif: true },
         { id: "boeuf", nom: "Filet de bœuf grillé", ds: "Grillé et tranché, à la brésilienne", prix: 28, actif: true },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, actif: true },
-        { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, actif: true },
+        { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "moqueca-vg", nom: "Moqueca de cœurs de palmier et plantain", ds: "Lait de coco et poivrons", prix: 25, vg: true, actif: true }
       ],
       dessert: [
@@ -87,7 +87,14 @@
     }
     ["contacts", "saison", "moments", "regles", "forfaits", "honneurs", "cafe"].forEach(k => { if (cat[k]) Object.assign(c[k], cat[k]); });
     c.version = DEFAUT.version;
-    if (cat.menu) ["bienvenue", "entree", "plat", "dessert"].forEach(k => { if (Array.isArray(cat.menu[k])) c.menu[k] = cat.menu[k]; });
+    if (cat.menu) ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
+      if (!Array.isArray(cat.menu[k])) return;
+      // Les photos ajoutées après un premier enregistrement viennent des valeurs d'origine
+      c.menu[k] = cat.menu[k].map(x => {
+        const d = DEFAUT.menu[k].find(y => y.id === x.id);
+        return x.photo === undefined && d && d.photo ? Object.assign({}, x, { photo: d.photo }) : x;
+      });
+    });
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     c.majLe = cat.majLe || null;
     return c;
