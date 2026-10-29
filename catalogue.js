@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 3,
+    version: 4,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -29,9 +29,9 @@
     },
     menu: {
       bienvenue: [
-        { id: "caipi", nom: "Caipirinha et pão de queijo", ds: "Le cocktail national, citron vert et cachaça, avec les petits pains au fromage", prix: 8, inclus: true, actif: true },
+        { id: "caipi", nom: "Caipirinha et cacahuètes grillées", ds: "Le cocktail national, citron vert et cachaça, avec des cacahuètes grillées et salées, comme au comptoir", prix: 8, inclus: true, actif: true },
         { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: true },
-        { id: "virgem", nom: "Cocktail sans alcool et pão de queijo", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: true }
+        { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: true }
       ],
       entree: [
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: true },
@@ -103,6 +103,14 @@
       const i = c.menu.plat.findIndex(x => x.id === "maluca");
       c.menu.plat.splice(i >= 0 ? i : c.menu.plat.length, 0, copie(nv));
     }
+    // Version 4 : l'accueil se sert avec des cacahuètes grillées, plus avec du pão de queijo
+    if (vAvant < 4) c.menu.bienvenue = c.menu.bienvenue.map(x => {
+      const d = DEFAUT.menu.bienvenue.find(y => y.id === x.id);
+      if (!d) return x;
+      if (x.id === "caipi" && x.nom === "Caipirinha et pão de queijo") return Object.assign({}, x, { nom: d.nom, ds: d.ds });
+      if (x.id === "virgem" && x.nom === "Cocktail sans alcool et pão de queijo") return Object.assign({}, x, { nom: d.nom });
+      return x;
+    });
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     c.majLe = cat.majLe || null;
     return c;
