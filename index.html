@@ -462,6 +462,7 @@
     // Retour en transports publics : départs depuis la gare de Vevey après la fin
     retour: {
       depart: "Vevey",
+      marge: 10,            // minutes entre la fin de la soirée et le premier départ proposé
       destinations: [
         { nom: "Lausanne", q: "Lausanne" },
         { nom: "Montreux", q: "Montreux" },
@@ -1197,7 +1198,11 @@
   function lireConnexion(c) {
     const sec = (c.sections || []).find(s => s.journey);
     const j = sec ? sec.journey : {};
-    const ligne = [j.category, j.number].filter(Boolean).join(" ").trim();
+    const cat = String(j.category || "").toUpperCase(), num = String(j.number || "").trim();
+    let ligne;
+    if (["B", "BUS", "NFB", "KB", ""].includes(cat)) ligne = num ? "Bus " + num : "Bus";
+    else if (["R", "S", "SN", "RE"].includes(cat)) ligne = cat + num;
+    else ligne = [cat, num].filter(Boolean).join(" ");
     return { dep: c.from && c.from.departure, arr: c.to && c.to.arrival, chg: Number(c.transfers) || 0, ligne };
   }
   async function chercherRetour(date, temps, finAbs) {
@@ -1209,7 +1214,7 @@
         if (!rep.ok) throw new Error(rep.status);
         const js = await rep.json();
         const liste = (js.connections || []).map(lireConnexion).filter(x => x.dep)
-          .filter(x => { const t = new Date(x.dep); return (t - finAbs) / 60000 >= -2 && (t - finAbs) / 60000 <= 150; })
+          .filter(x => { const t = new Date(x.dep), a = new Date(x.arr); return (t - finAbs) / 60000 >= 0 && (t - finAbs) / 60000 <= 150 && (a - t) / 60000 <= 180; })
           .slice(0, 2);
         return { nom: d.nom, liste, ok: true };
       } catch (e) { return { nom: d.nom, liste: [], ok: false }; }
@@ -1218,10 +1223,11 @@
   function majRetour(r, finMin) {
     const sous = $("retour-sous"), note = $("retour-note");
     if (!r.date) { retour.cle = null; retour.etat = "vide"; sous.textContent = ""; $("retour-liste").innerHTML = ""; note.textContent = "Choisissez une date : les prochains trains et bus depuis la gare de Vevey s’afficheront ici."; return; }
-    const date = finMin >= 1440 ? decalerDate(r.date, 1) : r.date;
-    const temps = hhmm(finMin);
+    const depMin = finMin + CONFIG.retour.marge;
+    const date = depMin >= 1440 ? decalerDate(r.date, 1) : r.date;
+    const temps = hhmm(depMin);
     const cle = date + "|" + temps;
-    sous.textContent = `Prochains départs depuis la gare de Vevey, à une minute, après ${temps.replace(":", "h")}`;
+    sous.textContent = `Prochains départs depuis la gare de Vevey, à une minute, à partir de ${temps.replace(":", "h")}`;
     if (cle === retour.cle && retour.etat !== "vide") return;
     retour.cle = cle;
     if (retour.cache[cle]) { retour.etat = "ok"; retour.resultats = retour.cache[cle]; dessinerRetour(); return; }
