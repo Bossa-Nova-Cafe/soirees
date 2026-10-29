@@ -45,8 +45,12 @@
   input[type=text], input[type=email], input[type=tel], input[type=number], input[type=date], input[type=password] {
     font: inherit; font-size: 14px; color: var(--texte); padding: 8px 10px; border: 1.5px solid var(--bord); border-radius: 8px; background: #fff; width: 100%; min-width: 0;
   }
+  select { font: inherit; font-size: 14px; color: var(--texte); padding: 8px 10px; border: 1.5px solid var(--bord) !important; border-radius: 8px; background: #fff !important; min-width: 0; }
+  input[type=text], input[type=number], input[type=date], input[type=email], input[type=tel], input[type=password], select { height: 39px; }
   input.erreur { border-color: var(--rouge); background: #fff5f4; }
   .unite { font-weight: 400; color: var(--gris); }
+  .plat-mesure { grid-template-columns: minmax(150px, 1.1fr) minmax(150px, 1.2fr) minmax(200px, 2fr) minmax(90px, .6fr); align-items: end; }
+  @media (max-width: 760px) { .plat-mesure { grid-template-columns: 1fr 1fr; } }
 
   .liste { display: flex; flex-direction: column; gap: 8px; }
   .ligne { display: grid; grid-template-columns: 58px minmax(170px, 1.4fr) minmax(160px, 2fr) 110px 90px 112px; gap: 8px; align-items: center; padding: 8px; border: 1px solid var(--bord); border-radius: 10px; background: #fffdf7; }
@@ -189,10 +193,10 @@
         <label class="champ">Date de la soirée<input type="date" id="o-date"></label>
         <label class="champ">Nombre d’invités<input type="number" id="o-personnes" min="12" max="30" step="1" value="20"></label>
         <label class="champ">Offre valable jusqu’au<input type="date" id="o-validite"></label>
-        <label class="champ">Remise sur le menu <span class="unite">%</span><input type="number" id="o-remise-menu" min="0" max="100" step="1" value="0"></label>
-        <label class="champ">Remise sur les boissons <span class="unite">%</span><input type="number" id="o-remise-boissons" min="0" max="100" step="1" value="0"></label>
-        <label class="champ">Minimum de privatisation <span class="unite">CHF</span><input type="number" id="o-minimum" min="0" step="50"></label>
-        <label class="champ">Acompte <span class="unite">%</span><input type="number" id="o-acompte" min="0" max="100" step="1"></label>
+        <label class="champ"><span>Remise sur le menu <span class="unite">%</span></span><input type="number" id="o-remise-menu" min="0" max="100" step="1" value="0"></label>
+        <label class="champ"><span>Remise sur les boissons <span class="unite">%</span></span><input type="number" id="o-remise-boissons" min="0" max="100" step="1" value="0"></label>
+        <label class="champ"><span>Minimum de privatisation <span class="unite">CHF</span></span><input type="number" id="o-minimum" min="0" step="50"></label>
+        <label class="champ"><span>Acompte <span class="unite">%</span></span><input type="number" id="o-acompte" min="0" max="100" step="1"></label>
       </div>
 
       <h3>Offert</h3>
@@ -213,15 +217,15 @@
 
       <h3>Plats sur mesure</h3>
       <p class="sous" style="margin-bottom:8px">Un plat créé pour ce client uniquement. Il apparaît dans son calculateur avec la mention « proposé pour vous », sans changer le catalogue.</p>
-      <div class="champs" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">
+      <div class="champs plat-mesure">
         <label class="champ">Étape<select id="pm-cours" style="font:inherit;font-size:14px;padding:8px 10px;border:1.5px solid var(--bord);border-radius:8px">
           <option value="bienvenue">Bienvenue</option><option value="entree">Entrée</option><option value="plat" selected>Plat principal (par portion)</option><option value="dessert">Dessert</option></select></label>
         <label class="champ">Nom<input type="text" id="pm-nom" placeholder="Bobó de crevettes"></label>
         <label class="champ">Description<input type="text" id="pm-ds" placeholder="Crevettes, crème de manioc et lait de coco"></label>
-        <label class="champ">Prix <span class="unite">CHF</span><input type="number" id="pm-prix" min="0" step="0.5"></label>
+        <label class="champ"><span>Prix <span class="unite">CHF</span></span><input type="number" id="pm-prix" min="0" step="0.5"></label>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:10px">
-        <label class="vg"><input type="checkbox" id="pm-vg"> Végétarien</label>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:12px">
+        <label class="vg" style="font-size:14px"><input type="checkbox" id="pm-vg"> Végétarien</label>
         <button class="btn" type="button" id="pm-ajout">Ajouter le plat</button>
       </div>
       <div class="liste" id="pm-liste" style="margin-top:10px"></div>
@@ -302,8 +306,8 @@
   function champ(zone, libelle, type, lire, ecrire, opts) {
     opts = opts || {};
     const l = document.createElement("label"); l.className = "champ";
-    l.textContent = libelle;
-    if (opts.unite) { const u = document.createElement("span"); u.className = "unite"; u.textContent = " " + opts.unite; l.appendChild(u); }
+    const lib = document.createElement("span"); lib.textContent = libelle; l.appendChild(lib);
+    if (opts.unite) { const u = document.createElement("span"); u.className = "unite"; u.textContent = " " + opts.unite; lib.appendChild(u); }
     const i = document.createElement("input"); i.type = type;
     if (opts.step) i.step = opts.step;
     if (opts.min != null) i.min = opts.min;
