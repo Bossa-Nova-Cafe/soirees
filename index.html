@@ -211,7 +211,13 @@
   .compteur-portions { text-align: right; font-size: 13.5px; font-weight: 600; margin: -6px 0 12px; }
   .compteur-portions.ok { color: #1e7a3e; }
   .compteur-portions.ok::before { content: "✓ "; }
-  .compteur-portions.ko { color: #b3261e; }
+  .compteur-portions.ko { color: #8c1d18; background: #fdecea; border: 2px solid #d93025; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; margin: 4px 0 14px; }
+  .compteur-portions.ko::before { content: "⚠ "; }
+  .compteur-portions.flash { animation: flash .9s 2; }
+  @keyframes flash { 50% { box-shadow: 0 0 0 6px rgba(217, 48, 37, .25); } }
+  .envoi-bloque { background: #fdecea; border: 2px solid #d93025; color: #8c1d18; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; font-weight: 600; margin: 10px 0 4px; }
+  .envoi-bloque button { all: unset; cursor: pointer; text-decoration: underline; font-weight: 700; }
+  .bouton.bloque { opacity: .4; filter: grayscale(1); cursor: not-allowed; }
   .bols { background: #fff8e1; border: 1.5px dashed var(--jaune); border-radius: 12px; padding: 12px 14px; margin: -4px 0 16px; }
   .bols-titre { font-weight: 600; color: var(--vert); font-size: 13.5px; margin-bottom: 8px; }
   .bols-liste { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -465,6 +471,7 @@
       <div class="impression-seule" id="recap-boissons" style="font-size:13px;margin-top:10px"></div>
 
       <div class="erreur" id="erreur"></div>
+      <div class="envoi-bloque cache" id="envoi-bloque" role="alert"></div>
       <a class="bouton wa" id="envoyer-wa" href="#" target="_blank" rel="noopener">Envoyer ma demande par WhatsApp</a>
       <a class="bouton mail" id="envoyer-mail" href="#">Envoyer ma demande par e-mail</a>
       <button type="button" class="bouton rappel" id="rappel-ouvrir">Être rappelé par le Bossa Nova</button>
@@ -779,6 +786,7 @@
         bloc.querySelector(".plats").appendChild(el);
       });
       zone.appendChild(bloc);
+      if (c.id === "plat") zone.appendChild($("compteur-portions"));
       if (c.id === "plat") {
         const b = document.createElement("div");
         b.className = "bols";
@@ -1168,6 +1176,17 @@
     const tp = totalPortions();
     $("compteur-portions").textContent = `${tp} personne${tp > 1 ? "s" : ""} servie${tp > 1 ? "s" : ""} sur ${r.n} invités`;
     $("compteur-portions").className = "compteur-portions " + (tp === r.n ? "ok" : "ko");
+    if (tp !== r.n) {
+      const ecart = r.n - tp;
+      $("compteur-portions").textContent = ecart > 0
+        ? `${tp} personne${tp > 1 ? "s" : ""} servie${tp > 1 ? "s" : ""} sur ${r.n} invités : il manque ${ecart} personne${ecart > 1 ? "s" : ""}. Ajoutez des plats principaux pour pouvoir envoyer votre demande.`
+        : `${tp} personnes servies pour ${r.n} invités : ${-ecart} de trop. Retirez-en pour pouvoir envoyer votre demande.`;
+    }
+    // Envoi bloqué tant que les plats principaux ne correspondent pas au nombre d'invités
+    const platsOk = r.moment === "afterwork" || tp === r.n;
+    ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => { $(id).classList.toggle("bloque", !platsOk); $(id).setAttribute("aria-disabled", String(!platsOk)); });
+    $("envoi-bloque").classList.toggle("cache", platsOk);
+    if (!platsOk) $("envoi-bloque").innerHTML = `Avant d’envoyer : les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster les plats</button>`;
     $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
     $("menu-total").innerHTML = `<span>Votre menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
     $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
@@ -1835,6 +1854,10 @@
   estimerApport(nbAdultes());
   $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
   $("adultes").addEventListener("input", () => synchroGroupe("adultes"));
+  // Clic sur un bouton d'envoi bloqué : on montre les plats à ajuster
+  const montrerPlats = () => { const c = $("compteur-portions"); c.scrollIntoView({ behavior: "smooth", block: "center" }); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); };
+  ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => $(id).addEventListener("click", e => { if ($(id).classList.contains("bloque")) { e.preventDefault(); e.stopImmediatePropagation(); montrerPlats(); } }, true));
+  document.addEventListener("click", e => { if (e.target && e.target.id === "voir-plats") montrerPlats(); });
   $("enfants").addEventListener("input", () => synchroGroupe("enfants"));
   $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
