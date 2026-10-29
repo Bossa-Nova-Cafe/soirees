@@ -1,4 +1,4 @@
-/* Bossa Nova Café · Catalogue de la Confra
+/* Bossa Nova Café · Catalogue de la Festa
    Plats, vins, prix et réglages partagés entre le calculateur (index.html)
    et le panneau d'administration (admin.html).
 
