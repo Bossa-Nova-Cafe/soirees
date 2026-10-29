@@ -861,6 +861,8 @@
   const totalBulles = () => CONFIG.bulles.reduce((a, d) => a + (etat.bulles[d.id] || 0), 0);
 
   // Nombre de bouteilles conseillé selon les invités, réparti blanc / rouge / rosé
+  // Arrondi suisse aux 5 centimes
+  const arr5 = x => Math.round(x * 20) / 20;
   const nbEnfants = () => Math.max(0, Math.floor(Number($("enfants").value) || 0));
   const nbAdultes = () => Math.max(1, Math.floor(Number($("adultes").value) || 1));
   // Adultes + enfants : le total ne dépasse jamais le maximum et ne descend pas sous 12
@@ -1029,7 +1031,7 @@
       // Enfants de moins de 12 ans : remise sur le menu, calculée sur le prix moyen par personne
       const k = Math.min(nbEnfants(), n);
       if (k && CONFIG.enfantsRemise > 0 && n) {
-        const remEnf = Math.round(k * (base / n) * CONFIG.enfantsRemise) / 100;
+        const remEnf = arr5(k * (base / n) * CONFIG.enfantsRemise / 100);
         lignes.push({ lib: `Enfants de moins de ${CONFIG.enfantsAge} ans · ${k} × −${CONFIG.enfantsRemise} % sur le menu`, mt: -remEnf, cls: "remise" });
         base -= remEnf;
       }
@@ -1066,7 +1068,7 @@
     });
 
     const earlyBird = earlyBirdActif(date) && CONFIG.earlyBirdRemise > 0;
-    const remise = earlyBird ? Math.round(base * CONFIG.earlyBirdRemise) / 100 : 0;
+    const remise = earlyBird ? arr5(base * CONFIG.earlyBirdRemise / 100) : 0;
     const ebOffert = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau;
     if (remise) lignes.push({ lib: ebOffert ? `Remise early bird : −${CONFIG.earlyBirdRemise} % sur le menu` : `Early bird : −${CONFIG.earlyBirdRemise} % sur le menu (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: -remise, cls: "remise" });
 
@@ -1108,8 +1110,8 @@
     let remiseOffre = 0;
     const of = CONFIG.offre;
     if (of) {
-      const rm = Math.round(base * (Number(of.remiseMenu) || 0)) / 100;
-      const rb = Math.round(boissons * (Number(of.remiseBoissons) || 0)) / 100;
+      const rm = arr5(base * (Number(of.remiseMenu) || 0) / 100);
+      const rb = arr5(boissons * (Number(of.remiseBoissons) || 0) / 100);
       if (rm) { remiseOffre += rm; lignes.push({ lib: `Remise négociée : −${of.remiseMenu} % sur ${t.prix ? "l’afterwork" : "le menu"}`, mt: -rm, cls: "remise" }); }
       if (rb) { remiseOffre += rb; lignes.push({ lib: `Remise négociée : −${of.remiseBoissons} % sur les boissons`, mt: -rb, cls: "remise" }); }
     }
