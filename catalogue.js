@@ -29,7 +29,7 @@
     },
     menu: {
       bienvenue: [
-        { id: "caipi", nom: "Caipirinha et cacahuètes grillées", ds: "Le cocktail national, citron vert et cachaça, avec des cacahuètes grillées et salées, comme au comptoir", prix: 8, inclus: true, actif: true },
+        { id: "caipi", nom: "Caipirinha et cacahuètes grillées", ds: "Le cocktail national, citron vert et cachaça, avec des cacahuètes grillées et salées, comme au comptoir", prix: 8, inclus: true, photo: "photos/caipirinha.jpg", actif: true },
         { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: true },
         { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: true }
       ],

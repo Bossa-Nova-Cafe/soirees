@@ -187,6 +187,7 @@
   dialog#photo-grande .leg div { flex: 1; font-size: 14px; line-height: 1.45; }
   dialog#photo-grande .leg strong { display: block; font-size: 16px; color: var(--vert); }
   .plat.avec-photo { flex-wrap: wrap; }
+  .plat.avec-photo > div:not(.px) { flex: 1 1 0; min-width: 0; }
   .tete-plat { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; }
   .tete-plat .px { white-space: nowrap; text-align: right; }
   .vignette.large { flex: 0 0 100%; width: 100%; height: 140px; margin-bottom: 2px; }
@@ -736,8 +737,7 @@
           im.addEventListener("error", () => v.remove());
           v.appendChild(im);
           v.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); ouvrirPhoto(p); });
-          if (c.id === "plat") { v.classList.add("large"); el.classList.add("avec-photo"); el.insertBefore(v, el.firstElementChild); }
-          else el.insertBefore(v, el.querySelector("input").nextElementSibling);
+          v.classList.add("large"); el.classList.add("avec-photo"); el.insertBefore(v, el.firstElementChild);
         }
         if (p.vg) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg">végétarien</span>');
         if (p.special) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg" style="color:var(--violet);border-color:var(--violet)">proposé pour vous</span>');
