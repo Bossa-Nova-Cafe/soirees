@@ -363,7 +363,8 @@
         </div>
         <div class="aide" style="margin:8px 0 0">Une estimation pour votre budget. Seules les bouteilles ouvertes le soir même sont facturées.</div>
       </div>
-      <label class="champ">2. Les eaux et les softs, par personne</label>
+      <label class="champ">2. Les eaux et les softs, par adulte</label>
+      <div class="aide cache" id="aide-forfait-enfant" style="margin-top:0;margin-bottom:8px"></div>
       <div class="choix-boissons" id="forfaits"></div>
       <label class="champ">3. Les digestifs, à la bouteille</label>
       <div class="aide" style="margin-top:0">Posées sur la table pour le groupe, à un prix de bouteille avantageux. Non inclus : ajoutez celles que vous voulez.</div>
@@ -512,6 +513,7 @@
     maxPersonnes: 26,                 // capacité maximale, enfants compris
     enfantsAge: 12,                   // enfants de moins de 12 ans
     enfantsRemise: 50,                // remise en % sur le menu pour les enfants
+    forfaitEnfant: 8,                 // eaux minérales et jus, obligatoire par enfant
     droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
     earlyBirdJours: 30,               // early bird : réservation au moins 30 jours avant
     earlyBirdRemise: 5,               // early bird : remise en % sur le menu
@@ -802,7 +804,7 @@
       const el = document.createElement("label");
       el.innerHTML = `<input type="radio" name="forfait" value="${f.id}"><span><strong></strong> <span class="pxf"></span><small></small></span>`;
       el.querySelector("strong").textContent = f.nom;
-      el.querySelector(".pxf").textContent = f.prix ? `· CHF ${f.prix} / pers.` : "";
+      el.querySelector(".pxf").textContent = f.prix ? `· CHF ${f.prix} / adulte` : "";
       el.querySelector("small").textContent = f.ds;
       const r = el.querySelector("input");
       r.checked = f.id === etat.forfait;
@@ -1050,7 +1052,10 @@
       boissons += nb * pb;
       lignes.push({ lib: `Droit de bouchon, votre vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
     }
-    if (fo.prix) { boissons += fo.prix * n; lignes.push({ lib: `${fo.nom} · ${n} × CHF ${fo.prix}`, mt: fo.prix * n }); }
+    // Boissons par personne : le forfait choisi pour les adultes, eaux minérales et jus pour les enfants
+    const kB = Math.min(nbEnfants(), n), aB = n - kB;
+    if (fo.prix && aB) { boissons += fo.prix * aB; lignes.push({ lib: `${fo.nom} · ${aB} adulte${aB > 1 ? "s" : ""} × CHF ${fo.prix}`, mt: fo.prix * aB }); }
+    if (kB && CONFIG.forfaitEnfant != null) { boissons += CONFIG.forfaitEnfant * kB; lignes.push({ lib: `Enfants : eaux minérales et jus · ${kB} × CHF ${CONFIG.forfaitEnfant}`, mt: CONFIG.forfaitEnfant * kB }); }
     CONFIG.bulles.forEach(d => {
       const q = etat.bulles[d.id] || 0;
       if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
@@ -1138,6 +1143,10 @@
       ? `Nombre maximum de ${CONFIG.maxPersonnes} personnes atteint.${groupeTrop ? ` Avec ${nbAdultes()} adultes, ${reste} enfant${reste > 1 ? "s" : ""} au maximum.` : ""}`
       : `Places restantes pour les enfants : ${reste - kRep}.`;
     $("groupe-alerte").classList.toggle("plein", plein);
+    $("enfants-aide").textContent = `${CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, ` : ""}eaux minérales et jus à CHF ${CONFIG.forfaitEnfant}, sans alcool.`;
+    const ae = $("aide-forfait-enfant");
+    ae.classList.toggle("cache", !kRep);
+    if (kRep) ae.textContent = `Pour ${kRep === 1 ? "l’enfant" : `les ${kRep} enfants`} : eaux minérales et jus, CHF ${CONFIG.forfaitEnfant} par enfant, compté automatiquement. Les vins, la bière et le champagne sont prévus pour les adultes seulement.`;
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);
@@ -1640,7 +1649,7 @@
     if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
     if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille consommée" : "offert"})`);
     else if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
-    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}`);
+    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}${nbEnfants() ? " pour les adultes ; eaux minérales et jus pour les enfants" : ""}`);
     l.push(`• Boissons commandées en plus au bar : ${texteBoissons()}`);
     const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
     if (nbH) l.push(`• Trophées et cadeaux : ${modeProduction() === "bossanova" ? "réalisés par le Bossa Nova" : "apportés par nos soins"}`);
@@ -1730,7 +1739,6 @@
     CONFIG.enfantsAge = rg.enfantsAge != null ? (Number(rg.enfantsAge) || 12) : 12;
     CONFIG.enfantsRemise = rg.enfantsRemise != null ? (Number(rg.enfantsRemise) || 0) : 50;
     $("lab-enfants").textContent = `Enfants de moins de ${CONFIG.enfantsAge} ans`;
-    $("enfants-aide").textContent = CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, boissons sans alcool.` : "Boissons sans alcool.";
     const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg });
     ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
       const cours = CONFIG.menu.find(c => c.id === k);
@@ -1747,6 +1755,7 @@
       ? CONFIG.bols.map((b, i) => i ? b.charAt(0).toLowerCase() + b.slice(1) : b).join(", ") + ", en bols sur les tables"
       : "Accompagnements en bols sur les tables";
     CONFIG.forfaits.forEach(f => { if (cat.forfaits[f.id] != null) f.prix = Number(cat.forfaits[f.id]) || 0; });
+    CONFIG.forfaitEnfant = cat.forfaits.enfant != null ? (Number(cat.forfaits.enfant) || 0) : 8;
     const vins = visibles(cat.vins);
     const somme = vins.reduce((a, v) => a + (Number(v.part) || 0), 0) || 1;
     CONFIG.vins = vins.map(v => ({ id: v.id, nom: v.nom, ds: v.ds || "", prix: Number(v.prix) || 0, part: (Number(v.part) || 0) / somme }));
@@ -1769,7 +1778,7 @@
       if (type === "vin") { const it = CONFIG.vins.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "digestif") { const it = CONFIG.digestifs.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "bulle") { const it = CONFIG.bulles.find(x => x.id === a); if (it) it.prix = v; }
-      if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; }
+      if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; if (a === "enfant") CONFIG.forfaitEnfant = v; }
       if (type === "cafe") { CONFIG.cafe.prix = v; CONFIG.cafe.inclus = v === 0; }
       if (type === "bouchon") CONFIG.droitBouchon = v;
       if (type === "afterwork") CONFIG.types.find(x => x.id === "afterwork").prix = v;

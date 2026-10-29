@@ -59,7 +59,7 @@
     },
     cafe: { nom: "Café, espresso ou thé", inclus: true, prix: 4.5 },
     bols: ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"],
-    forfaits: { soft: 12, vin: 4, complet: 14 },
+    forfaits: { soft: 12, vin: 4, complet: 14, enfant: 8 },
     vins: [
       { id: "blanc", nom: "Saint-Saphorin", ds: "Blanc · Lavaux AOC, chasselas", prix: 44, part: 40, actif: true },
       { id: "rouge", nom: "Gamay La Côte", ds: "Rouge · La Côte AOC", prix: 39, part: 40, actif: true },
