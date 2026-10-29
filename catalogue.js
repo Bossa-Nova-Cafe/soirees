@@ -25,7 +25,9 @@
       productionDelaiJours: 15,
       earlyBirdJours: 30,
       earlyBirdRemise: 5,
-      droitBouchon: 10
+      droitBouchon: 10,
+      enfantsAge: 12,
+      enfantsRemise: 50
     },
     menu: {
       bienvenue: [
