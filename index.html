@@ -145,6 +145,7 @@
   .retour .sous-retour { font-size: 12px; color: var(--gris); margin-bottom: 8px; }
   .retour-ligne { display: flex; gap: 10px; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid #efe8d6; }
   .retour-ligne:last-child { border-bottom: 0; }
+  .retour-groupe { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--violet, #6b3fa0); margin: 12px 0 2px; }
   .retour-ligne .dest { flex: 0 0 120px; font-weight: 600; }
   .retour-ligne .dep { flex: 1; }
   .retour-ligne .dep small { color: var(--gris); }
@@ -464,15 +465,19 @@
       depart: "Vevey",
       marge: 10,            // minutes entre la fin de la soirée et le premier départ proposé
       destinations: [
-        { nom: "Lausanne", q: "Lausanne" },
-        { nom: "Montreux", q: "Montreux" },
-        { nom: "Genève", q: "Genève" },
-        { nom: "Fribourg", q: "Fribourg" },
-        { nom: "Berne", q: "Bern" },
-        { nom: "Sion", q: "Sion" },
-        { nom: "Blonay", q: "Blonay" },
-        { nom: "La Tour-de-Peilz", q: "La Tour-de-Peilz" },
-        { nom: "Corsier-sur-Vevey", q: "Corsier-sur-Vevey" }
+        { nom: "Lausanne", q: "Lausanne", groupe: "Grandes lignes" },
+        { nom: "Genève", q: "Genève", groupe: "Grandes lignes" },
+        { nom: "Fribourg", q: "Fribourg", groupe: "Grandes lignes" },
+        { nom: "Berne", q: "Bern", groupe: "Grandes lignes" },
+        { nom: "Sion", q: "Sion", groupe: "Grandes lignes" },
+        { nom: "Montreux", q: "Montreux", groupe: "Région" },
+        { nom: "Clarens", q: "Clarens", groupe: "Région" },
+        { nom: "Villeneuve", q: "Villeneuve VD", groupe: "Région" },
+        { nom: "La Tour-de-Peilz", q: "La Tour-de-Peilz", groupe: "Région" },
+        { nom: "Corsier-sur-Vevey", q: "Corsier-sur-Vevey", groupe: "Région" },
+        { nom: "Blonay", q: "Blonay", groupe: "Région" },
+        { nom: "Châtel-Saint-Denis", q: "Châtel-St-Denis", groupe: "Région" },
+        { nom: "Palézieux", q: "Palézieux", groupe: "Région" }
       ]
     },
     types: [
@@ -1216,8 +1221,8 @@
         const liste = (js.connections || []).map(lireConnexion).filter(x => x.dep)
           .filter(x => { const t = new Date(x.dep), a = new Date(x.arr); return (t - finAbs) / 60000 >= 0 && (t - finAbs) / 60000 <= 150 && (a - t) / 60000 <= 180; })
           .slice(0, 2);
-        return { nom: d.nom, liste, ok: true };
-      } catch (e) { return { nom: d.nom, liste: [], ok: false }; }
+        return { nom: d.nom, groupe: d.groupe, liste, ok: true };
+      } catch (e) { return { nom: d.nom, groupe: d.groupe, liste: [], ok: false }; }
     }));
   }
   function majRetour(r, finMin) {
@@ -1253,7 +1258,12 @@
     if (retour.etat === "erreur") { note.innerHTML = `Les horaires ne sont pas disponibles pour le moment. Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`; return; }
     const avec = retour.resultats.filter(x => x.liste.length);
     if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
+    let groupe = null;
     retour.resultats.forEach(d => {
+      if (d.groupe && d.groupe !== groupe) {
+        groupe = d.groupe;
+        const g = document.createElement("div"); g.className = "retour-groupe"; g.textContent = groupe; z.appendChild(g);
+      }
       const el = document.createElement("div"); el.className = "retour-ligne";
       el.innerHTML = `<div class="dest"></div><div class="dep"></div>`;
       el.querySelector(".dest").textContent = d.nom;
