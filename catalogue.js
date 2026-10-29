@@ -67,6 +67,9 @@
       { id: "williamine", nom: "Williamine du Valais", ds: "Eau-de-vie de poire, 70 cl · environ 17 verres", prix: 79, actif: true },
       { id: "maracuja-liqueur", nom: "Liqueur de fruit de la passion", ds: "50 cl · environ 12 verres", prix: 49, actif: true }
     ],
+    bulles: [
+      { id: "leonie", nom: "Champagne Canard-Duchêne Brut Léonie", ds: "75 cl · environ 6 coupes", prix: 69, actif: true }
+    ],
     honneurs: { trofeu: 35, revelacao: 35, anos: 30, boaviagem: 50 }
   };
 
@@ -85,7 +88,7 @@
     ["contacts", "saison", "moments", "regles", "forfaits", "honneurs", "cafe"].forEach(k => { if (cat[k]) Object.assign(c[k], cat[k]); });
     c.version = DEFAUT.version;
     if (cat.menu) ["bienvenue", "entree", "plat", "dessert"].forEach(k => { if (Array.isArray(cat.menu[k])) c.menu[k] = cat.menu[k]; });
-    ["bols", "vins", "digestifs"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
+    ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     c.majLe = cat.majLe || null;
     return c;
   }

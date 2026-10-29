@@ -120,6 +120,7 @@
 
   footer { text-align: center; color: var(--creme); opacity: .75; font-size: 12.5px; padding: 0 16px 28px; }
   .cache { display: none !important; }
+  button.lien { background: none; border: 0; padding: 0; margin-left: 6px; font: inherit; font-weight: 600; color: var(--violet); text-decoration: underline; cursor: pointer; }
   .impression-seule { display: none; }
 
   .placement { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bord); font-size: 14px; }
@@ -318,7 +319,13 @@
       <label class="champ">3. Les digestifs, à la bouteille</label>
       <div class="aide" style="margin-top:0">Posées sur la table pour le groupe, à un prix de bouteille avantageux. Non inclus : ajoutez celles que vous voulez.</div>
       <div id="digestifs"></div>
-      <label class="champ">4. Les boissons commandées en plus au bar</label>
+      <div id="bloc-bulles">
+        <label class="champ">4. Les bulles, pour trinquer</label>
+        <div class="aide" style="margin-top:0">Une coupe pour lever son verre au bon moment : à l’accueil, avec les trophées ou au dessert. Vous choisissez le moment dans le programme.</div>
+        <div id="bulles"></div>
+        <div class="aide" id="bulles-conseil" style="margin-top:6px"></div>
+      </div>
+      <label class="champ" id="titre-bar">5. Les boissons commandées en plus au bar</label>
       <div class="aide" style="margin-top:0;margin-bottom:8px">Un cocktail, une bière, un apéritif : tout ce qui n’est pas prévu ci-dessus. Ces boissons ne sont pas dans le total estimé. Qui les paie ?</div>
       <div class="choix-boissons" id="choix-boissons">
         <label><input type="radio" name="boissons" value="individuel" checked>
@@ -537,6 +544,11 @@
       { id: "classique", lib: "Classique : 1 bouteille pour 2 (≈ 3,5 dl / pers.)", ratio: 1 / 2 },
       { id: "genereux", lib: "Généreux : 2 bouteilles pour 3 (≈ 4,7 dl / pers.)", ratio: 2 / 3 }
     ],
+    // Bulles pour trinquer (bouteille de 75 cl = environ 6 coupes)
+    bulles: [
+      { id: "leonie", nom: "Champagne Canard-Duchêne Brut Léonie", ds: "75 cl · environ 6 coupes", prix: 69 }
+    ],
+    coupesParBouteille: 6,
     // Digestifs à la bouteille (une bouteille de 70 cl = environ 17 verres de 4 cl)
     digestifs: [
       { id: "cachaca", nom: "Cachaça artisanale", ds: "Minas Gerais, 70 cl · environ 17 verres", prix: 65 },
@@ -601,7 +613,7 @@
     return new Date(Date.UTC(a, m - 1, j)).getUTCDay();
   }
 
-  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
+  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
 
   // ---------- Construction de l'interface ----------
   function construireTypes() {
@@ -723,6 +735,25 @@
       dz.appendChild(el);
     });
   }
+
+  function construireBulles() {
+    const z = $("bulles");
+    $("bloc-bulles").classList.toggle("cache", !CONFIG.bulles.length);
+    if (!CONFIG.bulles.length) $("titre-bar").textContent = "4. Les boissons commandées en plus au bar";
+    CONFIG.bulles.forEach(d => {
+      etat.bulles[d.id] = 0;
+      const el = document.createElement("div");
+      el.className = "digestif";
+      el.innerHTML = `<div class="texte"><div class="titre"></div><div class="detail"></div></div><div class="montant"></div><input type="number" min="0" max="20" value="0" aria-label="Nombre de bouteilles">`;
+      el.querySelector(".titre").textContent = d.nom;
+      el.querySelector(".detail").textContent = d.ds;
+      el.querySelector(".montant").textContent = `CHF ${d.prix} la bouteille`;
+      const q = el.querySelector("input"); q.id = "bulle-" + d.id;
+      q.addEventListener("input", () => { etat.bulles[d.id] = Math.max(0, Math.min(20, Math.floor(Number(q.value) || 0))); maj(); });
+      z.appendChild(el);
+    });
+  }
+  const totalBulles = () => CONFIG.bulles.reduce((a, d) => a + (etat.bulles[d.id] || 0), 0);
 
   // Nombre de bouteilles conseillé selon les invités, réparti blanc / rouge / rosé
   function repartirVins(n) {
@@ -865,6 +896,10 @@
       lignes.push({ lib: `Droit de bouchon, votre vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
     }
     if (fo.prix) { boissons += fo.prix * n; lignes.push({ lib: `${fo.nom} · ${n} × CHF ${fo.prix}`, mt: fo.prix * n }); }
+    CONFIG.bulles.forEach(d => {
+      const q = etat.bulles[d.id] || 0;
+      if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
+    });
     CONFIG.digestifs.forEach(d => {
       const q = etat.digestifs[d.id] || 0;
       if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
@@ -980,6 +1015,13 @@
     $("apporte-prix").textContent = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} la bouteille` : "Offert";
     $("apporte-detail").textContent = `Pour ${r.n} invités, environ ${(etat.bouteillesApportees * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
     CONFIG.vins.forEach(v => { const q = $("vin-" + v.id); if (document.activeElement !== q) q.value = etat.bouteilles[v.id] || 0; });
+    if (CONFIG.bulles.length) {
+      CONFIG.bulles.forEach(d => { const q = $("bulle-" + d.id); if (q && document.activeElement !== q) q.value = etat.bulles[d.id] || 0; });
+      const conseil = Math.ceil(r.n / CONFIG.coupesParBouteille), deja = totalBulles();
+      $("bulles-conseil").innerHTML = deja >= conseil
+        ? `${deja} bouteille${deja > 1 ? "s" : ""} : environ ${deja * CONFIG.coupesParBouteille} coupes pour ${r.n} invités.`
+        : `Pour une coupe par invité : ${conseil} bouteille${conseil > 1 ? "s" : ""}. <button type="button" class="lien" data-n="${conseil}">Prévoir ${conseil} bouteille${conseil > 1 ? "s" : ""}</button>`;
+    }
     const tb = totalBouteilles();
     $("vins-total").textContent = `${tb} bouteille${tb > 1 ? "s" : ""} pour ${r.n} invités, soit environ ${(tb * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
 
@@ -1117,6 +1159,7 @@
     const ev = [];
     const amigo = CONFIG.options.find(o => o.id === "amigo");
     if (etat.options.amigo && r.moment !== "afterwork") ev.push({ id: "amigo", titre: amigo.titreProg, sous: amigo.sousProg, defaut: amigo.defaut, duree: Math.max(20, Math.round(r.n * 1.5 / 5) * 5) });
+    if (totalBulles() && r.moment !== "afterwork") ev.push({ id: "toast", titre: "On trinque au champagne", sous: "Une coupe pour chacun", defaut: "apres_bienvenue", duree: 10 });
     CONFIG.honneurs.forEach(h => {
       const k = etat.honneurs[h.id] || 0;
       if (k) ev.push({ id: h.id, titre: (h.id === "trofeu" && $("societe").value.trim()) ? `Remise des Trophées ${$("societe").value.trim()}` : h.titreProg, sous: h.sousProg, defaut: h.defaut, duree: Math.ceil(h.duree(k) / 5) * 5 });
@@ -1470,6 +1513,7 @@
     const vins = visibles(cat.vins);
     const somme = vins.reduce((a, v) => a + (Number(v.part) || 0), 0) || 1;
     CONFIG.vins = vins.map(v => ({ id: v.id, nom: v.nom, ds: v.ds || "", prix: Number(v.prix) || 0, part: (Number(v.part) || 0) / somme }));
+    CONFIG.bulles = visibles(cat.bulles || []).map(d => ({ id: d.id, nom: d.nom, ds: d.ds || "", prix: Number(d.prix) || 0 }));
     CONFIG.digestifs = visibles(cat.digestifs).map(d => ({ id: d.id, nom: d.nom, ds: d.ds || "", prix: Number(d.prix) || 0 }));
     CONFIG.honneurs.forEach(h => { if (cat.honneurs[h.id] != null) h.prix = Number(cat.honneurs[h.id]) || 0; });
   }
@@ -1487,6 +1531,7 @@
       }
       if (type === "vin") { const it = CONFIG.vins.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "digestif") { const it = CONFIG.digestifs.find(x => x.id === a); if (it) it.prix = v; }
+      if (type === "bulle") { const it = CONFIG.bulles.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "cafe") { CONFIG.cafe.prix = v; CONFIG.cafe.inclus = v === 0; }
       if (type === "bouchon") CONFIG.droitBouchon = v;
@@ -1534,6 +1579,11 @@
   construireTypes();
   construireMenu();
   construireBoissons();
+  construireBulles();
+  $("bulles-conseil").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || !CONFIG.bulles.length) return;
+    const d = CONFIG.bulles[0]; etat.bulles[d.id] = Number(b.dataset.n); maj();
+  });
   repartirPortions(Number($("personnes").value));
   repartirVins(Number($("personnes").value));
   estimerApport(Number($("personnes").value));
