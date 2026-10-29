@@ -140,6 +140,16 @@
   .prog-liste .t { font-weight: 600; font-size: 15px; }
   .prog-liste li.evenement .t { color: var(--violet); }
   .prog-liste .d { color: var(--gris); font-size: 13px; line-height: 1.45; }
+  .retour { border-top: 1px dashed var(--bord); margin: 6px 0 10px; padding-top: 12px; }
+  .retour h3 { font-size: 15px; margin: 0 0 2px; color: var(--vert); }
+  .retour .sous-retour { font-size: 12px; color: var(--gris); margin-bottom: 8px; }
+  .retour-ligne { display: flex; gap: 10px; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid #efe8d6; }
+  .retour-ligne:last-child { border-bottom: 0; }
+  .retour-ligne .dest { flex: 0 0 120px; font-weight: 600; }
+  .retour-ligne .dep { flex: 1; }
+  .retour-ligne .dep small { color: var(--gris); }
+  .retour-note { font-size: 12px; color: var(--gris); margin-top: 6px; }
+  .retour-note a { color: inherit; }
   .prog-pied { text-align: center; color: var(--gris); font-size: 12px; border-top: 1px dashed var(--bord); padding-top: 10px; margin-top: 4px; }
   .prog-boutons { margin-top: 10px; }
   @media print {
@@ -359,6 +369,12 @@
       </div>
       <ol class="prog-liste" id="prog-liste"></ol>
       <div class="alerte cache pas-imprime" id="prog-alerte"></div>
+      <div class="retour" id="retour">
+        <h3>Pour rentrer</h3>
+        <div class="sous-retour" id="retour-sous"></div>
+        <div id="retour-liste"></div>
+        <div class="retour-note" id="retour-note"></div>
+      </div>
       <div class="prog-pied">Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</div>
       <div class="pas-imprime prog-boutons">
         <a class="bouton wa" id="prog-wa" href="#" target="_blank" rel="noopener">Envoyer le programme par WhatsApp</a>
@@ -443,6 +459,21 @@
     acompteTaux: 0.30,
     prolongationParHeure: 200,        // CHF, vendredi et samedi
     // Moment : soirée privatisée, déjeuner ou afterwork
+    // Retour en transports publics : départs depuis la gare de Vevey après la fin
+    retour: {
+      depart: "Vevey",
+      destinations: [
+        { nom: "Lausanne", q: "Lausanne" },
+        { nom: "Montreux", q: "Montreux" },
+        { nom: "Genève", q: "Genève" },
+        { nom: "Fribourg", q: "Fribourg" },
+        { nom: "Berne", q: "Bern" },
+        { nom: "Sion", q: "Sion" },
+        { nom: "Blonay", q: "Blonay" },
+        { nom: "La Tour-de-Peilz", q: "La Tour-de-Peilz" },
+        { nom: "Corsier-sur-Vevey", q: "Corsier-sur-Vevey" }
+      ]
+    },
     types: [
       { id: "soir", nom: "Soirée privatisée", quand: "19h00–23h30, prolongation possible jusqu'à 00h30",
         desc: "Le Bossa Nova ferme ses portes pour vous. Menu à composer.", privatise: true },
@@ -1158,6 +1189,81 @@
     return { sequence, deborde: reste < 0 ? -reste : 0 };
   }
 
+  // ---------- Retour en train et en bus (horaire officiel, transport.opendata.ch) ----------
+  const retour = { cle: null, etat: "vide", resultats: [], cache: {}, minuterie: null };
+  const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+  const heureIso = s => { const d = new Date(s); return String(d.getHours()).padStart(2, "0") + "h" + String(d.getMinutes()).padStart(2, "0"); };
+  function decalerDate(iso, jours) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + jours); return d.toISOString().slice(0, 10); }
+  function lireConnexion(c) {
+    const sec = (c.sections || []).find(s => s.journey);
+    const j = sec ? sec.journey : {};
+    const ligne = [j.category, j.number].filter(Boolean).join(" ").trim();
+    return { dep: c.from && c.from.departure, arr: c.to && c.to.arrival, chg: Number(c.transfers) || 0, ligne };
+  }
+  async function chercherRetour(date, temps, finAbs) {
+    const r = CONFIG.retour;
+    return Promise.all(r.destinations.map(async d => {
+      const url = "https://transport.opendata.ch/v1/connections?" + new URLSearchParams({ from: r.depart, to: d.q, date, time: temps, limit: "4" });
+      try {
+        const rep = await fetch(url);
+        if (!rep.ok) throw new Error(rep.status);
+        const js = await rep.json();
+        const liste = (js.connections || []).map(lireConnexion).filter(x => x.dep)
+          .filter(x => { const t = new Date(x.dep); return (t - finAbs) / 60000 >= -2 && (t - finAbs) / 60000 <= 150; })
+          .slice(0, 2);
+        return { nom: d.nom, liste, ok: true };
+      } catch (e) { return { nom: d.nom, liste: [], ok: false }; }
+    }));
+  }
+  function majRetour(r, finMin) {
+    const sous = $("retour-sous"), note = $("retour-note");
+    if (!r.date) { retour.cle = null; retour.etat = "vide"; sous.textContent = ""; $("retour-liste").innerHTML = ""; note.textContent = "Choisissez une date : les prochains trains et bus depuis la gare de Vevey s’afficheront ici."; return; }
+    const date = finMin >= 1440 ? decalerDate(r.date, 1) : r.date;
+    const temps = hhmm(finMin);
+    const cle = date + "|" + temps;
+    sous.textContent = `Prochains départs depuis la gare de Vevey, à une minute, après ${temps.replace(":", "h")}`;
+    if (cle === retour.cle && retour.etat !== "vide") return;
+    retour.cle = cle;
+    if (retour.cache[cle]) { retour.etat = "ok"; retour.resultats = retour.cache[cle]; dessinerRetour(); return; }
+    retour.etat = "charge"; retour.resultats = []; dessinerRetour();
+    clearTimeout(retour.minuterie);
+    retour.minuterie = setTimeout(async () => {
+      const finAbs = new Date(date + "T" + temps + ":00");
+      const res = await chercherRetour(date, temps, finAbs);
+      if (retour.cle !== cle) return;
+      const aucunAcces = res.every(x => !x.ok);
+      retour.etat = aucunAcces ? "erreur" : "ok";
+      retour.resultats = res;
+      if (!aucunAcces) retour.cache[cle] = res;
+      dessinerRetour();
+      maj();
+    }, 500);
+  }
+  function dessinerRetour() {
+    const z = $("retour-liste"), note = $("retour-note");
+    const lienCff = `Horaires officiels CFF. À revérifier sur <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> le jour même.`;
+    z.innerHTML = "";
+    if (retour.etat === "charge") { note.textContent = "Recherche des horaires…"; return; }
+    if (retour.etat === "erreur") { note.innerHTML = `Les horaires ne sont pas disponibles pour le moment. Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`; return; }
+    const avec = retour.resultats.filter(x => x.liste.length);
+    if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
+    retour.resultats.forEach(d => {
+      const el = document.createElement("div"); el.className = "retour-ligne";
+      el.innerHTML = `<div class="dest"></div><div class="dep"></div>`;
+      el.querySelector(".dest").textContent = d.nom;
+      el.querySelector(".dep").innerHTML = d.liste.length
+        ? d.liste.map(x => `<b>${heureIso(x.dep)}</b> <small>${esc(x.ligne)} · arrivée ${heureIso(x.arr)}${x.chg ? ` · ${x.chg} changement${x.chg > 1 ? "s" : ""}` : " · direct"}</small>`).join("<br>")
+        : `<small>Plus de liaison ce soir : nous pouvons vous réserver un taxi.</small>`;
+      z.appendChild(el);
+    });
+    note.innerHTML = lienCff;
+  }
+  function texteRetour() {
+    if (retour.etat !== "ok") return [];
+    return retour.resultats.filter(d => d.liste.length).map(d => `• ${d.nom} : ` + d.liste.map(x => `${heureIso(x.dep)} (${x.chg ? x.chg + " chg" : "direct"}, arr. ${heureIso(x.arr)})`).join(", "));
+  }
+  const esc = s => String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
   function texteProgramme(r, prog) {
     const l = [];
     l.push($("societe").value.trim() ? `${$("societe").value.trim()}` : "Notre Confra");
@@ -1165,6 +1271,8 @@
     if (r.date) l.push(dateLisible(r.date).replace(/^./, c => c.toUpperCase()));
     l.push("");
     prog.sequence.forEach(x => l.push(`${heure(x.h)}  ${x.t}${x.d ? " — " + x.d : ""}`));
+    const rt = texteRetour();
+    if (rt.length) { l.push(""); l.push("Pour rentrer (prochains départs depuis la gare de Vevey) :"); rt.forEach(x => l.push(x)); l.push("Horaires CFF : à revérifier sur sbb.ch le jour même."); }
     l.push("");
     l.push("Bossa Nova Café, Place de la Gare 3, 1800 Vevey — à une minute du quai.");
     return l.join("\n");
@@ -1192,6 +1300,7 @@
     const al = $("prog-alerte");
     al.textContent = prog.deborde ? `Le programme dépasse l'heure de fin d'environ ${prog.deborde} minutes. Retirez une animation, ou ajoutez une prolongation jusqu'à 00h30.` : "";
     al.classList.toggle("cache", !prog.deborde);
+    majRetour(r, prog.sequence[prog.sequence.length - 1].h);
     const txt = texteProgramme(r, prog);
     $("prog-wa").href = "https://wa.me/?text=" + encodeURIComponent(txt);
     $("prog-mail").href = `mailto:?subject=${encodeURIComponent(($("societe").value.trim() ? $("societe").value.trim() + " — " : "") + "Programme de notre Confra au Bossa Nova Café")}&body=${encodeURIComponent(txt)}`;
