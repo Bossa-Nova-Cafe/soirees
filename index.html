@@ -190,6 +190,8 @@
   .plat.avec-photo > div:not(.px) { flex: 1 1 0; min-width: 0; }
   .tete-plat { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; }
   .tete-plat .px { white-space: nowrap; text-align: right; }
+  .tete-plat .n { flex: 1; min-width: 0; }
+  .tete-plat input[type=radio] { flex: 0 0 auto; margin: 3px 0 0; align-self: flex-start; }
   .vignette.large { flex: 0 0 100%; width: 100%; height: 140px; margin-bottom: 2px; }
   dialog#photo-grande .leg div { min-width: 0; }
   dialog#photo-grande .leg button { width: auto !important; margin: 0 !important; }
@@ -728,7 +730,7 @@
         el.dataset.cours = c.id; el.dataset.id = p.id;
         el.innerHTML = c.id === "plat"
           ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Portions : <input type="number" min="0" max="30" value="0"></div></div>`
-          : `<input type="radio" name="menu-${c.id}" value="${p.id}"><div><div class="n"></div><div class="ds"></div></div><div class="px"></div>`;
+          : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
         if (p.photo) {
           const v = document.createElement("button");
