@@ -253,7 +253,7 @@
   <p class="slogan">Fermé au public. Ouvert à votre fête.</p>
   <p>La nouvelle façon de fêter entre collègues, membres ou amis : un lieu rien que pour vous, tout organisé, et à votre image jusqu'à la musique. Composez votre soirée et voyez votre budget en direct.</p>
   <div class="atouts">
-    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour votre groupe, de 12 à 30 personnes.</span></div>
+    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour votre groupe, de 12 à <span class="max-pers">26</span> personnes, enfants compris.</span></div>
     <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour vos invités : nous nous occupons de tout.</span></div>
     <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
   </div>
@@ -265,7 +265,7 @@
     <!-- 1. Groupe et date -->
     <div class="carte pas-imprime">
       <h2>1. Votre groupe</h2>
-      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
+      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 26 personnes, enfants compris, rien que pour vous.</p>
       <label class="champ" id="lab-profil">Vous êtes</label>
       <div class="profils" id="profils" role="radiogroup" aria-labelledby="lab-profil">
         <label class="choisie"><input type="radio" name="profil" value="entreprise" checked>Une entreprise<small>collègues, équipe</small></label>
@@ -274,11 +274,11 @@
       </div>
       <label class="champ" for="personnes">Nombre de personnes</label>
       <div class="compteur">
-        <input type="range" id="personnes" min="12" max="30" value="20">
+        <input type="range" id="personnes" min="12" max="26" value="20">
         <span class="valeur" id="personnes-val">20</span>
       </div>
       <label class="champ" for="enfants" id="lab-enfants">Dont enfants de moins de 12 ans</label>
-      <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="30" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
+      <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="26" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
       <div class="aide" id="date-aide"></div>
@@ -500,6 +500,7 @@
     email: "vevey@bossanova-cafe.ch",
     saisonDebut: "2026-11-16",
     saisonFin: "2027-02-28",
+    maxPersonnes: 26,                 // capacité maximale, enfants compris
     enfantsAge: 12,                   // enfants de moins de 12 ans
     enfantsRemise: 50,                // remise en % sur le menu pour les enfants
     droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
@@ -701,7 +702,7 @@
     if (actifs.length <= 1) {
       $("carte-moment").classList.add("cache");
       const seul = actifs[0];
-      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à 30 personnes. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
+      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
       let k = 0;
       document.querySelectorAll(".carte > h2").forEach(h => {
         if (h.closest(".cache") || !/^\d+\.\s/.test(h.textContent)) return;
@@ -735,7 +736,7 @@
         el.className = "plat";
         el.dataset.cours = c.id; el.dataset.id = p.id;
         el.innerHTML = c.id === "plat"
-          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes : <input type="number" min="0" max="30" value="0"></div></div>`
+          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes : <input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0"></div></div>`
           : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
         if (p.photo) {
@@ -757,7 +758,7 @@
           el.querySelector(".px").textContent = p.inclus ? "Compris" : `${chf(p.prix)} / personne`;
           r.addEventListener("input", () => {
             etat.portionsAuto = false;
-            etat.portions[p.id] = Math.max(0, Math.min(30, Math.floor(Number(r.value) || 0)));
+            etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, Math.floor(Number(r.value) || 0)));
             maj();
           });
           el.addEventListener("click", e => { if (e.target !== r) r.focus(); });
@@ -1685,6 +1686,11 @@
     CONFIG.options.find(o => o.id === "prolongation").prixParHeure = Number(rg.prolongationParHeure) || 0;
     CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
     CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
+    CONFIG.maxPersonnes = Math.max(12, Number(rg.maxPersonnes) || 26);
+    $("personnes").max = CONFIG.maxPersonnes; $("enfants").max = CONFIG.maxPersonnes;
+    if (Number($("personnes").value) > CONFIG.maxPersonnes) $("personnes").value = CONFIG.maxPersonnes;
+    document.querySelectorAll(".max-pers").forEach(x => { x.textContent = CONFIG.maxPersonnes; });
+    if ($("sous-groupe").textContent.includes("accueille")) $("sous-groupe").textContent = `Le Bossa Nova accueille de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris, rien que pour vous.`;
     CONFIG.enfantsAge = rg.enfantsAge != null ? (Number(rg.enfantsAge) || 12) : 12;
     CONFIG.enfantsRemise = rg.enfantsRemise != null ? (Number(rg.enfantsRemise) || 0) : 50;
     $("lab-enfants").textContent = `Dont enfants de moins de ${CONFIG.enfantsAge} ans`;
@@ -1748,7 +1754,7 @@
     CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
   }
   function preremplirOffre(o) {
-    if (o.personnes) $("personnes").value = Math.max(12, Math.min(30, Number(o.personnes)));
+    if (o.personnes) $("personnes").value = Math.max(12, Math.min(CONFIG.maxPersonnes, Number(o.personnes)));
     if (o.client) $("societe").value = o.client;
     if (o.date) $("date").value = o.date;
     const b = $("offre-bandeau");
