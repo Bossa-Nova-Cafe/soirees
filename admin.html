@@ -176,6 +176,14 @@
     </section>
 
     <section class="carte">
+      <h2>Bulles pour trinquer</h2>
+      <p class="sous">Champagne ou mousseux à la bouteille de 75 cl, non inclus. Le calculateur suggère une coupe par invité (environ 6 par bouteille).</p>
+      <div class="entete-liste"><span>Visible</span><span>Nom</span><span>Description</span><span>Prix bouteille</span><span></span><span></span></div>
+      <div class="liste" id="bulles"></div>
+      <button class="btn ajouter" type="button" id="ajout-bulle">+ Ajouter des bulles</button>
+    </section>
+
+    <section class="carte">
       <h2>Digestifs à la bouteille</h2>
       <p class="sous">Non inclus, proposés à la bouteille.</p>
       <div class="entete-liste"><span>Visible</span><span>Nom</span><span>Description</span><span>Prix bouteille</span><span></span><span></span></div>
@@ -499,7 +507,11 @@
     cat.digestifs.forEach((_, i) => z.appendChild(ligneArticle(cat.digestifs, i, rendreDigestifs, { prix: true })));
   }
 
-  function rendreTout() { rendreChamps(); rendreMenu(); rendreBols(); rendreVins(); rendreDigestifs(); remplirArticles(); majStatut(); }
+  function rendreBulles() {
+    const z = $("bulles"); z.innerHTML = "";
+    cat.bulles.forEach((_, i) => z.appendChild(ligneArticle(cat.bulles, i, rendreBulles, { prix: true })));
+  }
+  function rendreTout() { rendreChamps(); rendreMenu(); rendreBols(); rendreVins(); rendreBulles(); rendreDigestifs(); remplirArticles(); majStatut(); }
 
   // ---------- Contrôle avant enregistrement ----------
   function verifier() {
@@ -520,7 +532,7 @@
       });
       if (c.id !== "entree" && !l.some(x => x.actif !== false)) err.push(`${c.titre} : au moins un élément doit rester visible.`);
     });
-    [["vins", "Vins"], ["digestifs", "Digestifs"]].forEach(([k, t]) => cat[k].forEach(x => {
+    [["vins", "Vins"], ["bulles", "Bulles"], ["digestifs", "Digestifs"]].forEach(([k, t]) => cat[k].forEach(x => {
       const ligne = document.querySelector(`#${k} [data-id="${CSS.escape(x.id)}"]`);
       if (!String(x.nom || "").trim()) { err.push(`${t} : un élément n’a pas de nom.`); if (ligne) marque(ligne.querySelector(".c-nom")); }
       if (x.prix === "" || Number(x.prix) < 0) { err.push(`${t} : « ${x.nom || "sans nom"} » n’a pas de prix valable.`); if (ligne) marque(ligne.querySelector(".c-prix")); }
@@ -583,6 +595,7 @@
       l.push({ cle: `forfait.${k}`, lib: n + " (par personne)", prix: Number(cat.forfaits[k]) || 0 }));
     cat.vins.filter(x => x.actif !== false).forEach(x => l.push({ cle: `vin.${x.id}`, lib: `Vin : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     l.push({ cle: "bouchon", lib: "Droit de bouchon, vin apporté (bouteille)", prix: Number(cat.regles.droitBouchon) || 0 });
+    cat.bulles.filter(x => x.actif !== false).forEach(x => l.push({ cle: `bulle.${x.id}`, lib: `Bulles : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     cat.digestifs.filter(x => x.actif !== false).forEach(x => l.push({ cle: `digestif.${x.id}`, lib: `Digestif : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     l.push({ cle: "gateau", lib: "Gâteau de fête (par personne)", prix: Number(cat.regles.gateauParPersonne) || 0 });
     l.push({ cle: "prolongation", lib: "Prolongation (par heure)", prix: Number(cat.regles.prolongationParHeure) || 0 });
@@ -753,6 +766,7 @@
   $("annuler").addEventListener("click", () => { cat = JSON.parse(sauve); rendreTout(); message("Modifications annulées.", "info"); });
   $("ajout-bol").addEventListener("click", () => { cat.bols.push(""); rendreBols(); majStatut(); const e = $("bols").querySelectorAll("input"); e[e.length - 1].focus(); });
   $("ajout-vin").addEventListener("click", () => { cat.vins.push({ id: nouvelId("vin"), nom: "", ds: "", prix: 0, part: 0, actif: true }); rendreVins(); majStatut(); });
+  $("ajout-bulle").addEventListener("click", () => { cat.bulles.push({ id: nouvelId("bulle"), nom: "", ds: "75 cl · environ 6 coupes", prix: 0, actif: true }); rendreBulles(); majStatut(); });
   $("ajout-digestif").addEventListener("click", () => { cat.digestifs.push({ id: nouvelId("digestif"), nom: "", ds: "", prix: 0, actif: true }); rendreDigestifs(); majStatut(); });
   $("exporter").addEventListener("click", exporter);
   $("importer").addEventListener("change", e => { if (e.target.files[0]) importer(e.target.files[0]); e.target.value = ""; });
