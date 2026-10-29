@@ -191,7 +191,9 @@
   .tete-plat { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; }
   .enfants-ligne { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .enfants-ligne input { width: 90px; }
-  .repartition { margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--vert); }
+  .total-groupe { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: #f4f9f5; color: var(--vert); font-size: 15px; }
+  .total-groupe strong { font-family: "Anton", sans-serif; font-weight: 400; font-size: 24px; margin: 0 2px; }
+  .total-groupe span { font-size: 13px; color: var(--gris); }
   .tete-plat .px { white-space: nowrap; text-align: right; }
   .tete-plat .n { flex: 1; min-width: 0; }
   .tete-plat input[type=radio] { flex: 0 0 auto; margin: 3px 0 0; align-self: flex-start; }
@@ -273,14 +275,15 @@
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
       </div>
-      <label class="champ" for="personnes">Nombre total de personnes, adultes et enfants</label>
+      <label class="champ" for="adultes">Adultes</label>
       <div class="compteur">
-        <input type="range" id="personnes" min="12" max="26" value="20">
-        <span class="valeur" id="personnes-val">20</span>
+        <input type="range" id="adultes" min="1" max="26" value="20">
+        <span class="valeur" id="adultes-val">20</span>
       </div>
-      <label class="champ" for="enfants" id="lab-enfants">Dont enfants de moins de 12 ans</label>
-      <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="26" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
-      <div class="repartition" id="repartition"></div>
+      <label class="champ" for="enfants" id="lab-enfants">Enfants de moins de 12 ans</label>
+      <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="25" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
+      <div class="total-groupe">Total : <strong id="personnes-val">20</strong> personnes <span id="repartition"></span></div>
+      <input type="hidden" id="personnes" value="20">
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
       <div class="aide" id="date-aide"></div>
@@ -852,8 +855,21 @@
   const totalBulles = () => CONFIG.bulles.reduce((a, d) => a + (etat.bulles[d.id] || 0), 0);
 
   // Nombre de bouteilles conseillé selon les invités, réparti blanc / rouge / rosé
-  const nbEnfants = () => Math.max(0, Math.min(Number($("personnes").value) - 1, Math.floor(Number($("enfants").value) || 0)));
-  const nbAdultes = () => Math.max(0, Number($("personnes").value) - nbEnfants());
+  const nbEnfants = () => Math.max(0, Math.floor(Number($("enfants").value) || 0));
+  const nbAdultes = () => Math.max(1, Math.floor(Number($("adultes").value) || 1));
+  // Adultes + enfants : le total ne dépasse jamais le maximum et ne descend pas sous 12
+  function synchroGroupe(source) {
+    const max = CONFIG.maxPersonnes || 26;
+    let a = nbAdultes(), k = nbEnfants();
+    if (source === "enfants") { k = Math.min(k, max - 1); a = Math.min(a, max - k); }
+    else { a = Math.min(a, max - k); }
+    if (a + k < 12) a = 12 - k;
+    $("adultes").value = a;
+    if (document.activeElement !== $("enfants") || Number($("enfants").value) !== k) $("enfants").value = k;
+    $("personnes").value = a + k;
+    repartirPortions(a + k); repartirVins(a); estimerApport(a);
+    maj();
+  }
   function repartirVins(n) {
     if (!etat.vinsAuto) return;
     const c = CONFIG.consommations.find(x => x.id === etat.conso);
@@ -1104,9 +1120,9 @@
     $("erreur").textContent = "";
     const r = calculer();
     $("personnes-val").textContent = r.n;
+    $("adultes-val").textContent = nbAdultes();
     const kRep = nbEnfants();
-    $("repartition").textContent = kRep ? `${r.n - kRep} adulte${r.n - kRep > 1 ? "s" : ""} + ${kRep} enfant${kRep > 1 ? "s" : ""} = ${r.n} personnes (maximum ${CONFIG.maxPersonnes})` : "";
-    if (document.activeElement !== $("enfants") && Number($("enfants").value) > r.n - 1) $("enfants").value = r.n - 1;
+    $("repartition").textContent = `(${nbAdultes()} adulte${nbAdultes() > 1 ? "s" : ""}${kRep ? ` + ${kRep} enfant${kRep > 1 ? "s" : ""}` : ""}, maximum ${CONFIG.maxPersonnes})`;
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);
@@ -1692,13 +1708,13 @@
     CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
     CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
     CONFIG.maxPersonnes = Math.max(12, Number(rg.maxPersonnes) || 26);
-    $("personnes").max = CONFIG.maxPersonnes; $("enfants").max = CONFIG.maxPersonnes;
-    if (Number($("personnes").value) > CONFIG.maxPersonnes) $("personnes").value = CONFIG.maxPersonnes;
+    $("adultes").max = CONFIG.maxPersonnes; $("enfants").max = CONFIG.maxPersonnes - 1;
+    if (Number($("adultes").value) > CONFIG.maxPersonnes) $("adultes").value = CONFIG.maxPersonnes;
     document.querySelectorAll(".max-pers").forEach(x => { x.textContent = CONFIG.maxPersonnes; });
     if ($("sous-groupe").textContent.includes("accueille")) $("sous-groupe").textContent = `Le Bossa Nova accueille de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris, rien que pour vous.`;
     CONFIG.enfantsAge = rg.enfantsAge != null ? (Number(rg.enfantsAge) || 12) : 12;
     CONFIG.enfantsRemise = rg.enfantsRemise != null ? (Number(rg.enfantsRemise) || 0) : 50;
-    $("lab-enfants").textContent = `Dont enfants de moins de ${CONFIG.enfantsAge} ans`;
+    $("lab-enfants").textContent = `Enfants de moins de ${CONFIG.enfantsAge} ans`;
     $("enfants-aide").textContent = CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, boissons sans alcool.` : "Boissons sans alcool.";
     const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg });
     ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
@@ -1759,7 +1775,7 @@
     CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
   }
   function preremplirOffre(o) {
-    if (o.personnes) $("personnes").value = Math.max(12, Math.min(CONFIG.maxPersonnes, Number(o.personnes)));
+    if (o.personnes) { const v = Math.max(12, Math.min(CONFIG.maxPersonnes, Number(o.personnes))); $("adultes").value = v; $("personnes").value = v; }
     if (o.client) $("societe").value = o.client;
     if (o.date) $("date").value = o.date;
     const b = $("offre-bandeau");
@@ -1793,9 +1809,9 @@
   repartirVins(nbAdultes());
   estimerApport(nbAdultes());
   $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
-  $("personnes").addEventListener("input", () => { repartirPortions(Number($("personnes").value)); repartirVins(nbAdultes()); estimerApport(nbAdultes()); });
-  $("enfants").addEventListener("input", () => { repartirVins(nbAdultes()); estimerApport(nbAdultes()); maj(); });
-  $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); });
+  $("adultes").addEventListener("input", () => synchroGroupe("adultes"));
+  $("enfants").addEventListener("input", () => synchroGroupe("enfants"));
+  $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
   appliquerProfil();
   document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); }));
@@ -1803,7 +1819,7 @@
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
   $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;
   $("societe-prog").addEventListener("input", () => { $("societe").value = $("societe-prog").value; maj(); });
-  ["personnes", "date", "plafond", "nom", "societe", "email", "tel", "remarques", "budget-cible"].forEach(id => $(id).addEventListener("input", maj));
+  ["date", "plafond", "nom", "societe", "email", "tel", "remarques", "budget-cible"].forEach(id => $(id).addEventListener("input", maj));
   $("budget-unite").addEventListener("change", maj);
   $("rappel-ouvrir").addEventListener("click", () => {
     const b = $("rappel-bloc"); b.classList.toggle("cache");
