@@ -1358,7 +1358,7 @@
   }
 
   // ---------- Retour en train et en bus (horaire officiel, transport.opendata.ch) ----------
-  const retour = { cle: null, etat: "vide", resultats: [], cache: {}, minuterie: null };
+  const retour = { cle: null, etat: "vide", resultats: [], cache: {}, minuterie: null, secours: false };
   const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
   const heureIso = s => { const d = new Date(s); return String(d.getHours()).padStart(2, "0") + "h" + String(d.getMinutes()).padStart(2, "0"); };
   function decalerDate(iso, jours) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + jours); return d.toISOString().slice(0, 10); }
@@ -1394,7 +1394,43 @@
     }
     return res;
   }
+  // Service de secours : search.ch (mêmes horaires CFF), utilisé si transport.opendata.ch ne répond pas
+  function lireSearch(c) {
+    const iso = s => s ? String(s).replace(" ", "T") : null;
+    const legs = (c.legs || []).filter(l => l.type && l.type !== "walk" && l.departure);
+    const l0 = legs[0] || {};
+    const cat = String(l0["*G"] || "").toUpperCase(), num = String(l0["*L"] || l0.line || "").trim();
+    let ligne;
+    if (l0.type === "bus" || l0.type === "post" || l0.type === "tram") ligne = "Bus " + (l0.line || num);
+    else if (["R", "S", "SN", "RE"].includes(cat)) ligne = cat + (l0["*L"] || "");
+    else ligne = [cat || l0.line, l0["*L"]].filter(Boolean).join(" ");
+    return { dep: iso(c.departure), arr: iso(c.arrival), chg: Math.max(0, legs.length - 1), ligne: ligne.trim() };
+  }
+  async function chercherSearch(d, date, temps, finAbs) {
+    const url = "https://timetable.search.ch/api/route.json?" + new URLSearchParams({ from: CONFIG.retour.depart, to: d.q, date, time: temps, num: "4" });
+    const rep = await fetch(url);
+    if (!rep.ok) throw new Error(rep.status);
+    const js = await rep.json();
+    if (!Array.isArray(js.connections)) throw new Error("réponse vide");
+    return js.connections.map(lireSearch).filter(x => x.dep);
+  }
+  function garder(liste, finAbs) {
+    return liste.filter(x => { const t = new Date(x.dep), a = new Date(x.arr); return (t - finAbs) / 60000 >= 0 && (t - finAbs) / 60000 <= 150 && (a - t) / 60000 <= 180; }).slice(0, 2);
+  }
   async function chercherUne(d, date, temps, finAbs) {
+    if (retour.secours) {
+      try { return { nom: d.nom, groupe: d.groupe, liste: garder(await chercherSearch(d, date, temps, finAbs), finAbs), ok: true }; }
+      catch (e) { return { nom: d.nom, groupe: d.groupe, liste: [], ok: false }; }
+    }
+    const premier = await chercherOpendata(d, date, temps, finAbs);
+    if (premier.ok) return premier;
+    try {
+      const liste = garder(await chercherSearch(d, date, temps, finAbs), finAbs);
+      retour.secours = true;
+      return { nom: d.nom, groupe: d.groupe, liste, ok: true };
+    } catch (e) { return premier; }
+  }
+  async function chercherOpendata(d, date, temps, finAbs) {
     const r = CONFIG.retour;
     {
       const url = "https://transport.opendata.ch/v1/connections?" + new URLSearchParams({ from: r.depart, to: d.q, date, time: temps, limit: "4" });
