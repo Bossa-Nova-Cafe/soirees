@@ -19,6 +19,7 @@
     moments: { soir: true, midi: false, afterwork: false },
     regles: {
       minimumPrivatisation: 1200,
+      maxPersonnes: 26,
       acomptePourcent: 30,
       prolongationParHeure: 200,
       afterworkPrix: 42,
