@@ -43,7 +43,7 @@
         { id: "moqueca", nom: "Moqueca de poisson de Bahia", ds: "Poisson au lait de coco et huile de dendê, pirão", prix: 26, actif: true },
         { id: "boeuf", nom: "Filet de bœuf grillé", ds: "Grillé et tranché, à la brésilienne", prix: 28, actif: true },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, actif: true },
-        { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: true },
+        { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "moqueca-vg", nom: "Moqueca de cœurs de palmier et plantain", ds: "Lait de coco et poivrons", prix: 25, vg: true, actif: true }
       ],
