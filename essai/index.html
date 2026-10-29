@@ -195,6 +195,8 @@
   .total-groupe { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: #f4f9f5; color: var(--vert); font-size: 15px; }
   .total-groupe strong { font-family: "Anton", sans-serif; font-weight: 400; font-size: 24px; margin: 0 2px; }
   .total-groupe span { font-size: 13px; color: var(--gris); }
+  .groupe-alerte { margin-top: 6px; font-size: 13px; color: var(--gris); }
+  .groupe-alerte.plein { color: #9a5b00; font-weight: 600; background: #fff6e0; border-left: 3px solid var(--jaune); padding: 6px 10px; border-radius: 6px; }
   .tete-plat .px { white-space: nowrap; text-align: right; }
   .tete-plat .n { flex: 1; min-width: 0; }
   .tete-plat input[type=radio] { flex: 0 0 auto; margin: 3px 0 0; align-self: flex-start; }
@@ -284,6 +286,7 @@
       <label class="champ" for="enfants" id="lab-enfants">Enfants de moins de 12 ans</label>
       <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="25" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
       <div class="total-groupe">Total : <strong id="personnes-val">20</strong> personnes <span id="repartition"></span></div>
+      <div class="groupe-alerte" id="groupe-alerte" role="status"></div>
       <input type="hidden" id="personnes" value="20">
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
@@ -859,11 +862,16 @@
   const nbEnfants = () => Math.max(0, Math.floor(Number($("enfants").value) || 0));
   const nbAdultes = () => Math.max(1, Math.floor(Number($("adultes").value) || 1));
   // Adultes + enfants : le total ne dépasse jamais le maximum et ne descend pas sous 12
+  let groupeTrop = false;
   function synchroGroupe(source) {
     const max = CONFIG.maxPersonnes || 26;
     let a = nbAdultes(), k = nbEnfants();
-    if (source === "enfants") { k = Math.min(k, max - 1); a = Math.min(a, max - k); }
-    else { a = Math.min(a, max - k); }
+    // Les adultes d'abord ; les enfants ne peuvent occuper que les places restantes
+    a = Math.min(a, max);
+    const essai = k;
+    k = Math.min(k, max - a);
+    $("enfants").max = max - a;
+    groupeTrop = source === "enfants" && essai > k;
     if (a + k < 12) a = 12 - k;
     $("adultes").value = a;
     if (document.activeElement !== $("enfants") || Number($("enfants").value) !== k) $("enfants").value = k;
@@ -1124,6 +1132,12 @@
     $("adultes-val").textContent = nbAdultes();
     const kRep = nbEnfants();
     $("repartition").textContent = `(${nbAdultes()} adulte${nbAdultes() > 1 ? "s" : ""}${kRep ? ` + ${kRep} enfant${kRep > 1 ? "s" : ""}` : ""}, maximum ${CONFIG.maxPersonnes})`;
+    const plein = r.n >= CONFIG.maxPersonnes, reste = CONFIG.maxPersonnes - nbAdultes();
+    $("enfants").max = reste;
+    $("groupe-alerte").textContent = plein
+      ? `Nombre maximum de ${CONFIG.maxPersonnes} personnes atteint.${groupeTrop ? ` Avec ${nbAdultes()} adultes, ${reste} enfant${reste > 1 ? "s" : ""} au maximum.` : ""}`
+      : `Places restantes pour les enfants : ${reste - kRep}.`;
+    $("groupe-alerte").classList.toggle("plein", plein);
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);
