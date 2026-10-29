@@ -1372,9 +1372,31 @@
     else ligne = [cat, num].filter(Boolean).join(" ");
     return { dep: c.from && c.from.departure, arr: c.to && c.to.arrival, chg: Number(c.transfers) || 0, ligne };
   }
+  // Le service d'horaires limite le nombre de demandes : 3 à la fois, une seconde chance, et mémoire de 12 heures
+  const CLE_RETOUR = "festa-retour:";
+  function lireRetourMemo(cle) {
+    try { const m = JSON.parse(localStorage.getItem(CLE_RETOUR + cle)); return m && Date.now() - m.t < 12 * 3600 * 1000 ? m.res : null; } catch (e) { return null; }
+  }
+  function ecrireRetourMemo(cle, res) {
+    try { localStorage.setItem(CLE_RETOUR + cle, JSON.stringify({ t: Date.now(), res })); } catch (e) { /* stockage indisponible */ }
+  }
   async function chercherRetour(date, temps, finAbs) {
+    const dest = CONFIG.retour.destinations;
+    const res = new Array(dest.length);
+    let suivant = 0;
+    const travailleur = async () => { while (suivant < dest.length) { const i = suivant++; res[i] = await chercherUne(dest[i], date, temps, finAbs); } };
+    await Promise.all([travailleur(), travailleur(), travailleur()]);
+    // Seconde chance pour quelques destinations en échec, si le service répond pour les autres
+    const rates = res.map((x, i) => x.ok ? -1 : i).filter(i => i >= 0);
+    if (rates.length && rates.length < dest.length && rates.length <= 5) {
+      await new Promise(ok => setTimeout(ok, 1200));
+      for (const i of rates) res[i] = await chercherUne(dest[i], date, temps, finAbs);
+    }
+    return res;
+  }
+  async function chercherUne(d, date, temps, finAbs) {
     const r = CONFIG.retour;
-    return Promise.all(r.destinations.map(async d => {
+    {
       const url = "https://transport.opendata.ch/v1/connections?" + new URLSearchParams({ from: r.depart, to: d.q, date, time: temps, limit: "4" });
       try {
         const rep = await fetch(url);
@@ -1385,7 +1407,7 @@
           .slice(0, 2);
         return { nom: d.nom, groupe: d.groupe, liste, ok: true };
       } catch (e) { return { nom: d.nom, groupe: d.groupe, liste: [], ok: false }; }
-    }));
+    }
   }
   function majRetour(r, finMin) {
     const sous = $("retour-sous"), note = $("retour-note");
@@ -1397,6 +1419,7 @@
     sous.textContent = `Prochains départs depuis la gare de Vevey, à une minute, à partir de ${temps.replace(":", "h")}`;
     if (cle === retour.cle && retour.etat !== "vide") return;
     retour.cle = cle;
+    if (!retour.cache[cle]) { const m = lireRetourMemo(cle); if (m) retour.cache[cle] = m; }
     if (retour.cache[cle]) { retour.etat = "ok"; retour.resultats = retour.cache[cle]; dessinerRetour(); return; }
     retour.etat = "charge"; retour.resultats = []; dessinerRetour();
     clearTimeout(retour.minuterie);
@@ -1407,7 +1430,7 @@
       const aucunAcces = res.every(x => !x.ok);
       retour.etat = aucunAcces ? "erreur" : "ok";
       retour.resultats = res;
-      if (!aucunAcces) retour.cache[cle] = res;
+      if (res.every(x => x.ok)) { retour.cache[cle] = res; ecrireRetourMemo(cle, res); }
       dessinerRetour();
       maj();
     }, 500);
@@ -1417,7 +1440,11 @@
     const lienCff = `Horaires officiels CFF. À revérifier sur <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> le jour même.`;
     z.innerHTML = "";
     if (retour.etat === "charge") { note.textContent = "Recherche des horaires…"; return; }
-    if (retour.etat === "erreur") { note.innerHTML = `Les horaires ne sont pas disponibles pour le moment. Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`; return; }
+    if (retour.etat === "erreur") {
+      note.innerHTML = `Le service des horaires ne répond pas pour le moment. <button type="button" class="lien" id="retour-reessayer">Réessayer</button> ou consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`;
+      $("retour-reessayer").addEventListener("click", () => { retour.cle = null; retour.etat = "vide"; maj(); });
+      return;
+    }
     const avec = retour.resultats.filter(x => x.liste.length);
     if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
     let groupe = null;
@@ -1431,7 +1458,7 @@
       el.querySelector(".dest").textContent = d.nom;
       el.querySelector(".dep").innerHTML = d.liste.length
         ? d.liste.map(x => `<b>${heureIso(x.dep)}</b> <small>${esc(x.ligne)} · arrivée ${heureIso(x.arr)}${x.chg ? ` · ${x.chg} changement${x.chg > 1 ? "s" : ""}` : " · direct"}</small>`).join("<br>")
-        : `<small>Plus de liaison ce soir : nous pouvons vous réserver un taxi.</small>`;
+        : d.ok ? `<small>Plus de liaison ce soir : nous pouvons vous réserver un taxi.</small>` : `<small>Horaire momentanément indisponible, voir sbb.ch.</small>`;
       z.appendChild(el);
     });
     note.innerHTML = lienCff;
