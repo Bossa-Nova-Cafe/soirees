@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 2,
+    version: 3,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -43,6 +43,7 @@
         { id: "moqueca", nom: "Moqueca de poisson de Bahia", ds: "Poisson au lait de coco et huile de dendê, pirão", prix: 26, actif: true },
         { id: "boeuf", nom: "Filet de bœuf grillé", ds: "Grillé et tranché, à la brésilienne", prix: 28, actif: true },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, actif: true },
+        { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "moqueca-vg", nom: "Moqueca de cœurs de palmier et plantain", ds: "Lait de coco et poivrons", prix: 25, vg: true, actif: true }
       ],
@@ -86,6 +87,8 @@
       delete cat.regles.productionSupplement;
     }
     ["contacts", "saison", "moments", "regles", "forfaits", "honneurs", "cafe"].forEach(k => { if (cat[k]) Object.assign(c[k], cat[k]); });
+    // Version 3 : nouveau plat « Côtes de bœuf à la brésilienne », ajouté aux catalogues déjà enregistrés
+    const vAvant = Number(cat.version) || 1;
     c.version = DEFAUT.version;
     if (cat.menu) ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
       if (!Array.isArray(cat.menu[k])) return;
@@ -95,6 +98,11 @@
         return x.photo === undefined && d && d.photo ? Object.assign({}, x, { photo: d.photo }) : x;
       });
     });
+    if (vAvant < 3 && !c.menu.plat.some(x => x.id === "costela")) {
+      const nv = DEFAUT.menu.plat.find(x => x.id === "costela");
+      const i = c.menu.plat.findIndex(x => x.id === "maluca");
+      c.menu.plat.splice(i >= 0 ? i : c.menu.plat.length, 0, copie(nv));
+    }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     c.majLe = cat.majLe || null;
     return c;
