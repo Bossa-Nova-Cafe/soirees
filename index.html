@@ -291,7 +291,7 @@
     <div class="carte pas-imprime" id="carte-menu">
       <h2>3. Votre menu</h2>
       <p class="sous">Composez le menu de votre groupe. Le café ou thé est compris. Le prix se calcule selon vos choix.</p>
-      <div class="alerte" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Composez vos plats principaux en nombre de portions, selon les goûts de vos invités. Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
+      <div class="alerte" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Choisissez vos plats principaux et pour combien de personnes chacun, selon les goûts de vos invités. Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
       <div id="menu"></div>
       <div class="compteur-portions" id="compteur-portions"></div>
       <div class="menu-total" id="menu-total"></div>
@@ -723,13 +723,13 @@
       const bloc = document.createElement("div");
       bloc.className = "cours";
       bloc.innerHTML = `<h3></h3><div class="plats"></div>`;
-      bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, en portions" : c.titre;
+      bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, à partager" : c.titre;
       c.choix.forEach(p => {
         const el = document.createElement("label");
         el.className = "plat";
         el.dataset.cours = c.id; el.dataset.id = p.id;
         el.innerHTML = c.id === "plat"
-          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Portions : <input type="number" min="0" max="30" value="0"></div></div>`
+          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes : <input type="number" min="0" max="30" value="0"></div></div>`
           : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
         if (p.photo) {
@@ -748,7 +748,7 @@
         const r = el.querySelector("input");
         if (c.id === "plat") {
           etat.portions[p.id] = 0;
-          el.querySelector(".px").textContent = p.inclus ? "Compris" : `${chf(p.prix)} / portion`;
+          el.querySelector(".px").textContent = p.inclus ? "Compris" : `${chf(p.prix)} / personne`;
           r.addEventListener("input", () => {
             etat.portionsAuto = false;
             etat.portions[p.id] = Math.max(0, Math.min(30, Math.floor(Number(r.value) || 0)));
@@ -987,7 +987,7 @@
       const pa = prixAutres();
       base = pa * n + totalPlats();
       lignes.push({ lib: `Bienvenue, entrée${CONFIG.cafe.inclus ? ", dessert et café" : " et dessert"} · ${n} × CHF ${pa}`, mt: pa * n });
-      platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} × ${chf(p.prix)}`, mt: p.q * p.prix }));
+      platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
     }
 
     let boissons = 0;
@@ -1023,7 +1023,7 @@
     if (remise) lignes.push({ lib: ebOffert ? `Remise early bird : −${CONFIG.earlyBirdRemise} % sur le menu` : `Early bird : −${CONFIG.earlyBirdRemise} % sur le menu (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: -remise, cls: "remise" });
 
     const avertissements = [];
-    if (!t.prix && totalPortions() !== n) avertissements.push(`Vous avez choisi ${totalPortions()} portions de plats principaux pour ${n} invités. Ajustez les portions pour que chacun ait sa part.`);
+    if (!t.prix && totalPortions() !== n) avertissements.push(`Vous avez prévu ${totalPortions()} personne${totalPortions() > 1 ? "s" : ""} servie${totalPortions() > 1 ? "s" : ""} en plats principaux pour ${n} invités. Ajustez les nombres pour que chacun ait sa part.`);
     let options = 0, surDevis = [];
     CONFIG.options.forEach(o => {
       const v = etat.options[o.id];
@@ -1104,7 +1104,7 @@
       }
     });
     const tp = totalPortions();
-    $("compteur-portions").textContent = `${tp} portion${tp > 1 ? "s" : ""} pour ${r.n} invités`;
+    $("compteur-portions").textContent = `${tp} personne${tp > 1 ? "s" : ""} servie${tp > 1 ? "s" : ""} sur ${r.n} invités`;
     $("compteur-portions").className = "compteur-portions " + (tp === r.n ? "ok" : "ko");
     $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
     $("menu-total").innerHTML = `<span>Votre menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
@@ -1575,7 +1575,7 @@
     if (r.moment !== "afterwork") {
       l.push(`• Menu à la brésilienne, en moyenne CHF ${prixMenu()} par personne :`);
       ["bienvenue", "entree"].forEach(id => { const p = choixMenu(id); if (p.prix || id === "bienvenue") l.push(`   – ${CONFIG.menu.find(c => c.id === id).titre} : ${p.nom}`); });
-      l.push(`   – Plats principaux à partager (${totalPortions()} portions) :`);
+      l.push(`   – Plats principaux à partager (${totalPortions()} personnes servies) :`);
       platsListe().forEach(p => l.push(`        ${p.q} × ${p.nom}`));
       l.push(`   – Dessert : ${choixMenu("dessert").nom}, café ou thé`);
     }

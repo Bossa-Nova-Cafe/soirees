@@ -235,7 +235,7 @@
       <p class="sous" style="margin-bottom:8px">Un plat créé pour ce client uniquement. Il apparaît dans son calculateur avec la mention « proposé pour vous », sans changer le catalogue.</p>
       <div class="champs plat-mesure">
         <label class="champ">Étape<select id="pm-cours" style="font:inherit;font-size:14px;padding:8px 10px;border:1.5px solid var(--bord);border-radius:8px">
-          <option value="bienvenue">Bienvenue</option><option value="entree">Entrée</option><option value="plat" selected>Plat principal (par portion)</option><option value="dessert">Dessert</option></select></label>
+          <option value="bienvenue">Bienvenue</option><option value="entree">Entrée</option><option value="plat" selected>Plat principal (par personne)</option><option value="dessert">Dessert</option></select></label>
         <label class="champ">Nom<input type="text" id="pm-nom" placeholder="Bobó de crevettes"></label>
         <label class="champ">Description<input type="text" id="pm-ds" placeholder="Crevettes, crème de manioc et lait de coco"></label>
         <label class="champ"><span>Prix <span class="unite">CHF</span></span><input type="number" id="pm-prix" min="0" step="0.5"></label>
@@ -294,7 +294,7 @@
   const COURS = [
     { id: "bienvenue", titre: "Bienvenue", ajout: "une bienvenue", note: "Cochez « Inclus » pour l’offrir dans le menu ; sinon, indiquez son prix par personne.", prix: true, unite: "/ pers." },
     { id: "entree", titre: "Entrées", ajout: "une entrée", note: "Prix par personne. « Sans entrée » est toujours proposé en plus.", prix: true, unite: "/ pers." },
-    { id: "plat", titre: "Plats principaux", ajout: "un plat principal", note: "Prix par portion : le client choisit le nombre de portions de chaque plat.", prix: true, unite: "/ portion" },
+    { id: "plat", titre: "Plats principaux", ajout: "un plat principal", note: "Prix par personne servie : le client choisit pour combien de personnes il prend chaque plat.", prix: true, unite: "/ pers." },
     { id: "dessert", titre: "Desserts", ajout: "un dessert", note: "Prix par personne.", prix: true, unite: "/ pers." }
   ];
 
@@ -598,7 +598,7 @@
   // Articles dont on peut négocier le prix, avec leur prix catalogue
   function articles() {
     const l = [];
-    const noms = { bienvenue: "Bienvenue", entree: "Entrée", plat: "Plat (par portion)", dessert: "Dessert" };
+    const noms = { bienvenue: "Bienvenue", entree: "Entrée", plat: "Plat (par personne)", dessert: "Dessert" };
     ["bienvenue", "entree", "plat", "dessert"].forEach(k => cat.menu[k].filter(x => x.actif !== false).forEach(x =>
       l.push({ cle: `menu.${k}.${x.id}`, lib: `${noms[k]} : ${x.nom}`, prix: x.inclus ? 0 : Number(x.prix) || 0 })));
     l.push({ cle: "cafe", lib: `Café ou thé`, prix: cat.cafe.inclus ? 0 : Number(cat.cafe.prix) || 0 });
@@ -636,7 +636,7 @@
     platsOffre.forEach((x, i) => {
       const l = document.createElement("div"); l.className = "ligne simple";
       const t = document.createElement("span");
-      t.textContent = `${NOMS_COURS[x.cours]} : ${x.nom}${x.vg ? " (végétarien)" : ""} · CHF ${fr(x.prix)}${x.cours === "plat" ? " la portion" : " par personne"}`;
+      t.textContent = `${NOMS_COURS[x.cours]} : ${x.nom}${x.vg ? " (végétarien)" : ""} · CHF ${fr(x.prix)}${x.cours === "plat" ? " par personne" : " par personne"}`;
       const a = document.createElement("div"); a.className = "actions";
       const b = document.createElement("button"); b.type = "button"; b.className = "ico sup"; b.textContent = "✕"; b.title = "Retirer";
       b.addEventListener("click", () => { platsOffre.splice(i, 1); rendrePlatsOffre(); });
