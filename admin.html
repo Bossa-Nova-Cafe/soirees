@@ -127,6 +127,12 @@
     </section>
 
     <section class="carte">
+      <h2>Moments proposés</h2>
+      <p class="sous">Les formules que le client peut choisir dans le calculateur. S’il n’en reste qu’une, l’étape « Votre moment » disparaît.</p>
+      <div id="champs-moments" style="display:flex;flex-direction:column;gap:10px"></div>
+    </section>
+
+    <section class="carte">
       <h2>Règles et prix fixes</h2>
       <p class="sous">Tous les prix sont en CHF, TVA incluse.</p>
       <div class="champs" id="champs-regles"></div>
@@ -315,6 +321,17 @@
     champ(z, "Début de la saison", "date", () => cat.saison.debut, v => cat.saison.debut = v, { id: "f-debut" });
     champ(z, "Fin de la saison", "date", () => cat.saison.fin, v => cat.saison.fin = v, { id: "f-fin" });
 
+    z = $("champs-moments"); z.innerHTML = "";
+    [["soir", "Soirée privatisée", "19h00–23h30, prolongation possible jusqu’à 00h30"],
+     ["midi", "Déjeuner de groupe", "12h00–14h00"],
+     ["afterwork", "Afterwork Caipi", "17h30–20h30, prix par personne réglé ci-dessous"]].forEach(([cle, nom, quand]) => {
+      const l = document.createElement("label"); l.className = "vg"; l.style.fontSize = "14px";
+      const i = document.createElement("input"); i.type = "checkbox"; i.id = "m-" + cle; i.checked = cat.moments[cle] !== false;
+      i.addEventListener("change", () => { cat.moments[cle] = i.checked; majStatut(); });
+      const s = document.createElement("span"); s.innerHTML = "<b></b> <small style='color:var(--gris, #6b6b66)'></small>";
+      s.querySelector("b").textContent = nom; s.querySelector("small").textContent = "· " + quand;
+      l.append(i, s); z.appendChild(l);
+    });
     z = $("champs-regles"); z.innerHTML = "";
     const R = cat.regles;
     [
@@ -481,6 +498,7 @@
     const marque = sel => { const e = typeof sel === "string" ? $(sel) : sel; if (e) e.classList.add("erreur"); };
     if (String(cat.contacts.whatsapp).replace(/\D/g, "").length < 9) { err.push("Le numéro WhatsApp semble incomplet."); marque("f-wa"); }
     if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(cat.contacts.email || "")) { err.push("L’adresse e-mail n’est pas valide."); marque("f-mail"); }
+    if (!Object.values(cat.moments || {}).some(Boolean)) err.push("Cochez au moins un moment proposé.");
     if (!cat.saison.debut || !cat.saison.fin || cat.saison.debut > cat.saison.fin) { err.push("La fin de saison doit être après le début."); marque("f-fin"); }
     Object.entries(cat.regles).forEach(([k, v]) => { if (v === "" || Number(v) < 0) { err.push("Un prix ou un réglage est vide ou négatif."); marque("f-" + k); } });
     COURS.forEach(c => {

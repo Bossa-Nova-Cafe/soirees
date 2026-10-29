@@ -1437,6 +1437,8 @@
     CONFIG.whatsapp = String(cat.contacts.whatsapp).replace(/\D/g, "");
     CONFIG.email = cat.contacts.email;
     CONFIG.saisonDebut = cat.saison.debut; CONFIG.saisonFin = cat.saison.fin;
+    if (cat.moments) CONFIG.types.forEach(t => { if (cat.moments[t.id] != null) t.actif = !!cat.moments[t.id]; });
+    if (!CONFIG.types.some(t => t.actif !== false)) CONFIG.types[0].actif = true;
     CONFIG.earlyBirdJours = Number(cat.regles.earlyBirdJours) || 0;
     CONFIG.options.find(o => o.id === "gateau").detail = CONFIG.earlyBirdJours
       ? `Gâteau brésilien pour tout le groupe. Offert si vous réservez au moins ${CONFIG.earlyBirdJours} jours avant la soirée.`

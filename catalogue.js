@@ -16,6 +16,7 @@
     version: 2,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
+    moments: { soir: true, midi: false, afterwork: false },
     regles: {
       minimumPrivatisation: 1200,
       acomptePourcent: 30,
@@ -81,7 +82,7 @@
       cat.honneurs = Object.fromEntries(Object.entries(cat.honneurs).map(([k, v]) => [k, (Number(v) || 0) + sup]));
       delete cat.regles.productionSupplement;
     }
-    ["contacts", "saison", "regles", "forfaits", "honneurs", "cafe"].forEach(k => { if (cat[k]) Object.assign(c[k], cat[k]); });
+    ["contacts", "saison", "moments", "regles", "forfaits", "honneurs", "cafe"].forEach(k => { if (cat[k]) Object.assign(c[k], cat[k]); });
     c.version = DEFAUT.version;
     if (cat.menu) ["bienvenue", "entree", "plat", "dessert"].forEach(k => { if (Array.isArray(cat.menu[k])) c.menu[k] = cat.menu[k]; });
     ["bols", "vins", "digestifs"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
