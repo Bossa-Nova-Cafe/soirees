@@ -176,6 +176,22 @@
   .plat.choisie { border-color: var(--vert); background: #f4f9f5; }
   .plat input { accent-color: var(--vert); margin-top: 3px; flex-shrink: 0; }
   .plat .n { font-weight: 600; color: var(--texte); }
+  .vignette { margin: 0; flex: 0 0 76px; width: 76px; height: 76px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; cursor: zoom-in; background: var(--bord); position: relative; }
+  .vignette img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s; }
+  .vignette:hover img { transform: scale(1.06); }
+  .vignette::after { content: "+"; position: absolute; right: 4px; bottom: 4px; width: 18px; height: 18px; line-height: 17px; text-align: center; border-radius: 50%; background: rgba(15,61,46,.85); color: #fff; font-size: 14px; font-weight: 700; }
+  .vignette:focus-visible { outline: 2px solid var(--jaune); outline-offset: 2px; }
+  dialog#photo-grande { border: 0; padding: 0; border-radius: 16px; max-width: min(92vw, 860px); width: 100%; background: #fff; overflow: hidden; }
+  dialog#photo-grande::backdrop { background: rgba(10, 30, 22, .78); }
+  dialog#photo-grande img { display: block; width: 100%; max-height: 72vh; object-fit: cover; }
+  dialog#photo-grande .leg { padding: 12px 16px 14px; display: flex; gap: 12px; align-items: flex-start; }
+  dialog#photo-grande .leg div { flex: 1; font-size: 14px; line-height: 1.45; }
+  dialog#photo-grande .leg strong { display: block; font-size: 16px; color: var(--vert); }
+  .plat.avec-photo { flex-wrap: wrap; }
+  .vignette.large { flex: 0 0 100%; width: 100%; height: 140px; margin-bottom: 2px; }
+  dialog#photo-grande .leg div { min-width: 0; }
+  dialog#photo-grande .leg button { width: auto !important; margin: 0 !important; }
+  dialog#photo-grande button { flex: 0 0 auto; border: 1.5px solid var(--bord); background: #fff; border-radius: 999px; padding: 6px 14px; font: inherit; font-weight: 600; cursor: pointer; }
   .plat .ds { color: var(--gris); font-size: 12.5px; }
   .plat .px { margin-left: auto; font-weight: 600; color: var(--violet); white-space: nowrap; padding-left: 6px; }
   .plat .vg { display: inline-block; font-size: 11px; color: #1e7a3e; border: 1px solid #1e7a3e; border-radius: 6px; padding: 0 5px; margin-left: 4px; font-weight: 500; }
@@ -712,6 +728,16 @@
           ? `<div style="flex:1"><div class="n"></div><div class="ds"></div><div class="qte">Portions : <input type="number" min="0" max="30" value="0"></div></div><div class="px"></div>`
           : `<input type="radio" name="menu-${c.id}" value="${p.id}"><div><div class="n"></div><div class="ds"></div></div><div class="px"></div>`;
         el.querySelector(".n").textContent = p.nom;
+        if (p.photo) {
+          const v = document.createElement("button");
+          v.type = "button"; v.className = "vignette"; v.setAttribute("aria-label", "Agrandir la photo : " + p.nom);
+          const im = document.createElement("img"); im.src = p.photo; im.alt = p.nom; im.loading = "lazy";
+          im.addEventListener("error", () => v.remove());
+          v.appendChild(im);
+          v.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); ouvrirPhoto(p); });
+          if (c.id === "plat") { v.classList.add("large"); el.classList.add("avec-photo"); el.insertBefore(v, el.firstElementChild); }
+          else el.insertBefore(v, el.querySelector("input").nextElementSibling);
+        }
         if (p.vg) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg">végétarien</span>');
         if (p.special) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg" style="color:var(--violet);border-color:var(--violet)">proposé pour vous</span>');
         el.querySelector(".ds").textContent = p.ds;
@@ -741,6 +767,14 @@
         zone.appendChild(b);
       }
     });
+  }
+
+  function ouvrirPhoto(p) {
+    const d = $("photo-grande");
+    d.querySelector("img").src = p.photo; d.querySelector("img").alt = p.nom;
+    d.querySelector("strong").textContent = p.nom;
+    d.querySelector(".ds-grande").textContent = p.ds || "";
+    if (d.showModal) d.showModal(); else d.setAttribute("open", "");
   }
 
   function construireBoissons() {
@@ -1571,6 +1605,7 @@
       if (k === "entree") cours.choix.push({ id: "aucune", nom: "Sans entrée", ds: "", prix: 0 });
       CONFIG.menuDefaut[k] = (cours.choix[0] || {}).id;
     });
+    CONFIG.menu.forEach(c => c.choix.forEach(x => { const src = (cat.menu[c.id] || []).find(y => y.id === x.id); if (src && src.photo) x.photo = String(src.photo); }));
     CONFIG.cafe = { nom: cat.cafe.nom || "Café, espresso ou thé", inclus: !!cat.cafe.inclus, prix: Number(cat.cafe.prix) || 0 };
     CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
     CONFIG.bols = (cat.bols || []).filter(Boolean);
@@ -1692,5 +1727,10 @@
   });
 })();
 </script>
+<dialog id="photo-grande" aria-label="Photo du plat">
+  <img src="" alt="">
+  <div class="leg"><div><strong></strong><span class="ds-grande"></span></div><button type="button" onclick="this.closest('dialog').close()">Fermer</button></div>
+</dialog>
+<script>document.getElementById("photo-grande").addEventListener("click", e => { if (e.target.id === "photo-grande") e.target.close(); });</script>
 </body>
 </html>
