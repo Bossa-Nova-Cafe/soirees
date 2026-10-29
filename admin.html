@@ -214,7 +214,7 @@
 
       <h3>Offert</h3>
       <div style="display:flex;flex-wrap:wrap;gap:8px 22px">
-        <label class="vg"><input type="checkbox" id="o-off-gateau"> Gâteau de fête</label>
+        <label class="vg"><input type="checkbox" id="o-off-gateau"> Remise early bird, même hors délai</label>
         <label class="vg"><input type="checkbox" id="o-off-cafe"> Café ou thé</label>
         <label class="vg"><input type="checkbox" id="o-off-prolongation"> Prolongation jusqu’à 00h30</label>
       </div>
@@ -355,11 +355,11 @@
       ["Minimum de privatisation", "minimumPrivatisation", "CHF", "50"],
       ["Acompte à la réservation", "acomptePourcent", "%", "1"],
       ["Prolongation jusqu’à 00h30", "prolongationParHeure", "CHF / heure", "10"],
-      ["Gâteau de fête", "gateauParPersonne", "CHF / pers.", "0.5"],
       ["Afterwork Caipi", "afterworkPrix", "CHF / pers.", "0.5"],
       ["Droit de bouchon (vin du client)", "droitBouchon", "CHF / bouteille", "1"],
       ["Délai de commande des trophées", "productionDelaiJours", "jours", "1"],
-      ["Early bird : gâteau offert dès", "earlyBirdJours", "jours avant", "1"]
+      ["Early bird : réservation dès", "earlyBirdJours", "jours avant", "1"],
+      ["Early bird : remise sur le menu", "earlyBirdRemise", "%", "1"]
     ].forEach(([lib, cle, unite, step]) => champ(z, lib, "number", () => R[cle], v => R[cle] = v, { unite, step, min: 0, id: "f-" + cle }));
 
     z = $("champs-forfaits"); z.innerHTML = "";
@@ -597,7 +597,6 @@
     l.push({ cle: "bouchon", lib: "Droit de bouchon, vin apporté (bouteille)", prix: Number(cat.regles.droitBouchon) || 0 });
     cat.bulles.filter(x => x.actif !== false).forEach(x => l.push({ cle: `bulle.${x.id}`, lib: `Bulles : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     cat.digestifs.filter(x => x.actif !== false).forEach(x => l.push({ cle: `digestif.${x.id}`, lib: `Digestif : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
-    l.push({ cle: "gateau", lib: "Gâteau de fête (par personne)", prix: Number(cat.regles.gateauParPersonne) || 0 });
     l.push({ cle: "prolongation", lib: "Prolongation (par heure)", prix: Number(cat.regles.prolongationParHeure) || 0 });
     return l;
   }

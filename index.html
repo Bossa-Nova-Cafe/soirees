@@ -476,8 +476,8 @@
     saisonDebut: "2026-11-16",
     saisonFin: "2027-02-28",
     droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
-    earlyBirdJours: 30,               // gâteau offert si la réservation est faite au moins 30 jours avant
-    // Early bird : le gâteau de fête est offert
+    earlyBirdJours: 30,               // early bird : réservation au moins 30 jours avant
+    earlyBirdRemise: 5,               // early bird : remise en % sur le menu
     minimumPrivatisation: 1200,       // CHF, soirées privatisées
     acompteTaux: 0.30,
     prolongationParHeure: 200,        // CHF, vendredi et samedi
@@ -625,8 +625,6 @@
       { id: "apres_dessert", lib: "Après le dessert, avec le café", apres: "dessert" }
     ],
     options: [
-      { id: "gateau", titre: "Gâteau de fête", detail: "Gâteau brésilien pour tout le groupe.",
-        type: "case", prixParPersonne: 6 },
       { id: "amigo", titreProg: "Amigo Secreto", sousProg: "Chacun fait deviner son ami secret avec trois indices, puis lui offre son cadeau", defaut: "apres_dessert", titre: "Amigo Secreto", detail: "L'ami secret brésilien : tirage en ligne avant la soirée et jeu animé le soir même.",
         type: "case", prix: 0 },
       { id: "plan", titre: "Plan de table et noms sur les tables", detail: "Les tables sont dressées en lignes. Chevalets au nom de chaque invité, aux couleurs du Bossa Nova. Vous nous envoyez la liste des noms et la répartition par table 5 jours avant la soirée. Sinon, chacun s'installe librement.",
@@ -664,7 +662,7 @@
     return new Date(Date.UTC(a, m - 1, j)).getUTCDay();
   }
 
-  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, profil: "entreprise", options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
+  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, profil: "entreprise", options: { amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
 
   // ---------- Construction de l'interface ----------
   function construireTypes() {
@@ -981,17 +979,16 @@
       if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
     });
 
-    const remise = 0;
-    const earlyBird = earlyBirdActif(date);
-    const gateauOffre = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau;
-    if (earlyBird) lignes.push({ lib: gateauOffre ? "Gâteau de fête offert" : `Early bird : gâteau de fête offert (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: 0, cls: "remise" });
+    const earlyBird = earlyBirdActif(date) && CONFIG.earlyBirdRemise > 0;
+    const remise = earlyBird ? Math.round(base * CONFIG.earlyBirdRemise) / 100 : 0;
+    const ebOffert = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau;
+    if (remise) lignes.push({ lib: ebOffert ? `Remise early bird : −${CONFIG.earlyBirdRemise} % sur le menu` : `Early bird : −${CONFIG.earlyBirdRemise} % sur le menu (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: -remise, cls: "remise" });
 
     const avertissements = [];
     if (!t.prix && totalPortions() !== n) avertissements.push(`Vous avez choisi ${totalPortions()} portions de plats principaux pour ${n} invités. Ajustez les portions pour que chacun ait sa part.`);
     let options = 0, surDevis = [];
     CONFIG.options.forEach(o => {
       const v = etat.options[o.id];
-      if (o.id === "gateau" && earlyBird) return;
       if (o.type === "case" && v) {
         if (o.soirSeulement && moment !== "soir") return;
         if (o.surDevis) { surDevis.push(o.titre); return; }
@@ -1103,8 +1100,6 @@
 
 
     // Disponibilité des options
-    const og = CONFIG.options.find(o => o.id === "gateau");
-    if (og.forceEB && !earlyBirdActif(r.date)) { $("opt-gateau").checked = false; etat.options.gateau = false; og.forceEB = false; }
     CONFIG.options.forEach(o => {
       const el = document.querySelector(`.option[data-id="${o.id}"]`);
       const champ = $("opt-" + o.id);
@@ -1114,7 +1109,6 @@
         if (r.jour === null || !o.jours.includes(r.jour)) off = true;
       }
       if (o.type === "choix") montant = "Inclus";
-      else if (o.id === "gateau" && earlyBirdActif(r.date)) { montant = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau ? "Offert" : "Offert (early bird)"; champ.checked = true; off = true; o.forceEB = true; }
       else if (o.surDevis) montant = "Sur devis";
       else if (o.prixParPersonne) montant = `CHF ${o.prixParPersonne} / pers.`;
       else if (o.prixParHeure) montant = `CHF ${o.prixParHeure} / h`;
@@ -1133,7 +1127,8 @@
     }
     alerte.textContent = msg;
     alerte.classList.toggle("cache", !msg);
-    $("date-aide").textContent = r.date ? `${dateLisible(r.date).replace(/^./, c => c.toUpperCase())}.` : `Saison des Festas : du ${dateCourte(CONFIG.saisonDebut)} au ${dateCourte(CONFIG.saisonFin)}.`;
+    const eb = CONFIG.earlyBirdRemise > 0 && CONFIG.earlyBirdJours > 0 ? ` Réservez au moins ${CONFIG.earlyBirdJours} jours avant : −${CONFIG.earlyBirdRemise} % sur le menu.` : "";
+    $("date-aide").textContent = (r.date ? `${dateLisible(r.date).replace(/^./, c => c.toUpperCase())}.` : `Saison des Festas : du ${dateCourte(CONFIG.saisonDebut)} au ${dateCourte(CONFIG.saisonFin)}.`) + eb;
 
     // Boissons
     document.querySelectorAll("#choix-boissons label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
@@ -1268,8 +1263,7 @@
 
   function construireProgramme(r, ev) {
     const bv = choixMenu("bienvenue"), en = choixMenu("entree"), pl = choixMenu("plat"), de = choixMenu("dessert");
-    const gateau = etat.options.gateau || earlyBirdActif(r.date);
-    const dessert = de.nom + (gateau ? " et gâteau de fête" : "");
+    const dessert = de.nom;
     const dessertD = [de.ds, "café ou thé"].filter(Boolean).join(" · ");
     const musique = etat.options.musique;
     let debut, fin, blocs;
@@ -1559,15 +1553,12 @@
     if (cat.moments) CONFIG.types.forEach(t => { if (cat.moments[t.id] != null) t.actif = !!cat.moments[t.id]; });
     if (!CONFIG.types.some(t => t.actif !== false)) CONFIG.types[0].actif = true;
     CONFIG.earlyBirdJours = Number(cat.regles.earlyBirdJours) || 0;
-    CONFIG.options.find(o => o.id === "gateau").detail = CONFIG.earlyBirdJours
-      ? `Gâteau brésilien pour tout le groupe. Offert si vous réservez au moins ${CONFIG.earlyBirdJours} jours avant la soirée.`
-      : "Gâteau brésilien pour tout le groupe.";
     const rg = cat.regles;
     CONFIG.minimumPrivatisation = Number(rg.minimumPrivatisation) || 0;
     CONFIG.acompteTaux = (Number(rg.acomptePourcent) || 0) / 100;
     CONFIG.prolongationParHeure = Number(rg.prolongationParHeure) || 0;
     CONFIG.types.find(t => t.id === "afterwork").prix = Number(rg.afterworkPrix) || 0;
-    CONFIG.options.find(o => o.id === "gateau").prixParPersonne = Number(rg.gateauParPersonne) || 0;
+    CONFIG.earlyBirdRemise = rg.earlyBirdRemise != null ? (Number(rg.earlyBirdRemise) || 0) : 5;
     CONFIG.options.find(o => o.id === "prolongation").prixParHeure = Number(rg.prolongationParHeure) || 0;
     CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
     CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
@@ -1612,7 +1603,6 @@
       if (type === "cafe") { CONFIG.cafe.prix = v; CONFIG.cafe.inclus = v === 0; }
       if (type === "bouchon") CONFIG.droitBouchon = v;
       if (type === "afterwork") CONFIG.types.find(x => x.id === "afterwork").prix = v;
-      if (type === "gateau") CONFIG.options.find(x => x.id === "gateau").prixParPersonne = v;
       if (type === "prolongation") { CONFIG.prolongationParHeure = v; CONFIG.options.find(x => x.id === "prolongation").prixParHeure = v; }
     });
     // Plats créés pour ce client : en tête de leur étape, choisis par défaut

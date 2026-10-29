@@ -21,10 +21,10 @@
       minimumPrivatisation: 1200,
       acomptePourcent: 30,
       prolongationParHeure: 200,
-      gateauParPersonne: 6,
       afterworkPrix: 42,
       productionDelaiJours: 15,
       earlyBirdJours: 30,
+      earlyBirdRemise: 5,
       droitBouchon: 10
     },
     menu: {
