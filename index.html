@@ -150,6 +150,7 @@
   .prog-liste li.evenement .t { color: var(--violet); }
   .prog-liste .d { color: var(--gris); font-size: 13px; line-height: 1.45; }
   .retour { border-top: 1px dashed var(--bord); margin: 6px 0 10px; padding-top: 12px; }
+  .retour-securite { font-size: 13px; line-height: 1.5; color: var(--vert); background: #f4f9f5; border-left: 3px solid var(--vert); border-radius: 6px; padding: 8px 12px; margin: 6px 0 10px; }
   .retour h3 { font-size: 15px; margin: 0 0 2px; color: var(--vert); }
   .retour .sous-retour { font-size: 12px; color: var(--gris); margin-bottom: 8px; }
   .retour-ligne { display: flex; gap: 10px; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid #efe8d6; }
@@ -434,6 +435,7 @@
       <div class="alerte cache pas-imprime" id="prog-alerte"></div>
       <div class="retour" id="retour">
         <h3>Pour rentrer</h3>
+        <p class="retour-securite">La sécurité de nos invités nous tient à cœur : si vous buvez de l’alcool, laissez la voiture à la maison. Grâce à l’emplacement privilégié du Bossa Nova Café, face à la gare de Vevey, le retour en train, en bus ou en taxi est simple et sûr.</p>
         <div class="sous-retour" id="retour-sous"></div>
         <div id="retour-liste"></div>
         <div class="retour-note" id="retour-note"></div>
@@ -1602,6 +1604,7 @@
     l.push("");
     prog.sequence.forEach(x => l.push(`${heure(x.h)}  ${x.t}${x.d ? " — " + x.d : ""}`));
     const rt = texteRetour();
+    l.push(""); l.push("La sécurité de nos invités nous tient à cœur : si vous buvez de l'alcool, laissez la voiture à la maison. Grâce à l'emplacement privilégié du Bossa Nova Café, face à la gare de Vevey, le retour en train, en bus ou en taxi est simple et sûr.");
     if (rt.length) { l.push(""); l.push("Pour rentrer (prochains départs depuis la gare de Vevey) :"); rt.forEach(x => l.push(x)); l.push("Horaires CFF : à revérifier sur sbb.ch le jour même."); }
     l.push("");
     l.push("Bossa Nova Café, Place de la Gare 3, 1800 Vevey — à une minute du quai.");
