@@ -19,13 +19,16 @@
     moments: { soir: true, midi: false, afterwork: false },
     regles: {
       minimumPrivatisation: 1200,
+      maxPersonnes: 26,
       acomptePourcent: 30,
       prolongationParHeure: 200,
       afterworkPrix: 42,
       productionDelaiJours: 15,
       earlyBirdJours: 30,
       earlyBirdRemise: 5,
-      droitBouchon: 10
+      droitBouchon: 10,
+      enfantsAge: 12,
+      enfantsRemise: 50
     },
     menu: {
       bienvenue: [
@@ -56,7 +59,7 @@
     },
     cafe: { nom: "Café, espresso ou thé", inclus: true, prix: 4.5 },
     bols: ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"],
-    forfaits: { soft: 12, vin: 4, complet: 14 },
+    forfaits: { soft: 12, vin: 4, complet: 14, enfant: 8 },
     vins: [
       { id: "blanc", nom: "Saint-Saphorin", ds: "Blanc · Lavaux AOC, chasselas", prix: 44, part: 40, actif: true },
       { id: "rouge", nom: "Gamay La Côte", ds: "Rouge · La Côte AOC", prix: 39, part: 40, actif: true },

@@ -189,6 +189,13 @@
   .plat.avec-photo { flex-wrap: wrap; align-content: flex-start; }
   .plat.avec-photo > div:not(.px) { flex: 1 1 0; min-width: 0; }
   .tete-plat { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; }
+  .enfants-ligne { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .enfants-ligne input { width: 90px; }
+  .total-groupe { margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: #f4f9f5; color: var(--vert); font-size: 15px; }
+  .total-groupe strong { font-family: "Anton", sans-serif; font-weight: 400; font-size: 24px; margin: 0 2px; }
+  .total-groupe span { font-size: 13px; color: var(--gris); }
+  .groupe-alerte { margin-top: 6px; font-size: 13px; color: var(--gris); }
+  .groupe-alerte.plein { color: #9a5b00; font-weight: 600; background: #fff6e0; border-left: 3px solid var(--jaune); padding: 6px 10px; border-radius: 6px; }
   .tete-plat .px { white-space: nowrap; text-align: right; }
   .tete-plat .n { flex: 1; min-width: 0; }
   .tete-plat input[type=radio] { flex: 0 0 auto; margin: 3px 0 0; align-self: flex-start; }
@@ -251,7 +258,7 @@
   <p class="slogan">Fermé au public. Ouvert à votre fête.</p>
   <p>La nouvelle façon de fêter entre collègues, membres ou amis : un lieu rien que pour vous, tout organisé, et à votre image jusqu'à la musique. Composez votre soirée et voyez votre budget en direct.</p>
   <div class="atouts">
-    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour votre groupe, de 12 à 30 personnes.</span></div>
+    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour votre groupe, de 12 à <span class="max-pers">26</span> personnes, enfants compris.</span></div>
     <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour vos invités : nous nous occupons de tout.</span></div>
     <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
   </div>
@@ -263,18 +270,23 @@
     <!-- 1. Groupe et date -->
     <div class="carte pas-imprime">
       <h2>1. Votre groupe</h2>
-      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
+      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 26 personnes, enfants compris, rien que pour vous.</p>
       <label class="champ" id="lab-profil">Vous êtes</label>
       <div class="profils" id="profils" role="radiogroup" aria-labelledby="lab-profil">
         <label class="choisie"><input type="radio" name="profil" value="entreprise" checked>Une entreprise<small>collègues, équipe</small></label>
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
       </div>
-      <label class="champ" for="personnes">Nombre de personnes</label>
+      <label class="champ" for="adultes">Adultes</label>
       <div class="compteur">
-        <input type="range" id="personnes" min="12" max="30" value="20">
-        <span class="valeur" id="personnes-val">20</span>
+        <input type="range" id="adultes" min="1" max="26" value="20">
+        <span class="valeur" id="adultes-val">20</span>
       </div>
+      <label class="champ" for="enfants" id="lab-enfants">Enfants de moins de 12 ans</label>
+      <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="25" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
+      <div class="total-groupe">Total : <strong id="personnes-val">20</strong> personnes <span id="repartition"></span></div>
+      <div class="groupe-alerte" id="groupe-alerte" role="status"></div>
+      <input type="hidden" id="personnes" value="20">
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
       <div class="aide" id="date-aide"></div>
@@ -350,7 +362,8 @@
         </div>
         <div class="aide" style="margin:8px 0 0">Une estimation pour votre budget. Seules les bouteilles ouvertes le soir même sont facturées.</div>
       </div>
-      <label class="champ">2. Les eaux et les softs, par personne</label>
+      <label class="champ">2. Les eaux et les softs, par adulte</label>
+      <div class="aide cache" id="aide-forfait-enfant" style="margin-top:0;margin-bottom:8px"></div>
       <div class="choix-boissons" id="forfaits"></div>
       <label class="champ">3. Les digestifs, à la bouteille</label>
       <div class="aide" style="margin-top:0">Posées sur la table pour le groupe, à un prix de bouteille avantageux. Non inclus : ajoutez celles que vous voulez.</div>
@@ -496,6 +509,10 @@
     email: "vevey@bossanova-cafe.ch",
     saisonDebut: "2026-11-16",
     saisonFin: "2027-02-28",
+    maxPersonnes: 26,                 // capacité maximale, enfants compris
+    enfantsAge: 12,                   // enfants de moins de 12 ans
+    enfantsRemise: 50,                // remise en % sur le menu pour les enfants
+    forfaitEnfant: 8,                 // eaux minérales et jus, obligatoire par enfant
     droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
     earlyBirdJours: 30,               // early bird : réservation au moins 30 jours avant
     earlyBirdRemise: 5,               // early bird : remise en % sur le menu
@@ -695,7 +712,7 @@
     if (actifs.length <= 1) {
       $("carte-moment").classList.add("cache");
       const seul = actifs[0];
-      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à 30 personnes. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
+      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
       let k = 0;
       document.querySelectorAll(".carte > h2").forEach(h => {
         if (h.closest(".cache") || !/^\d+\.\s/.test(h.textContent)) return;
@@ -729,7 +746,7 @@
         el.className = "plat";
         el.dataset.cours = c.id; el.dataset.id = p.id;
         el.innerHTML = c.id === "plat"
-          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes : <input type="number" min="0" max="30" value="0"></div></div>`
+          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes : <input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0"></div></div>`
           : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
         if (p.photo) {
@@ -751,7 +768,7 @@
           el.querySelector(".px").textContent = p.inclus ? "Compris" : `${chf(p.prix)} / personne`;
           r.addEventListener("input", () => {
             etat.portionsAuto = false;
-            etat.portions[p.id] = Math.max(0, Math.min(30, Math.floor(Number(r.value) || 0)));
+            etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, Math.floor(Number(r.value) || 0)));
             maj();
           });
           el.addEventListener("click", e => { if (e.target !== r) r.focus(); });
@@ -786,7 +803,7 @@
       const el = document.createElement("label");
       el.innerHTML = `<input type="radio" name="forfait" value="${f.id}"><span><strong></strong> <span class="pxf"></span><small></small></span>`;
       el.querySelector("strong").textContent = f.nom;
-      el.querySelector(".pxf").textContent = f.prix ? `· CHF ${f.prix} / pers.` : "";
+      el.querySelector(".pxf").textContent = f.prix ? `· CHF ${f.prix} / adulte` : "";
       el.querySelector("small").textContent = f.ds;
       const r = el.querySelector("input");
       r.checked = f.id === etat.forfait;
@@ -795,7 +812,7 @@
     });
     const cs = $("consommation");
     CONFIG.consommations.forEach(c => { const o = document.createElement("option"); o.value = c.id; o.textContent = c.lib; o.selected = c.id === etat.conso; cs.appendChild(o); });
-    cs.addEventListener("change", () => { etat.conso = cs.value; etat.vinsAuto = true; repartirVins(Number($("personnes").value)); maj(); });
+    cs.addEventListener("change", () => { etat.conso = cs.value; etat.vinsAuto = true; repartirVins(nbAdultes()); maj(); });
     const vz = $("vins");
     CONFIG.vins.forEach(v => {
       const el = document.createElement("div");
@@ -843,6 +860,28 @@
   const totalBulles = () => CONFIG.bulles.reduce((a, d) => a + (etat.bulles[d.id] || 0), 0);
 
   // Nombre de bouteilles conseillé selon les invités, réparti blanc / rouge / rosé
+  // Arrondi suisse aux 5 centimes
+  const arr5 = x => Math.round(x * 20) / 20;
+  const nbEnfants = () => Math.max(0, Math.floor(Number($("enfants").value) || 0));
+  const nbAdultes = () => Math.max(1, Math.floor(Number($("adultes").value) || 1));
+  // Adultes + enfants : le total ne dépasse jamais le maximum et ne descend pas sous 12
+  let groupeTrop = false;
+  function synchroGroupe(source) {
+    const max = CONFIG.maxPersonnes || 26;
+    let a = nbAdultes(), k = nbEnfants();
+    // Les adultes d'abord ; les enfants ne peuvent occuper que les places restantes
+    a = Math.min(a, max);
+    const essai = k;
+    k = Math.min(k, max - a);
+    $("enfants").max = max - a;
+    groupeTrop = source === "enfants" && essai > k;
+    if (a + k < 12) a = 12 - k;
+    $("adultes").value = a;
+    if (document.activeElement !== $("enfants") || Number($("enfants").value) !== k) $("enfants").value = k;
+    $("personnes").value = a + k;
+    repartirPortions(a + k); repartirVins(a); estimerApport(a);
+    maj();
+  }
   function repartirVins(n) {
     if (!etat.vinsAuto) return;
     const c = CONFIG.consommations.find(x => x.id === etat.conso);
@@ -988,6 +1027,13 @@
       base = pa * n + totalPlats();
       lignes.push({ lib: `Bienvenue, entrée${CONFIG.cafe.inclus ? ", dessert et café" : " et dessert"} · ${n} × CHF ${pa}`, mt: pa * n });
       platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
+      // Enfants de moins de 12 ans : remise sur le menu, calculée sur le prix moyen par personne
+      const k = Math.min(nbEnfants(), n);
+      if (k && CONFIG.enfantsRemise > 0 && n) {
+        const remEnf = arr5(k * (base / n) * CONFIG.enfantsRemise / 100);
+        lignes.push({ lib: `Enfants de moins de ${CONFIG.enfantsAge} ans · ${k} × −${CONFIG.enfantsRemise} % sur le menu`, mt: -remEnf, cls: "remise" });
+        base -= remEnf;
+      }
     }
 
     let boissons = 0;
@@ -1007,7 +1053,10 @@
       boissons += nb * pb;
       lignes.push({ lib: `Droit de bouchon, votre vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
     }
-    if (fo.prix) { boissons += fo.prix * n; lignes.push({ lib: `${fo.nom} · ${n} × CHF ${fo.prix}`, mt: fo.prix * n }); }
+    // Boissons par personne : le forfait choisi pour les adultes, eaux minérales et jus pour les enfants
+    const kB = Math.min(nbEnfants(), n), aB = n - kB;
+    if (fo.prix && aB) { boissons += fo.prix * aB; lignes.push({ lib: `${fo.nom} · ${aB} adulte${aB > 1 ? "s" : ""} × CHF ${fo.prix}`, mt: fo.prix * aB }); }
+    if (kB && CONFIG.forfaitEnfant != null) { boissons += CONFIG.forfaitEnfant * kB; lignes.push({ lib: `Enfants : eaux minérales et jus · ${kB} × CHF ${CONFIG.forfaitEnfant}`, mt: CONFIG.forfaitEnfant * kB }); }
     CONFIG.bulles.forEach(d => {
       const q = etat.bulles[d.id] || 0;
       if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
@@ -1018,7 +1067,7 @@
     });
 
     const earlyBird = earlyBirdActif(date) && CONFIG.earlyBirdRemise > 0;
-    const remise = earlyBird ? Math.round(base * CONFIG.earlyBirdRemise) / 100 : 0;
+    const remise = earlyBird ? arr5(base * CONFIG.earlyBirdRemise / 100) : 0;
     const ebOffert = CONFIG.offre && CONFIG.offre.offerts && CONFIG.offre.offerts.gateau;
     if (remise) lignes.push({ lib: ebOffert ? `Remise early bird : −${CONFIG.earlyBirdRemise} % sur le menu` : `Early bird : −${CONFIG.earlyBirdRemise} % sur le menu (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: -remise, cls: "remise" });
 
@@ -1060,8 +1109,8 @@
     let remiseOffre = 0;
     const of = CONFIG.offre;
     if (of) {
-      const rm = Math.round(base * (Number(of.remiseMenu) || 0)) / 100;
-      const rb = Math.round(boissons * (Number(of.remiseBoissons) || 0)) / 100;
+      const rm = arr5(base * (Number(of.remiseMenu) || 0) / 100);
+      const rb = arr5(boissons * (Number(of.remiseBoissons) || 0) / 100);
       if (rm) { remiseOffre += rm; lignes.push({ lib: `Remise négociée : −${of.remiseMenu} % sur ${t.prix ? "l’afterwork" : "le menu"}`, mt: -rm, cls: "remise" }); }
       if (rb) { remiseOffre += rb; lignes.push({ lib: `Remise négociée : −${of.remiseBoissons} % sur les boissons`, mt: -rb, cls: "remise" }); }
     }
@@ -1086,6 +1135,19 @@
     $("erreur").textContent = "";
     const r = calculer();
     $("personnes-val").textContent = r.n;
+    $("adultes-val").textContent = nbAdultes();
+    const kRep = nbEnfants();
+    $("repartition").textContent = `(${nbAdultes()} adulte${nbAdultes() > 1 ? "s" : ""}${kRep ? ` + ${kRep} enfant${kRep > 1 ? "s" : ""}` : ""}, maximum ${CONFIG.maxPersonnes})`;
+    const plein = r.n >= CONFIG.maxPersonnes, reste = CONFIG.maxPersonnes - nbAdultes();
+    $("enfants").max = reste;
+    $("groupe-alerte").textContent = plein
+      ? `Nombre maximum de ${CONFIG.maxPersonnes} personnes atteint.${groupeTrop ? ` Avec ${nbAdultes()} adultes, ${reste} enfant${reste > 1 ? "s" : ""} au maximum.` : ""}`
+      : `Places restantes pour les enfants : ${reste - kRep}.`;
+    $("groupe-alerte").classList.toggle("plein", plein);
+    $("enfants-aide").textContent = `${CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, ` : ""}eaux minérales et jus à CHF ${CONFIG.forfaitEnfant}, sans alcool.`;
+    const ae = $("aide-forfait-enfant");
+    ae.classList.toggle("cache", !kRep);
+    if (kRep) ae.textContent = `Pour ${kRep === 1 ? "l’enfant" : `les ${kRep} enfants`} : eaux minérales et jus, CHF ${CONFIG.forfaitEnfant} par enfant, compté automatiquement. Les vins, la bière et le champagne sont prévus pour les adultes seulement.`;
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);
@@ -1124,17 +1186,19 @@
     const txtBouchon = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} par bouteille consommée` : "offert";
     $("bouchon-detail").textContent = `Nous le servons à table. Droit de bouchon : ${txtBouchon}.`;
     $("apporte-prix").textContent = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} la bouteille` : "Offert";
-    $("apporte-detail").textContent = `Pour ${r.n} invités, environ ${(etat.bouteillesApportees * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
+    const ad = Math.max(1, nbAdultes());
+    $("apporte-detail").textContent = `Pour ${ad} adulte${ad > 1 ? "s" : ""}, environ ${(etat.bouteillesApportees * 7 / ad).toFixed(1).replace(".", ",")} dl par personne`;
     CONFIG.vins.forEach(v => { const q = $("vin-" + v.id); if (document.activeElement !== q) q.value = etat.bouteilles[v.id] || 0; });
     if (CONFIG.bulles.length) {
       CONFIG.bulles.forEach(d => { const q = $("bulle-" + d.id); if (q && document.activeElement !== q) q.value = etat.bulles[d.id] || 0; });
-      const conseil = Math.ceil(r.n / CONFIG.coupesParBouteille), deja = totalBulles();
+      const adB = Math.max(1, nbAdultes());
+      const conseil = Math.ceil(adB / CONFIG.coupesParBouteille), deja = totalBulles();
       $("bulles-conseil").innerHTML = deja >= conseil
-        ? `${deja} bouteille${deja > 1 ? "s" : ""} : environ ${deja * CONFIG.coupesParBouteille} coupes pour ${r.n} invités.`
-        : `Pour une coupe par invité : ${conseil} bouteille${conseil > 1 ? "s" : ""}. <button type="button" class="lien" data-n="${conseil}">Prévoir ${conseil} bouteille${conseil > 1 ? "s" : ""}</button>`;
+        ? `${deja} bouteille${deja > 1 ? "s" : ""} : environ ${deja * CONFIG.coupesParBouteille} coupes pour ${adB} adulte${adB > 1 ? "s" : ""}.`
+        : `Pour une coupe par adulte : ${conseil} bouteille${conseil > 1 ? "s" : ""}. <button type="button" class="lien" data-n="${conseil}">Prévoir ${conseil} bouteille${conseil > 1 ? "s" : ""}</button>`;
     }
     const tb = totalBouteilles();
-    $("vins-total").textContent = `${tb} bouteille${tb > 1 ? "s" : ""} pour ${r.n} invités, soit environ ${(tb * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
+    $("vins-total").textContent = `${tb} bouteille${tb > 1 ? "s" : ""} pour ${ad} adulte${ad > 1 ? "s" : ""}, soit environ ${(tb * 7 / ad).toFixed(1).replace(".", ",")} dl par personne`;
 
 
     // Disponibilité des options
@@ -1175,7 +1239,8 @@
 
     // Récapitulatif
     const moments = { soir: "Soirée privatisée", midi: "Déjeuner", afterwork: "Afterwork" };
-    $("recap-titre").textContent = `${r.n} personnes · ${moments[r.moment]}${r.date ? " · " + dateLisible(r.date) : ""}`;
+    const kR = nbEnfants();
+    $("recap-titre").textContent = `${r.n} personnes${kR ? ` dont ${kR} enfant${kR > 1 ? "s" : ""}` : ""} · ${moments[r.moment]}${r.date ? " · " + dateLisible(r.date) : ""}`;
     const zone = $("recap-lignes");
     zone.innerHTML = "";
     r.lignes.forEach(l => {
@@ -1569,7 +1634,8 @@
     l.push(`• Groupe : ${$("societe").value || "—"} (${{ entreprise: "entreprise", club: "club ou association", amis: "amis ou famille" }[etat.profil]})`);
     l.push(`• Contact : ${$("nom").value || "—"}${$("tel").value ? ", " + $("tel").value : ""}${$("email").value ? ", " + $("email").value : ""}`);
     l.push(`• Date souhaitée : ${r.date ? dateLisible(r.date) : "à définir"}`);
-    l.push(`• Nombre de personnes : ${r.n}`);
+    const kE = nbEnfants();
+    l.push(`• Nombre de personnes : ${r.n}${kE ? `, dont ${kE} enfant${kE > 1 ? "s" : ""} de moins de ${CONFIG.enfantsAge} ans (menu à −${CONFIG.enfantsRemise} %, boissons sans alcool, cocktail de bienvenue sans alcool)` : ""}`);
     const ty = CONFIG.types.find(x => x.id === etat.type);
     l.push(`• Moment : ${ty.nom} (${ty.quand.split(",")[0]})`);
     if (r.moment !== "afterwork") {
@@ -1584,7 +1650,7 @@
     if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
     if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille consommée" : "offert"})`);
     else if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
-    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}`);
+    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}${nbEnfants() ? " pour les adultes ; eaux minérales et jus pour les enfants" : ""}`);
     l.push(`• Boissons commandées en plus au bar : ${texteBoissons()}`);
     const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
     if (nbH) l.push(`• Trophées et cadeaux : ${modeProduction() === "bossanova" ? "réalisés par le Bossa Nova" : "apportés par nos soins"}`);
@@ -1666,6 +1732,14 @@
     CONFIG.options.find(o => o.id === "prolongation").prixParHeure = Number(rg.prolongationParHeure) || 0;
     CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
     CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
+    CONFIG.maxPersonnes = Math.max(12, Number(rg.maxPersonnes) || 26);
+    $("adultes").max = CONFIG.maxPersonnes; $("enfants").max = CONFIG.maxPersonnes - 1;
+    if (Number($("adultes").value) > CONFIG.maxPersonnes) $("adultes").value = CONFIG.maxPersonnes;
+    document.querySelectorAll(".max-pers").forEach(x => { x.textContent = CONFIG.maxPersonnes; });
+    if ($("sous-groupe").textContent.includes("accueille")) $("sous-groupe").textContent = `Le Bossa Nova accueille de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris, rien que pour vous.`;
+    CONFIG.enfantsAge = rg.enfantsAge != null ? (Number(rg.enfantsAge) || 12) : 12;
+    CONFIG.enfantsRemise = rg.enfantsRemise != null ? (Number(rg.enfantsRemise) || 0) : 50;
+    $("lab-enfants").textContent = `Enfants de moins de ${CONFIG.enfantsAge} ans`;
     const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg });
     ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
       const cours = CONFIG.menu.find(c => c.id === k);
@@ -1682,6 +1756,7 @@
       ? CONFIG.bols.map((b, i) => i ? b.charAt(0).toLowerCase() + b.slice(1) : b).join(", ") + ", en bols sur les tables"
       : "Accompagnements en bols sur les tables";
     CONFIG.forfaits.forEach(f => { if (cat.forfaits[f.id] != null) f.prix = Number(cat.forfaits[f.id]) || 0; });
+    CONFIG.forfaitEnfant = cat.forfaits.enfant != null ? (Number(cat.forfaits.enfant) || 0) : 8;
     const vins = visibles(cat.vins);
     const somme = vins.reduce((a, v) => a + (Number(v.part) || 0), 0) || 1;
     CONFIG.vins = vins.map(v => ({ id: v.id, nom: v.nom, ds: v.ds || "", prix: Number(v.prix) || 0, part: (Number(v.part) || 0) / somme }));
@@ -1704,7 +1779,7 @@
       if (type === "vin") { const it = CONFIG.vins.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "digestif") { const it = CONFIG.digestifs.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "bulle") { const it = CONFIG.bulles.find(x => x.id === a); if (it) it.prix = v; }
-      if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; }
+      if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; if (a === "enfant") CONFIG.forfaitEnfant = v; }
       if (type === "cafe") { CONFIG.cafe.prix = v; CONFIG.cafe.inclus = v === 0; }
       if (type === "bouchon") CONFIG.droitBouchon = v;
       if (type === "afterwork") CONFIG.types.find(x => x.id === "afterwork").prix = v;
@@ -1725,7 +1800,7 @@
     CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
   }
   function preremplirOffre(o) {
-    if (o.personnes) $("personnes").value = Math.max(12, Math.min(30, Number(o.personnes)));
+    if (o.personnes) { const v = Math.max(12, Math.min(CONFIG.maxPersonnes, Number(o.personnes))); $("adultes").value = v; $("personnes").value = v; }
     if (o.client) $("societe").value = o.client;
     if (o.date) $("date").value = o.date;
     const b = $("offre-bandeau");
@@ -1756,10 +1831,12 @@
     const d = CONFIG.bulles[0]; etat.bulles[d.id] = Number(b.dataset.n); maj();
   });
   repartirPortions(Number($("personnes").value));
-  repartirVins(Number($("personnes").value));
-  estimerApport(Number($("personnes").value));
+  repartirVins(nbAdultes());
+  estimerApport(nbAdultes());
   $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
-  $("personnes").addEventListener("input", () => { repartirPortions(Number($("personnes").value)); repartirVins(Number($("personnes").value)); estimerApport(Number($("personnes").value)); });
+  $("adultes").addEventListener("input", () => synchroGroupe("adultes"));
+  $("enfants").addEventListener("input", () => synchroGroupe("enfants"));
+  $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
   appliquerProfil();
   document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); }));
@@ -1767,7 +1844,7 @@
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
   $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;
   $("societe-prog").addEventListener("input", () => { $("societe").value = $("societe-prog").value; maj(); });
-  ["personnes", "date", "plafond", "nom", "societe", "email", "tel", "remarques", "budget-cible"].forEach(id => $(id).addEventListener("input", maj));
+  ["date", "plafond", "nom", "societe", "email", "tel", "remarques", "budget-cible"].forEach(id => $(id).addEventListener("input", maj));
   $("budget-unite").addEventListener("change", maj);
   $("rappel-ouvrir").addEventListener("click", () => {
     const b = $("rappel-bloc"); b.classList.toggle("cache");

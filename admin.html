@@ -207,7 +207,7 @@
       <div class="champs">
         <label class="champ">Client<input type="text" id="o-client" placeholder="Fiduciaire Dupont"></label>
         <label class="champ">Date de la soirée<input type="date" id="o-date"></label>
-        <label class="champ">Nombre d’invités<input type="number" id="o-personnes" min="12" max="30" step="1" value="20"></label>
+        <label class="champ">Nombre d’invités<input type="number" id="o-personnes" min="12" max="26" step="1" value="20"></label>
         <label class="champ">Offre valable jusqu’au<input type="date" id="o-validite"></label>
         <label class="champ"><span>Remise sur le menu <span class="unite">%</span></span><input type="number" id="o-remise-menu" min="0" max="100" step="1" value="0"></label>
         <label class="champ"><span>Remise sur les boissons <span class="unite">%</span></span><input type="number" id="o-remise-boissons" min="0" max="100" step="1" value="0"></label>
@@ -356,18 +356,21 @@
     const R = cat.regles;
     [
       ["Minimum de privatisation", "minimumPrivatisation", "CHF", "50"],
+      ["Nombre maximum d’invités", "maxPersonnes", "personnes, enfants compris", "1"],
       ["Acompte à la réservation", "acomptePourcent", "%", "1"],
       ["Prolongation jusqu’à 00h30", "prolongationParHeure", "CHF / heure", "10"],
       ["Afterwork Caipi", "afterworkPrix", "CHF / pers.", "0.5"],
       ["Droit de bouchon (vin du client)", "droitBouchon", "CHF / bouteille", "1"],
+      ["Enfants : âge limite", "enfantsAge", "ans (moins de)", "1"],
+      ["Enfants : remise sur le menu", "enfantsRemise", "%", "5"],
       ["Délai de commande des trophées", "productionDelaiJours", "jours", "1"],
       ["Early bird : réservation dès", "earlyBirdJours", "jours avant", "1"],
       ["Early bird : remise sur le menu", "earlyBirdRemise", "%", "1"]
     ].forEach(([lib, cle, unite, step]) => champ(z, lib, "number", () => R[cle], v => R[cle] = v, { unite, step, min: 0, id: "f-" + cle }));
 
     z = $("champs-forfaits"); z.innerHTML = "";
-    [["Eaux minérales", "vin"], ["Eaux, softs et jus", "soft"], ["Eaux, softs, jus et bière", "complet"]]
-      .forEach(([lib, cle]) => champ(z, lib, "number", () => cat.forfaits[cle], v => cat.forfaits[cle] = v, { unite: "CHF / pers.", step: "0.5", min: 0, id: "f-forfait-" + cle }));
+    [["Eaux minérales", "vin", "CHF / adulte"], ["Eaux, softs et jus", "soft", "CHF / adulte"], ["Eaux, softs, jus et bière", "complet", "CHF / adulte"], ["Enfants : eaux minérales et jus (obligatoire)", "enfant", "CHF / enfant"]]
+      .forEach(([lib, cle, unite]) => champ(z, lib, "number", () => cat.forfaits[cle], v => cat.forfaits[cle] = v, { unite, step: "0.5", min: 0, id: "f-forfait-" + cle }));
 
     z = $("champs-honneurs"); z.innerHTML = "";
     [["Trophées de l’année", "trofeu"], ["Révélation de l’année", "revelacao"], ["Jubilés de fidélité", "anos"], ["Bonne retraite", "boaviagem"]]
@@ -604,7 +607,8 @@
     l.push({ cle: "cafe", lib: `Café ou thé`, prix: cat.cafe.inclus ? 0 : Number(cat.cafe.prix) || 0 });
     l.push({ cle: "afterwork", lib: "Afterwork Caipi (par personne)", prix: Number(cat.regles.afterworkPrix) || 0 });
     [["vin", "Eaux minérales"], ["soft", "Eaux, softs et jus"], ["complet", "Eaux, softs, jus et bière"]].forEach(([k, n]) =>
-      l.push({ cle: `forfait.${k}`, lib: n + " (par personne)", prix: Number(cat.forfaits[k]) || 0 }));
+      l.push({ cle: `forfait.${k}`, lib: n + " (par adulte)", prix: Number(cat.forfaits[k]) || 0 }));
+    l.push({ cle: "forfait.enfant", lib: "Enfants : eaux minérales et jus (par enfant)", prix: Number(cat.forfaits.enfant) || 0 });
     cat.vins.filter(x => x.actif !== false).forEach(x => l.push({ cle: `vin.${x.id}`, lib: `Vin : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     l.push({ cle: "bouchon", lib: "Droit de bouchon, vin apporté (bouteille)", prix: Number(cat.regles.droitBouchon) || 0 });
     cat.bulles.filter(x => x.actif !== false).forEach(x => l.push({ cle: `bulle.${x.id}`, lib: `Bulles : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
