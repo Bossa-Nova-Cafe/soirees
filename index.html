@@ -191,6 +191,7 @@
   .tete-plat { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; }
   .enfants-ligne { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .enfants-ligne input { width: 90px; }
+  .repartition { margin-top: 6px; font-size: 13.5px; font-weight: 600; color: var(--vert); }
   .tete-plat .px { white-space: nowrap; text-align: right; }
   .tete-plat .n { flex: 1; min-width: 0; }
   .tete-plat input[type=radio] { flex: 0 0 auto; margin: 3px 0 0; align-self: flex-start; }
@@ -272,13 +273,14 @@
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
       </div>
-      <label class="champ" for="personnes">Nombre de personnes</label>
+      <label class="champ" for="personnes">Nombre total de personnes, adultes et enfants</label>
       <div class="compteur">
         <input type="range" id="personnes" min="12" max="26" value="20">
         <span class="valeur" id="personnes-val">20</span>
       </div>
       <label class="champ" for="enfants" id="lab-enfants">Dont enfants de moins de 12 ans</label>
       <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="26" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
+      <div class="repartition" id="repartition"></div>
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
       <div class="aide" id="date-aide"></div>
@@ -850,7 +852,7 @@
   const totalBulles = () => CONFIG.bulles.reduce((a, d) => a + (etat.bulles[d.id] || 0), 0);
 
   // Nombre de bouteilles conseillé selon les invités, réparti blanc / rouge / rosé
-  const nbEnfants = () => Math.max(0, Math.min(Number($("personnes").value), Math.floor(Number($("enfants").value) || 0)));
+  const nbEnfants = () => Math.max(0, Math.min(Number($("personnes").value) - 1, Math.floor(Number($("enfants").value) || 0)));
   const nbAdultes = () => Math.max(0, Number($("personnes").value) - nbEnfants());
   function repartirVins(n) {
     if (!etat.vinsAuto) return;
@@ -1102,6 +1104,9 @@
     $("erreur").textContent = "";
     const r = calculer();
     $("personnes-val").textContent = r.n;
+    const kRep = nbEnfants();
+    $("repartition").textContent = kRep ? `${r.n - kRep} adulte${r.n - kRep > 1 ? "s" : ""} + ${kRep} enfant${kRep > 1 ? "s" : ""} = ${r.n} personnes (maximum ${CONFIG.maxPersonnes})` : "";
+    if (document.activeElement !== $("enfants") && Number($("enfants").value) > r.n - 1) $("enfants").value = r.n - 1;
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);
