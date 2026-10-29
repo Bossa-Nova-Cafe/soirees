@@ -40,7 +40,7 @@
   h2 { font-family: "Anton", sans-serif; font-weight: 400; font-size: 22px; text-transform: uppercase; color: var(--vert); margin: 0 0 4px; letter-spacing: .5px; }
   h3 { font-size: 15px; margin: 18px 0 8px; color: var(--violet); }
   .sous { color: var(--gris); font-size: 13px; margin: 0 0 14px; }
-  .champs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .champs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; align-items: end; }
   label.champ { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--gris); }
   input[type=text], input[type=email], input[type=tel], input[type=number], input[type=date], input[type=password] {
     font: inherit; font-size: 14px; color: var(--texte); padding: 8px 10px; border: 1.5px solid var(--bord); border-radius: 8px; background: #fff; width: 100%; min-width: 0;
@@ -53,15 +53,16 @@
   @media (max-width: 760px) { .plat-mesure { grid-template-columns: 1fr 1fr; } }
 
   .liste { display: flex; flex-direction: column; gap: 8px; }
-  .ligne { display: grid; grid-template-columns: 58px minmax(170px, 1.4fr) minmax(160px, 2fr) 110px 90px 112px; gap: 8px; align-items: center; padding: 8px; border: 1px solid var(--bord); border-radius: 10px; background: #fffdf7; }
+  .ligne { display: grid; grid-template-columns: 58px minmax(190px, 1.6fr) minmax(170px, 2fr) 150px 80px 112px; gap: 8px; align-items: center; padding: 8px; border: 1px solid var(--bord); border-radius: 10px; background: #fffdf7; }
   .ligne.cachee { opacity: .55; background: #f4f1e8; }
-  .ligne.vins { grid-template-columns: 58px minmax(170px, 1.4fr) minmax(160px, 2fr) 110px 90px 112px; }
+  .ligne.vins { grid-template-columns: 58px minmax(190px, 1.6fr) minmax(170px, 2fr) 150px 80px 112px; }
   .ligne.simple { grid-template-columns: minmax(0, 1fr) 112px; }
-  .entete-liste { display: grid; grid-template-columns: 58px minmax(170px, 1.4fr) minmax(160px, 2fr) 110px 90px 112px; gap: 8px; padding: 0 9px; font-size: 11.5px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--gris); }
+  .entete-liste { display: grid; grid-template-columns: 58px minmax(190px, 1.6fr) minmax(170px, 2fr) 150px 80px 112px; gap: 8px; padding: 0 9px; font-size: 11.5px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--gris); }
   .vis { width: 20px; height: 20px; accent-color: var(--vert); justify-self: center; }
   .vg { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
-  .prix-inclus { display: flex; flex-direction: column; gap: 4px; }
-  .prix-inclus input[type=number] { padding: 6px 8px; }
+  .prix-inclus { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+  .prix-inclus .vg { white-space: nowrap; }
+  .prix-inclus input[type=number] { width: 72px; flex: 0 0 72px; }
   .vg input { width: 18px; height: 18px; accent-color: var(--ok); }
   .actions { display: flex; gap: 4px; justify-content: flex-end; }
   .ico { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--bord); background: #fff; color: var(--vert); font-size: 15px; line-height: 1; }
@@ -83,7 +84,11 @@
   @media (max-width: 820px) {
     .entete-liste { display: none; }
     .ligne, .ligne.vins { grid-template-columns: 40px minmax(0, 1fr) 112px; }
+    .ligne:not(.simple) > .vis { grid-column: 1; grid-row: 1; }
+    .ligne:not(.simple) > .c-nom { grid-column: 2; grid-row: 1; }
+    .ligne:not(.simple) > .actions { grid-column: 3; grid-row: 1; justify-self: end; }
     .ligne .c-ds, .ligne .c-prix, .ligne .c-extra { grid-column: 2 / 4; }
+    .ligne > span:empty { display: none; }
   }
 </style>
 </head>
@@ -344,9 +349,9 @@
       ["Prolongation jusqu’à 00h30", "prolongationParHeure", "CHF / heure", "10"],
       ["Gâteau de fête", "gateauParPersonne", "CHF / pers.", "0.5"],
       ["Afterwork Caipi", "afterworkPrix", "CHF / pers.", "0.5"],
-      ["Vin apporté par le client : droit de bouchon", "droitBouchon", "CHF / bouteille", "1"],
+      ["Droit de bouchon (vin du client)", "droitBouchon", "CHF / bouteille", "1"],
       ["Délai de commande des trophées", "productionDelaiJours", "jours", "1"],
-      ["Early bird : gâteau offert si réservé au moins", "earlyBirdJours", "jours avant la soirée", "1"]
+      ["Early bird : gâteau offert dès", "earlyBirdJours", "jours avant", "1"]
     ].forEach(([lib, cle, unite, step]) => champ(z, lib, "number", () => R[cle], v => R[cle] = v, { unite, step, min: 0, id: "f-" + cle }));
 
     z = $("champs-forfaits"); z.innerHTML = "";
@@ -355,7 +360,7 @@
 
     z = $("champs-honneurs"); z.innerHTML = "";
     [["Trophées de l’année", "trofeu"], ["Révélation de l’année", "revelacao"], ["Jubilés de fidélité", "anos"], ["Bonne retraite", "boaviagem"]]
-      .forEach(([lib, cle]) => champ(z, lib, "number", () => cat.honneurs[cle], v => cat.honneurs[cle] = v, { unite: "CHF / pers. honorée, trophée compris", step: "1", min: 0, id: "f-hon-" + cle }));
+      .forEach(([lib, cle]) => champ(z, lib, "number", () => cat.honneurs[cle], v => cat.honneurs[cle] = v, { unite: "CHF / pers. honorée", step: "1", min: 0, id: "f-hon-" + cle }));
   }
 
   // ---------- Listes ----------
@@ -400,6 +405,7 @@
     vis.addEventListener("change", () => { x.actif = vis.checked; l.classList.toggle("cachee", !vis.checked); majStatut(); });
     const nom = entree(x.nom, v => x.nom = v, { placeholder: "Nom", label: "Nom" }); nom.classList.add("c-nom");
     const ds = entree(x.ds, v => x.ds = v, { placeholder: "Description", label: "Description" }); ds.classList.add("c-ds");
+    [nom, ds].forEach(f => { f.title = f.value; f.addEventListener("input", () => { f.title = f.value; }); });
     l.append(vis, nom, ds);
     if (cfg.inclus) {
       // Inclus dans le menu, ou prix par personne
