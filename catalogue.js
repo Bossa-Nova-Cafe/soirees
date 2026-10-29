@@ -23,7 +23,8 @@
       gateauParPersonne: 6,
       afterworkPrix: 42,
       productionDelaiJours: 15,
-      earlyBirdJours: 30
+      earlyBirdJours: 30,
+      droitBouchon: 10
     },
     menu: {
       bienvenue: [

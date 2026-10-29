@@ -323,6 +323,7 @@
       ["Prolongation jusqu’à 00h30", "prolongationParHeure", "CHF / heure", "10"],
       ["Gâteau de fête", "gateauParPersonne", "CHF / pers.", "0.5"],
       ["Afterwork Caipi", "afterworkPrix", "CHF / pers.", "0.5"],
+      ["Vin apporté par le client : droit de bouchon", "droitBouchon", "CHF / bouteille", "1"],
       ["Délai de commande des trophées", "productionDelaiJours", "jours", "1"],
       ["Early bird : gâteau offert si réservé au moins", "earlyBirdJours", "jours avant la soirée", "1"]
     ].forEach(([lib, cle, unite, step]) => champ(z, lib, "number", () => R[cle], v => R[cle] = v, { unite, step, min: 0, id: "f-" + cle }));
@@ -553,6 +554,7 @@
     [["vin", "Eaux minérales"], ["soft", "Eaux, softs et jus"], ["complet", "Eaux, softs, jus et bière"]].forEach(([k, n]) =>
       l.push({ cle: `forfait.${k}`, lib: n + " (par personne)", prix: Number(cat.forfaits[k]) || 0 }));
     cat.vins.filter(x => x.actif !== false).forEach(x => l.push({ cle: `vin.${x.id}`, lib: `Vin : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
+    l.push({ cle: "bouchon", lib: "Droit de bouchon, vin apporté (bouteille)", prix: Number(cat.regles.droitBouchon) || 0 });
     cat.digestifs.filter(x => x.actif !== false).forEach(x => l.push({ cle: `digestif.${x.id}`, lib: `Digestif : ${x.nom} (bouteille)`, prix: Number(x.prix) || 0 }));
     l.push({ cle: "gateau", lib: "Gâteau de fête (par personne)", prix: Number(cat.regles.gateauParPersonne) || 0 });
     l.push({ cle: "prolongation", lib: "Prolongation (par heure)", prix: Number(cat.regles.prolongationParHeure) || 0 });

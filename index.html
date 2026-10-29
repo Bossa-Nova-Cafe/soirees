@@ -282,6 +282,8 @@
       <div class="choix-boissons" id="choix-vins">
         <label><input type="radio" name="vins" value="oui" checked>
           <span><strong>Oui, des vins vaudois sur les tables</strong><small>Facturés à la bouteille de 70 cl. Nous calculons le nombre de bouteilles selon vos invités ; vous pouvez l’ajuster.</small></span></label>
+        <label><input type="radio" name="vins" value="apporte">
+          <span><strong>Vous apportez votre propre vin</strong><small id="bouchon-detail">Nous le servons à table. Droit de bouchon : CHF 10 par bouteille consommée.</small></span></label>
         <label><input type="radio" name="vins" value="non">
           <span><strong>Pas de vin sur les tables</strong><small>Les invités pourront en commander au bar.</small></span></label>
       </div>
@@ -290,6 +292,15 @@
         <select id="consommation" style="margin-bottom:10px"></select>
         <div id="vins"></div>
         <div class="compteur-portions ok" id="vins-total" style="margin:8px 0 0"></div>
+      </div>
+      <div class="bols cache" id="bloc-apporte" style="margin-top:4px">
+        <div class="bols-titre">Votre vin</div>
+        <div class="digestif">
+          <div class="texte"><div class="titre">Bouteilles prévues</div><div class="detail" id="apporte-detail"></div></div>
+          <div class="montant" id="apporte-prix"></div>
+          <input type="number" min="0" max="60" id="apporte-nb" aria-label="Nombre de bouteilles apportées">
+        </div>
+        <div class="aide" style="margin:8px 0 0">Une estimation pour votre budget. Seules les bouteilles ouvertes le soir même sont facturées.</div>
       </div>
       <label class="champ">2. Les eaux et les softs, par personne</label>
       <div class="choix-boissons" id="forfaits"></div>
@@ -425,6 +436,7 @@
     email: "vevey@bossanova-cafe.ch",
     saisonDebut: "2026-11-16",
     saisonFin: "2027-02-28",
+    droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
     earlyBirdJours: 30,               // gâteau offert si la réservation est faite au moins 30 jours avant
     // Early bird : le gâteau de fête est offert
     minimumPrivatisation: 1200,       // CHF, soirées privatisées
@@ -552,7 +564,7 @@
     return new Date(Date.UTC(a, m - 1, j)).getUTCDay();
   }
 
-  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
+  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
 
   // ---------- Construction de l'interface ----------
   function construireTypes() {
@@ -673,6 +685,11 @@
       etat.bouteilles[v.id] = Math.max(0, b); reste -= etat.bouteilles[v.id];
     });
   }
+  function estimerApport(n) {
+    if (!etat.apporteAuto) return;
+    const c = CONFIG.consommations.find(x => x.id === etat.conso) || { ratio: 1 / 2 };
+    etat.bouteillesApportees = Math.ceil(n * c.ratio);
+  }
   const totalBouteilles = () => CONFIG.vins.reduce((a, v) => a + (etat.bouteilles[v.id] || 0), 0);
 
   // Prix par personne de la bienvenue, de l'entrée et du dessert
@@ -792,6 +809,11 @@
         if (b) { boissons += b * v.prix; lignes.push({ lib: `${v.nom}${v.id === "rose" ? "" : " (" + v.ds.split(" · ")[0].toLowerCase() + ")"} · ${b} bouteille${b > 1 ? "s" : ""} × CHF ${v.prix}`, mt: b * v.prix }); }
       });
     }
+    if (etat.vinApporte && etat.bouteillesApportees) {
+      const nb = etat.bouteillesApportees, pb = CONFIG.droitBouchon;
+      boissons += nb * pb;
+      lignes.push({ lib: `Droit de bouchon, votre vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
+    }
     if (fo.prix) { boissons += fo.prix * n; lignes.push({ lib: `${fo.nom} · ${n} × CHF ${fo.prix}`, mt: fo.prix * n }); }
     CONFIG.digestifs.forEach(d => {
       const q = etat.digestifs[d.id] || 0;
@@ -901,6 +923,12 @@
     const avecVins = etat.avecVins;
     document.querySelectorAll("#choix-vins label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
     $("bloc-vins").classList.toggle("cache", !avecVins);
+    $("bloc-apporte").classList.toggle("cache", !etat.vinApporte);
+    if (document.activeElement !== $("apporte-nb")) $("apporte-nb").value = etat.bouteillesApportees;
+    const txtBouchon = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} par bouteille consommée` : "offert";
+    $("bouchon-detail").textContent = `Nous le servons à table. Droit de bouchon : ${txtBouchon}.`;
+    $("apporte-prix").textContent = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} la bouteille` : "Offert";
+    $("apporte-detail").textContent = `Pour ${r.n} invités, environ ${(etat.bouteillesApportees * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
     CONFIG.vins.forEach(v => { const q = $("vin-" + v.id); if (document.activeElement !== q) q.value = etat.bouteilles[v.id] || 0; });
     const tb = totalBouteilles();
     $("vins-total").textContent = `${tb} bouteille${tb > 1 ? "s" : ""} pour ${r.n} invités, soit environ ${(tb * 7 / r.n).toFixed(1).replace(".", ",")} dl par personne`;
@@ -1199,7 +1227,8 @@
     r.lignes.slice(1).filter(x => !platsListe().some(p => x.lib.startsWith(p.nom + " · "))).forEach(x => l.push(`• ${x.lib}${x.mt === null ? " : sur devis" : (x.mt ? " : " + (x.mt < 0 ? "−" + chf(-x.mt) : chf(x.mt)) : "")}`));
     l.push(`• Ambiance musicale : ${etat.options.ambiance || "Bossa nova et MPB"}`);
     if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
-    if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
+    if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille consommée" : "offert"})`);
+    else if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
     l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}`);
     l.push(`• Boissons commandées en plus au bar : ${texteBoissons()}`);
     const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
@@ -1282,6 +1311,7 @@
     CONFIG.options.find(o => o.id === "gateau").prixParPersonne = Number(rg.gateauParPersonne) || 0;
     CONFIG.options.find(o => o.id === "prolongation").prixParHeure = Number(rg.prolongationParHeure) || 0;
     CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
+    CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
     const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg });
     ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
       const cours = CONFIG.menu.find(c => c.id === k);
@@ -1319,6 +1349,7 @@
       if (type === "digestif") { const it = CONFIG.digestifs.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "forfait") { const it = CONFIG.forfaits.find(x => x.id === a); if (it) it.prix = v; }
       if (type === "cafe") { CONFIG.cafe.prix = v; CONFIG.cafe.inclus = v === 0; }
+      if (type === "bouchon") CONFIG.droitBouchon = v;
       if (type === "afterwork") CONFIG.types.find(x => x.id === "afterwork").prix = v;
       if (type === "gateau") CONFIG.options.find(x => x.id === "gateau").prixParPersonne = v;
       if (type === "prolongation") { CONFIG.prolongationParHeure = v; CONFIG.options.find(x => x.id === "prolongation").prixParHeure = v; }
@@ -1365,7 +1396,9 @@
   construireBoissons();
   repartirPortions(Number($("personnes").value));
   repartirVins(Number($("personnes").value));
-  $("personnes").addEventListener("input", () => { repartirPortions(Number($("personnes").value)); repartirVins(Number($("personnes").value)); });
+  estimerApport(Number($("personnes").value));
+  $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
+  $("personnes").addEventListener("input", () => { repartirPortions(Number($("personnes").value)); repartirVins(Number($("personnes").value)); estimerApport(Number($("personnes").value)); });
   construireHonneurs();
   construireOptions();
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
@@ -1381,7 +1414,7 @@
   $("rappel-moment").addEventListener("change", maj);
   $("rappel-wa").addEventListener("click", verifierRappel);
   $("rappel-mail").addEventListener("click", verifierRappel);
-  document.querySelectorAll("input[name=vins]").forEach(x => x.addEventListener("change", () => { etat.avecVins = x.value === "oui"; maj(); }));
+  document.querySelectorAll("input[name=vins]").forEach(x => x.addEventListener("change", () => { etat.avecVins = x.value === "oui"; etat.vinApporte = x.value === "apporte"; maj(); }));
   document.querySelectorAll("input[name=boissons]").forEach(x => x.addEventListener("change", maj));
   $("envoyer-wa").addEventListener("click", verifierAvantEnvoi);
   $("envoyer-mail").addEventListener("click", verifierAvantEnvoi);
