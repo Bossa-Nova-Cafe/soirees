@@ -140,6 +140,17 @@
   .prog-liste .t { font-weight: 600; font-size: 15px; }
   .prog-liste li.evenement .t { color: var(--violet); }
   .prog-liste .d { color: var(--gris); font-size: 13px; line-height: 1.45; }
+  .retour { border-top: 1px dashed var(--bord); margin: 6px 0 10px; padding-top: 12px; }
+  .retour h3 { font-size: 15px; margin: 0 0 2px; color: var(--vert); }
+  .retour .sous-retour { font-size: 12px; color: var(--gris); margin-bottom: 8px; }
+  .retour-ligne { display: flex; gap: 10px; font-size: 13.5px; padding: 5px 0; border-bottom: 1px solid #efe8d6; }
+  .retour-ligne:last-child { border-bottom: 0; }
+  .retour-groupe { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--violet, #6b3fa0); margin: 12px 0 2px; }
+  .retour-ligne .dest { flex: 0 0 120px; font-weight: 600; }
+  .retour-ligne .dep { flex: 1; }
+  .retour-ligne .dep small { color: var(--gris); }
+  .retour-note { font-size: 12px; color: var(--gris); margin-top: 6px; }
+  .retour-note a { color: inherit; }
   .prog-pied { text-align: center; color: var(--gris); font-size: 12px; border-top: 1px dashed var(--bord); padding-top: 10px; margin-top: 4px; }
   .prog-boutons { margin-top: 10px; }
   @media print {
@@ -221,7 +232,7 @@
     <!-- 1. Groupe et date -->
     <div class="carte pas-imprime">
       <h2>1. Votre groupe</h2>
-      <p class="sous">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
+      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
       <label class="champ" for="personnes">Nombre de personnes</label>
       <div class="compteur">
         <input type="range" id="personnes" min="12" max="30" value="20">
@@ -234,7 +245,7 @@
     </div>
 
     <!-- 2. Moment et menu -->
-    <div class="carte pas-imprime">
+    <div class="carte pas-imprime" id="carte-moment">
       <h2>2. Votre moment</h2>
       <p class="sous">Prix TVA incluse.</p>
       <div class="formules" id="types"></div>
@@ -243,7 +254,7 @@
     <div class="carte pas-imprime" id="carte-menu">
       <h2>3. Votre menu</h2>
       <p class="sous">Composez le menu de votre groupe. Le café ou thé est compris. Le prix se calcule selon vos choix.</p>
-      <div class="alerte" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Comme à Bahia, les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Composez vos plats principaux en nombre de portions, selon les goûts de vos invités. Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
+      <div class="alerte" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Composez vos plats principaux en nombre de portions, selon les goûts de vos invités. Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
       <div id="menu"></div>
       <div class="compteur-portions" id="compteur-portions"></div>
       <div class="menu-total" id="menu-total"></div>
@@ -353,12 +364,18 @@
     <div class="carte programme" id="programme">
       <div class="prog-entete">
         <div class="marque-prog">BOSSA NOVA CAFÉ · VEVEY</div>
-        <div class="prog-sur" id="prog-sur">Notre Confra</div>
-        <h2 id="prog-titre">Notre Confra</h2>
+        <div class="prog-sur" id="prog-sur">Notre Festa</div>
+        <h2 id="prog-titre">Notre Festa</h2>
         <div class="prog-date" id="prog-date"></div>
       </div>
       <ol class="prog-liste" id="prog-liste"></ol>
       <div class="alerte cache pas-imprime" id="prog-alerte"></div>
+      <div class="retour" id="retour">
+        <h3>Pour rentrer</h3>
+        <div class="sous-retour" id="retour-sous"></div>
+        <div id="retour-liste"></div>
+        <div class="retour-note" id="retour-note"></div>
+      </div>
       <div class="prog-pied">Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</div>
       <div class="pas-imprime prog-boutons">
         <a class="bouton wa" id="prog-wa" href="#" target="_blank" rel="noopener">Envoyer le programme par WhatsApp</a>
@@ -443,13 +460,33 @@
     acompteTaux: 0.30,
     prolongationParHeure: 200,        // CHF, vendredi et samedi
     // Moment : soirée privatisée, déjeuner ou afterwork
+    // Retour en transports publics : départs depuis la gare de Vevey après la fin
+    retour: {
+      depart: "Vevey",
+      marge: 10,            // minutes entre la fin de la soirée et le premier départ proposé
+      destinations: [
+        { nom: "Lausanne", q: "Lausanne", groupe: "Grandes lignes" },
+        { nom: "Genève", q: "Genève", groupe: "Grandes lignes" },
+        { nom: "Fribourg", q: "Fribourg", groupe: "Grandes lignes" },
+        { nom: "Berne", q: "Bern", groupe: "Grandes lignes" },
+        { nom: "Sion", q: "Sion", groupe: "Grandes lignes" },
+        { nom: "Montreux", q: "Montreux", groupe: "Région" },
+        { nom: "Clarens", q: "Clarens", groupe: "Région" },
+        { nom: "Villeneuve", q: "Villeneuve VD", groupe: "Région" },
+        { nom: "La Tour-de-Peilz", q: "La Tour-de-Peilz", groupe: "Région" },
+        { nom: "Corsier-sur-Vevey", q: "Corsier-sur-Vevey", groupe: "Région" },
+        { nom: "Blonay", q: "Blonay", groupe: "Région" },
+        { nom: "Châtel-Saint-Denis", q: "Châtel-St-Denis", groupe: "Région" },
+        { nom: "Palézieux", q: "Palézieux", groupe: "Région" }
+      ]
+    },
     types: [
       { id: "soir", nom: "Soirée privatisée", quand: "19h00–23h30, prolongation possible jusqu'à 00h30",
         desc: "Le Bossa Nova ferme ses portes pour vous. Menu à composer.", privatise: true },
       { id: "midi", nom: "Déjeuner de groupe", quand: "12h00–14h00",
-        desc: "Un repas de fête à midi. Menu à composer.", privatise: false },
+        desc: "Un repas de fête à midi. Menu à composer.", privatise: false, actif: false },
       { id: "afterwork", nom: "Afterwork Caipi", quand: "17h30–20h30", prix: 42,
-        desc: "Apéro dînatoire brésilien (pão de queijo, coxinhas, pastéis) et une caipirinha ou boisson sans alcool.", privatise: false }
+        desc: "Apéro dînatoire brésilien (pão de queijo, coxinhas, pastéis) et une caipirinha ou boisson sans alcool.", privatise: false, actif: false }
     ],
     // Menu à composer : un choix par étape pour tout le groupe (prix par personne)
     menu: [
@@ -569,8 +606,21 @@
   // ---------- Construction de l'interface ----------
   function construireTypes() {
     const zone = $("types");
-    zone.style.gridTemplateColumns = "1fr 1fr 1fr";
-    CONFIG.types.forEach(t => {
+    const actifs = CONFIG.types.filter(t => t.actif !== false);
+    zone.style.gridTemplateColumns = `repeat(${Math.max(1, actifs.length)}, 1fr)`;
+    if (!actifs.some(t => t.id === etat.type)) etat.type = (actifs[0] || CONFIG.types[0]).id;
+    // Un seul moment proposé : l'étape disparaît et les suivantes sont renumérotées
+    if (actifs.length <= 1) {
+      $("carte-moment").classList.add("cache");
+      const seul = actifs[0];
+      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à 30 personnes. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
+      let k = 0;
+      document.querySelectorAll(".carte > h2").forEach(h => {
+        if (h.closest(".cache") || !/^\d+\.\s/.test(h.textContent)) return;
+        h.textContent = h.textContent.replace(/^\d+\./, ++k + ".");
+      });
+    }
+    actifs.forEach(t => {
       const el = document.createElement("label");
       el.className = "formule";
       el.dataset.id = t.id;
@@ -961,11 +1011,11 @@
     const alerte = $("date-alerte");
     let msg = "";
     if (r.date) {
-      if (r.date < CONFIG.saisonDebut || r.date > CONFIG.saisonFin) msg = "Cette date est en dehors de la saison des Confras. Envoyez quand même votre demande : nous regarderons ce qui est possible.";
+      if (r.date < CONFIG.saisonDebut || r.date > CONFIG.saisonFin) msg = "Cette date est en dehors de la saison des Festas. Envoyez quand même votre demande : nous regarderons ce qui est possible.";
     }
     alerte.textContent = msg;
     alerte.classList.toggle("cache", !msg);
-    $("date-aide").textContent = r.date ? `${dateLisible(r.date).replace(/^./, c => c.toUpperCase())}.` : `Saison des Confras : du ${dateCourte(CONFIG.saisonDebut)} au ${dateCourte(CONFIG.saisonFin)}.`;
+    $("date-aide").textContent = r.date ? `${dateLisible(r.date).replace(/^./, c => c.toUpperCase())}.` : `Saison des Festas : du ${dateCourte(CONFIG.saisonDebut)} au ${dateCourte(CONFIG.saisonFin)}.`;
 
     // Boissons
     document.querySelectorAll("#choix-boissons label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
@@ -1032,7 +1082,7 @@
     const message = composerMessage(r);
     $("envoyer-wa").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(message)}`;
     majRappel(r);
-    $("envoyer-mail").href = `mailto:${CONFIG.email}?subject=${encodeURIComponent((budgetCible(r) && r.total > budgetCible(r).total ? "Demande de proposition — " : "Demande de Confra — ") + ($("societe").value || $("nom").value || "Bossa Nova"))}&body=${encodeURIComponent(message)}`;
+    $("envoyer-mail").href = `mailto:${CONFIG.email}?subject=${encodeURIComponent((budgetCible(r) && r.total > budgetCible(r).total ? "Demande de proposition — " : "Demande de Festa — ") + ($("societe").value || $("nom").value || "Bossa Nova"))}&body=${encodeURIComponent(message)}`;
   }
 
   // Early bird : réservation au moins N jours avant la date choisie
@@ -1126,7 +1176,7 @@
       fin = 23 * 60 + 30 + prol;
       blocs = [
         { cle: "accueil", t: "Accueil : " + bv.nom.charAt(0).toLowerCase() + bv.nom.slice(1), d: bv.ds, duree: 30 },
-        { cle: "bienvenue", t: "Mot de bienvenue", d: "Et l'histoire de la confra brésilienne", duree: 10 },
+        { cle: "bienvenue", t: "Mot de bienvenue", d: "Et l'histoire de la confraternização brésilienne", duree: 10 },
         { cle: "bouchees", t: en.nom, d: en.ds, duree: 35 },
         { cle: "plat", t: "Plats à partager : " + pl.nom.split(", ").map(x => x.charAt(0).toLowerCase() + x.slice(1)).join(", "), d: pl.ds, duree: 55 },
         { cle: "dessert", t: dessert, d: dessertD, duree: 25 },
@@ -1158,13 +1208,100 @@
     return { sequence, deborde: reste < 0 ? -reste : 0 };
   }
 
+  // ---------- Retour en train et en bus (horaire officiel, transport.opendata.ch) ----------
+  const retour = { cle: null, etat: "vide", resultats: [], cache: {}, minuterie: null };
+  const hhmm = m => { m = ((m % 1440) + 1440) % 1440; return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+  const heureIso = s => { const d = new Date(s); return String(d.getHours()).padStart(2, "0") + "h" + String(d.getMinutes()).padStart(2, "0"); };
+  function decalerDate(iso, jours) { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + jours); return d.toISOString().slice(0, 10); }
+  function lireConnexion(c) {
+    const sec = (c.sections || []).find(s => s.journey);
+    const j = sec ? sec.journey : {};
+    const cat = String(j.category || "").toUpperCase(), num = String(j.number || "").trim();
+    let ligne;
+    if (["B", "BUS", "NFB", "KB", ""].includes(cat)) ligne = num ? "Bus " + num : "Bus";
+    else if (["R", "S", "SN", "RE"].includes(cat)) ligne = cat + num;
+    else ligne = [cat, num].filter(Boolean).join(" ");
+    return { dep: c.from && c.from.departure, arr: c.to && c.to.arrival, chg: Number(c.transfers) || 0, ligne };
+  }
+  async function chercherRetour(date, temps, finAbs) {
+    const r = CONFIG.retour;
+    return Promise.all(r.destinations.map(async d => {
+      const url = "https://transport.opendata.ch/v1/connections?" + new URLSearchParams({ from: r.depart, to: d.q, date, time: temps, limit: "4" });
+      try {
+        const rep = await fetch(url);
+        if (!rep.ok) throw new Error(rep.status);
+        const js = await rep.json();
+        const liste = (js.connections || []).map(lireConnexion).filter(x => x.dep)
+          .filter(x => { const t = new Date(x.dep), a = new Date(x.arr); return (t - finAbs) / 60000 >= 0 && (t - finAbs) / 60000 <= 150 && (a - t) / 60000 <= 180; })
+          .slice(0, 2);
+        return { nom: d.nom, groupe: d.groupe, liste, ok: true };
+      } catch (e) { return { nom: d.nom, groupe: d.groupe, liste: [], ok: false }; }
+    }));
+  }
+  function majRetour(r, finMin) {
+    const sous = $("retour-sous"), note = $("retour-note");
+    if (!r.date) { retour.cle = null; retour.etat = "vide"; sous.textContent = ""; $("retour-liste").innerHTML = ""; note.textContent = "Choisissez une date : les prochains trains et bus depuis la gare de Vevey s’afficheront ici."; return; }
+    const depMin = finMin + CONFIG.retour.marge;
+    const date = depMin >= 1440 ? decalerDate(r.date, 1) : r.date;
+    const temps = hhmm(depMin);
+    const cle = date + "|" + temps;
+    sous.textContent = `Prochains départs depuis la gare de Vevey, à une minute, à partir de ${temps.replace(":", "h")}`;
+    if (cle === retour.cle && retour.etat !== "vide") return;
+    retour.cle = cle;
+    if (retour.cache[cle]) { retour.etat = "ok"; retour.resultats = retour.cache[cle]; dessinerRetour(); return; }
+    retour.etat = "charge"; retour.resultats = []; dessinerRetour();
+    clearTimeout(retour.minuterie);
+    retour.minuterie = setTimeout(async () => {
+      const finAbs = new Date(date + "T" + temps + ":00");
+      const res = await chercherRetour(date, temps, finAbs);
+      if (retour.cle !== cle) return;
+      const aucunAcces = res.every(x => !x.ok);
+      retour.etat = aucunAcces ? "erreur" : "ok";
+      retour.resultats = res;
+      if (!aucunAcces) retour.cache[cle] = res;
+      dessinerRetour();
+      maj();
+    }, 500);
+  }
+  function dessinerRetour() {
+    const z = $("retour-liste"), note = $("retour-note");
+    const lienCff = `Horaires officiels CFF. À revérifier sur <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> le jour même.`;
+    z.innerHTML = "";
+    if (retour.etat === "charge") { note.textContent = "Recherche des horaires…"; return; }
+    if (retour.etat === "erreur") { note.innerHTML = `Les horaires ne sont pas disponibles pour le moment. Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`; return; }
+    const avec = retour.resultats.filter(x => x.liste.length);
+    if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
+    let groupe = null;
+    retour.resultats.forEach(d => {
+      if (d.groupe && d.groupe !== groupe) {
+        groupe = d.groupe;
+        const g = document.createElement("div"); g.className = "retour-groupe"; g.textContent = groupe; z.appendChild(g);
+      }
+      const el = document.createElement("div"); el.className = "retour-ligne";
+      el.innerHTML = `<div class="dest"></div><div class="dep"></div>`;
+      el.querySelector(".dest").textContent = d.nom;
+      el.querySelector(".dep").innerHTML = d.liste.length
+        ? d.liste.map(x => `<b>${heureIso(x.dep)}</b> <small>${esc(x.ligne)} · arrivée ${heureIso(x.arr)}${x.chg ? ` · ${x.chg} changement${x.chg > 1 ? "s" : ""}` : " · direct"}</small>`).join("<br>")
+        : `<small>Plus de liaison ce soir : nous pouvons vous réserver un taxi.</small>`;
+      z.appendChild(el);
+    });
+    note.innerHTML = lienCff;
+  }
+  function texteRetour() {
+    if (retour.etat !== "ok") return [];
+    return retour.resultats.filter(d => d.liste.length).map(d => `• ${d.nom} : ` + d.liste.map(x => `${heureIso(x.dep)} (${x.chg ? x.chg + " chg" : "direct"}, arr. ${heureIso(x.arr)})`).join(", "));
+  }
+  const esc = s => String(s || "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
   function texteProgramme(r, prog) {
     const l = [];
-    l.push($("societe").value.trim() ? `${$("societe").value.trim()}` : "Notre Confra");
-    l.push("Programme de notre Confra au Bossa Nova Café");
+    l.push($("societe").value.trim() ? `${$("societe").value.trim()}` : "Notre Festa");
+    l.push("Programme de notre Festa au Bossa Nova Café");
     if (r.date) l.push(dateLisible(r.date).replace(/^./, c => c.toUpperCase()));
     l.push("");
     prog.sequence.forEach(x => l.push(`${heure(x.h)}  ${x.t}${x.d ? " — " + x.d : ""}`));
+    const rt = texteRetour();
+    if (rt.length) { l.push(""); l.push("Pour rentrer (prochains départs depuis la gare de Vevey) :"); rt.forEach(x => l.push(x)); l.push("Horaires CFF : à revérifier sur sbb.ch le jour même."); }
     l.push("");
     l.push("Bossa Nova Café, Place de la Gare 3, 1800 Vevey — à une minute du quai.");
     return l.join("\n");
@@ -1192,9 +1329,10 @@
     const al = $("prog-alerte");
     al.textContent = prog.deborde ? `Le programme dépasse l'heure de fin d'environ ${prog.deborde} minutes. Retirez une animation, ou ajoutez une prolongation jusqu'à 00h30.` : "";
     al.classList.toggle("cache", !prog.deborde);
+    majRetour(r, prog.sequence[prog.sequence.length - 1].h);
     const txt = texteProgramme(r, prog);
     $("prog-wa").href = "https://wa.me/?text=" + encodeURIComponent(txt);
-    $("prog-mail").href = `mailto:?subject=${encodeURIComponent(($("societe").value.trim() ? $("societe").value.trim() + " — " : "") + "Programme de notre Confra au Bossa Nova Café")}&body=${encodeURIComponent(txt)}`;
+    $("prog-mail").href = `mailto:?subject=${encodeURIComponent(($("societe").value.trim() ? $("societe").value.trim() + " — " : "") + "Programme de notre Festa au Bossa Nova Café")}&body=${encodeURIComponent(txt)}`;
     return { prog, txt };
   }
 
@@ -1209,7 +1347,7 @@
     const l = [];
     l.push("Bonjour le Bossa Nova,");
     l.push("");
-    l.push("Voici notre demande pour une Confra :");
+    l.push("Voici notre demande pour une Festa :");
     if (CONFIG.offre) l.push(`• Offre personnalisée n° ${CONFIG.offre.code}`);
     l.push(`• Groupe : ${$("societe").value || "—"}`);
     l.push(`• Contact : ${$("nom").value || "—"}${$("tel").value ? ", " + $("tel").value : ""}${$("email").value ? ", " + $("email").value : ""}`);
@@ -1299,6 +1437,8 @@
     CONFIG.whatsapp = String(cat.contacts.whatsapp).replace(/\D/g, "");
     CONFIG.email = cat.contacts.email;
     CONFIG.saisonDebut = cat.saison.debut; CONFIG.saisonFin = cat.saison.fin;
+    if (cat.moments) CONFIG.types.forEach(t => { if (cat.moments[t.id] != null) t.actif = !!cat.moments[t.id]; });
+    if (!CONFIG.types.some(t => t.actif !== false)) CONFIG.types[0].actif = true;
     CONFIG.earlyBirdJours = Number(cat.regles.earlyBirdJours) || 0;
     CONFIG.options.find(o => o.id === "gateau").detail = CONFIG.earlyBirdJours
       ? `Gâteau brésilien pour tout le groupe. Offert si vous réservez au moins ${CONFIG.earlyBirdJours} jours avant la soirée.`

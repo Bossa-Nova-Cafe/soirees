@@ -26,12 +26,12 @@ En mode local, les changements restent dans ce navigateur. Les clients ne les vo
 3. **Règles Firestore** : dans la console Firebase, Firestore Database > Règles, ajouter ces deux blocs juste avant les deux dernières accolades `}` (à côté des règles `soirees` et `reservations`), puis **Publier** :
 
 ```
-    // Confra : catalogue lisible par tous, modifiable par l'équipe
+    // Festa : catalogue lisible par tous, modifiable par l'équipe
     match /parametres/confra-catalogue {
       allow read: if true;
       allow write: if admin();
     }
-    // Confra : offres personnalisées, réservées à l'équipe
+    // Festa : offres personnalisées, réservées à l'équipe
     match /parametres/confra-offres {
       allow read, write: if admin();
     }
