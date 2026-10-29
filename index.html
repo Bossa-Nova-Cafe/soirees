@@ -79,6 +79,13 @@
   .option.desactivee { opacity: .45; }
 
   .choix-boissons label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1.5px solid var(--bord); border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: #fff; font-size: 14px; line-height: 1.45; }
+  .profils { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
+  .profils label { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 10px 8px; border: 1.5px solid var(--bord); border-radius: 12px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .profils label small { font-weight: 400; font-size: 12px; color: var(--gris); }
+  .profils input { position: absolute; opacity: 0; pointer-events: none; }
+  .profils label.choisie { border-color: var(--vert); background: #f4f9f5; box-shadow: inset 0 0 0 1px var(--vert); }
+  .profils label:has(input:focus-visible) { outline: 2px solid var(--jaune); outline-offset: 2px; }
+  @media (max-width: 520px) { .profils { grid-template-columns: 1fr; } .profils label { flex-direction: row; justify-content: space-between; } }
   .choix-boissons label.choisie { border-color: var(--vert); background: #f4f9f5; }
   .choix-boissons input { accent-color: var(--vert); margin-top: 3px; }
   .choix-boissons small { color: var(--gris); display: block; font-size: 12.5px; }
@@ -234,6 +241,12 @@
     <div class="carte pas-imprime">
       <h2>1. Votre groupe</h2>
       <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 30 personnes, rien que pour vous.</p>
+      <label class="champ" id="lab-profil">Vous êtes</label>
+      <div class="profils" id="profils" role="radiogroup" aria-labelledby="lab-profil">
+        <label class="choisie"><input type="radio" name="profil" value="entreprise" checked>Une entreprise<small>collègues, équipe</small></label>
+        <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
+        <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
+      </div>
       <label class="champ" for="personnes">Nombre de personnes</label>
       <div class="compteur">
         <input type="range" id="personnes" min="12" max="30" value="20">
@@ -264,13 +277,13 @@
     <!-- Moments à l'honneur -->
     <div class="carte pas-imprime">
       <h2>4. Moments à l'honneur</h2>
-      <p class="sous">Mettez vos collègues ou vos membres à l'honneur pendant la soirée. Chaque moment comprend une annonce sur scène par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
+      <p class="sous" id="sous-honneurs">Mettez vos collègues à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
       <div id="honneurs"></div>
       <div id="bloc-production" class="cache">
         <label class="champ">Trophées et cadeaux</label>
         <div class="choix-boissons" id="choix-production">
           <label><input type="radio" name="production" value="client" checked>
-            <span><strong>Vous apportez vos trophées</strong> · offert<small>Nous les remettons au bon moment, avec l'annonce, le diplôme et la photo souvenir. Aucun frais.</small></span></label>
+            <span><strong id="prod-client">Vous apportez vos trophées</strong> · offert<small>Nous les remettons au bon moment, avec l'annonce, le diplôme et la photo souvenir. Aucun frais.</small></span></label>
           <label><input type="radio" name="production" value="bossanova">
             <span><strong>Le Bossa Nova les réalise</strong> <span id="prix-production"></span><small id="texte-production"></small></span></label>
         </div>
@@ -348,7 +361,7 @@
       <h2>7. Vos coordonnées</h2>
       <div class="rangee">
         <div><label class="champ" for="nom">Nom et prénom</label><input type="text" id="nom" autocomplete="name"></div>
-        <div><label class="champ" for="societe">Entreprise ou association</label><input type="text" id="societe" autocomplete="organization"></div>
+        <div><label class="champ" for="societe" id="lab-societe">Entreprise</label><input type="text" id="societe" autocomplete="organization"></div>
       </div>
       <div class="rangee">
         <div><label class="champ" for="email">E-mail</label><input type="email" id="email" autocomplete="email"></div>
@@ -566,6 +579,42 @@
       { id: "boaviagem", nom: "Bonne retraite", sous: "Départ à la retraite", max: 5, prix: 30, duree: (k) => 10 * k, titreProg: "Bonne retraite !", sousProg: "Un hommage pour un départ à la retraite", defaut: "apres_dessert",
         detail: "En plus : une carte signée par tout le groupe et un grand brigadeiro à son nom." }
     ],
+    // Textes des moments à l'honneur selon le groupe
+    profils: {
+      entreprise: {
+        societe: "Entreprise", titreVide: "Nom de votre entreprise", objet: "vos trophées",
+        sous: "Mettez vos collègues à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.",
+        production: "Trophées au nom et au logo de votre entreprise, gravés au nom de chaque lauréat, ou cadeaux brésiliens.",
+        honneurs: {
+          trofeu: { sous: "Employé·e·s de l'année", sousProg: "Les employé·e·s de l'année", detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de votre entreprise." },
+          revelacao: {},
+          anos: { detail: "Les collègues qui fêtent 10, 20, 25 ans ou plus dans l'entreprise." },
+          boaviagem: {}
+        }
+      },
+      club: {
+        societe: "Club ou association", titreVide: "Nom de votre club ou association", objet: "vos trophées",
+        sous: "Mettez vos membres à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.",
+        production: "Trophées au nom et au logo de votre club, gravés au nom de chaque lauréat, ou cadeaux brésiliens.",
+        honneurs: {
+          trofeu: { nom: "Trophées de la saison", sous: "Joueurs, joueuses ou membres de la saison", titreProg: "Remise des Trophées de la saison", sousProg: "Les joueurs et les membres de la saison", detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de votre club." },
+          revelacao: { nom: "Révélation de la saison", sous: "Le jeune talent", titreProg: "Révélation de la saison", sousProg: "Le jeune talent de la saison", detail: "Un junior, un nouveau membre, un talent qui s'est fait remarquer cette saison." },
+          anos: { nom: "Fidélité au club", sous: "10, 20, 25 ans et plus", titreProg: "Fidélité au club", sousProg: "Nous fêtons les années passées ensemble", detail: "Les membres, bénévoles ou entraîneurs qui fêtent 10, 20, 25 ans ou plus au club." },
+          boaviagem: { nom: "Merci et bonne route", sous: "Un départ : entraîneur, président, bénévole", titreProg: "Merci et bonne route !", sousProg: "Un hommage pour un départ", detail: "Pour remercier quelqu'un qui quitte le club. En plus : une carte signée par tout le groupe et un grand brigadeiro à son nom." }
+        }
+      },
+      amis: {
+        societe: "Nom du groupe", titreVide: "Le nom de votre groupe", objet: "vos cadeaux",
+        sous: "Fêtez quelqu'un pendant la soirée. Chaque moment comprend une annonce par notre animateur et une photo souvenir.",
+        production: "Cadeaux brésiliens préparés par nos soins, ou trophées pour rire gravés à leur nom.",
+        honneurs: {
+          trofeu: { nom: "Trophées pour rire", sous: "Le plus fêtard, le plus en retard…", titreProg: "Les trophées de la soirée", sousProg: "Des prix pour rire, préparés en secret", detail: "Jusqu'à trois prix humoristiques que vous inventez avec nous, annoncés comme une vraie remise de prix." },
+          revelacao: { masque: true },
+          anos: { nom: "Anniversaire", sous: "On souffle les bougies", titreProg: "Joyeux anniversaire !", sousProg: "Bougies, chanson et photo souvenir", detail: "Une bougie sur le dessert, la chanson d'anniversaire brésilienne et une photo souvenir." },
+          boaviagem: { nom: "Bon voyage", sous: "Un départ, un déménagement, une nouvelle vie", titreProg: "Bon voyage !", sousProg: "Un hommage pour un départ", detail: "Pour fêter quelqu'un qui part. En plus : une carte signée par tout le groupe et un grand brigadeiro à son nom." }
+        }
+      }
+    },
     production: { supplement: 20, delaiJours: 15 },
     creneaux: [
       { id: "apres_bienvenue", lib: "Après le mot de bienvenue", apres: "bienvenue" },
@@ -613,7 +662,7 @@
     return new Date(Date.UTC(a, m - 1, j)).getUTCDay();
   }
 
-  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
+  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, profil: "entreprise", options: { gateau: false, amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
 
   // ---------- Construction de l'interface ----------
   function construireTypes() {
@@ -807,6 +856,7 @@
       etat.honneurs[h.id] = 0;
       const el = document.createElement("div");
       el.className = "option";
+      el.dataset.honneur = h.id;
       el.innerHTML = `<div class="texte"><div class="titre"></div><div class="detail"></div>
         <div style="margin-top:6px">Nombre de personnes : <input type="number" id="hon-${h.id}" min="0" max="${h.max}" value="0" style="width:72px"></div></div>
         <div class="montant" data-hon="${h.id}"></div>`;
@@ -821,6 +871,30 @@
       });
       champ.addEventListener("change", () => { champ.value = etat.honneurs[h.id]; });
     });
+  }
+
+  // Adapte les moments à l'honneur et quelques libellés au type de groupe
+  let honneursBase = null;
+  function appliquerProfil() {
+    if (!honneursBase) honneursBase = CONFIG.honneurs.map(h => ({ nom: h.nom, sous: h.sous, titreProg: h.titreProg, sousProg: h.sousProg, detail: h.detail }));
+    const pr = CONFIG.profils[etat.profil] || CONFIG.profils.entreprise;
+    CONFIG.honneurs.forEach((h, i) => {
+      const o = pr.honneurs[h.id] || {};
+      Object.assign(h, honneursBase[i], o);
+      h.masque = !!o.masque;
+      if (h.masque) etat.honneurs[h.id] = 0;
+      const el = document.querySelector(`[data-honneur="${h.id}"]`);
+      if (el) {
+        el.classList.toggle("cache", h.masque);
+        el.querySelector(".titre").textContent = `${h.nom} — ${h.sous}`;
+        el.querySelector(".detail").textContent = h.detail;
+        if (h.masque) $("hon-" + h.id).value = 0;
+      }
+    });
+    $("sous-honneurs").textContent = pr.sous;
+    $("lab-societe").textContent = pr.societe;
+    $("prod-client").textContent = "Vous apportez " + pr.objet;
+    document.querySelectorAll("#profils label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
   }
 
   function construireOptions() {
@@ -1107,7 +1181,7 @@
       const m = document.querySelector(`.montant[data-hon="${h.id}"]`);
       m.textContent = prod ? `CHF ${h.prix} / pers.` : "Offert";
     });
-    $("texte-production").textContent = `Trophées au nom et au logo de votre entreprise ou association, gravés au nom de chaque lauréat, ou cadeaux brésiliens. À commander au plus tard ${CONFIG.production.delaiJours} jours avant la soirée.`;
+    $("texte-production").textContent = `${(CONFIG.profils[etat.profil] || CONFIG.profils.entreprise).production} À commander au plus tard ${CONFIG.production.delaiJours} jours avant la soirée.`;
     document.querySelectorAll("#choix-production label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
     const ja = joursAvant(r.date);
     const tropTard = nbH > 0 && modeProduction() === "bossanova" && ja !== null && ja < CONFIG.production.delaiJours;
@@ -1162,7 +1236,7 @@
     if (totalBulles() && r.moment !== "afterwork") ev.push({ id: "toast", titre: "On trinque au champagne", sous: "Une coupe pour chacun", defaut: "apres_bienvenue", duree: 10 });
     CONFIG.honneurs.forEach(h => {
       const k = etat.honneurs[h.id] || 0;
-      if (k) ev.push({ id: h.id, titre: (h.id === "trofeu" && $("societe").value.trim()) ? `Remise des Trophées ${$("societe").value.trim()}` : h.titreProg, sous: h.sousProg, defaut: h.defaut, duree: Math.ceil(h.duree(k) / 5) * 5 });
+      if (k) ev.push({ id: h.id, titre: (h.id === "trofeu" && etat.profil !== "amis" && $("societe").value.trim()) ? `Remise des Trophées ${$("societe").value.trim()}` : h.titreProg, sous: h.sousProg, defaut: h.defaut, duree: Math.ceil(h.duree(k) / 5) * 5 });
     });
     return ev;
   }
@@ -1354,7 +1428,7 @@
     const ev = construirePlacements(r);
     const prog = construireProgramme(r, ev);
     const nomGroupe = $("societe").value.trim();
-    $("prog-titre").textContent = nomGroupe || "Nom de votre entreprise";
+    $("prog-titre").textContent = nomGroupe || (CONFIG.profils[etat.profil] || CONFIG.profils.entreprise).titreVide;
     $("prog-titre").classList.toggle("prog-titre-vide", !nomGroupe);
     if (document.activeElement !== $("societe-prog")) $("societe-prog").value = nomGroupe;
     $("prog-date").textContent = r.date ? dateLisible(r.date).replace(/^./, c => c.toUpperCase()) : "";
@@ -1392,7 +1466,7 @@
     l.push("");
     l.push("Voici notre demande pour une Festa :");
     if (CONFIG.offre) l.push(`• Offre personnalisée n° ${CONFIG.offre.code}`);
-    l.push(`• Groupe : ${$("societe").value || "—"}`);
+    l.push(`• Groupe : ${$("societe").value || "—"} (${{ entreprise: "entreprise", club: "club ou association", amis: "amis ou famille" }[etat.profil]})`);
     l.push(`• Contact : ${$("nom").value || "—"}${$("tel").value ? ", " + $("tel").value : ""}${$("email").value ? ", " + $("email").value : ""}`);
     l.push(`• Date souhaitée : ${r.date ? dateLisible(r.date) : "à définir"}`);
     l.push(`• Nombre de personnes : ${r.n}`);
@@ -1590,6 +1664,8 @@
   $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
   $("personnes").addEventListener("input", () => { repartirPortions(Number($("personnes").value)); repartirVins(Number($("personnes").value)); estimerApport(Number($("personnes").value)); });
   construireHonneurs();
+  appliquerProfil();
+  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); }));
   construireOptions();
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
   $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;
