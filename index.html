@@ -564,7 +564,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=18"></script>
+<script src="catalogue.js?v=19"></script>
 <script>
 (function () {
   "use strict";
@@ -641,8 +641,10 @@
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, vg: true }
       ]},
       { id: "dessert", titre: "Dessert, café ou thé compris", choix: [
-        { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9 },
-        { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9 },
+        { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 9 },
+        { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 9 },
+        { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 9 },
+        { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 9 },
         { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 7 }
       ]}
     ],
@@ -810,12 +812,12 @@
       const bloc = document.createElement("div");
       bloc.className = "cours";
       bloc.innerHTML = `<h3></h3><div class="plats"></div>`;
-      bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, à partager" : c.titre;
+      bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, à partager" : c.id === "dessert" ? c.titre.replace(/^Dessert/, "Desserts") : c.titre;
       c.choix.forEach(p => {
         const el = document.createElement("label");
         el.className = "plat";
         el.dataset.cours = c.id; el.dataset.id = p.id;
-        el.innerHTML = c.id === "plat"
+        el.innerHTML = QTE.includes(c.id)
           ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes :<div class="ligne-qte"><button type="button" class="pm moins" aria-label="Une personne de moins">−</button><input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0" inputmode="numeric"><button type="button" class="pm plus" aria-label="Une personne de plus">+</button><button type="button" class="reste-btn cache"></button></div></div></div>`
           : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
@@ -833,7 +835,7 @@
         el.querySelector(".ds").textContent = p.ds;
         el.querySelector(".px").textContent = p.inclus ? "Compris" : (p.prix ? chf(p.prix) : "—");
         const r = el.querySelector("input");
-        if (c.id === "plat") {
+        if (QTE.includes(c.id)) {
           etat.portions[p.id] = 0;
           el.querySelector(".px").textContent = p.inclus ? "Compris" : `${chf(p.prix)} / personne`;
           r.addEventListener("input", () => {
@@ -844,7 +846,7 @@
           const fixer = v => { etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, v)); maj(); };
           el.querySelector(".moins").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) - 1); });
           el.querySelector(".plus").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + 1); });
-          el.querySelector(".reste-btn").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + Math.max(0, Number($("personnes").value) - totalPortions())); });
+          el.querySelector(".reste-btn").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + Math.max(0, Number($("personnes").value) - totalQte(c.id))); });
           el.addEventListener("click", e => { if (!e.target.closest("button") && e.target !== r) r.focus(); });
         } else {
           r.checked = p.id === etat.menu[c.id];
@@ -854,6 +856,11 @@
       });
       zone.appendChild(bloc);
       if (c.id === "plat") zone.appendChild($("compteur-portions"));
+      if (c.id === "dessert") {
+        const cd = document.createElement("div");
+        cd.className = "compteur-portions"; cd.id = "compteur-desserts";
+        zone.appendChild(cd);
+      }
       if (c.id === "plat") {
         const b = document.createElement("div");
         b.className = "bols";
@@ -976,11 +983,16 @@
 
   // Prix par personne de la bienvenue, de l'entrée et du dessert
   function prixAutres() {
-    return CONFIG.menu.filter(c => c.id !== "plat").reduce((a, c) => a + (choixMenu(c.id) || { prix: 0 }).prix, 0);
+    return CONFIG.menu.filter(c => !QTE.includes(c.id)).reduce((a, c) => a + (choixMenu(c.id) || { prix: 0 }).prix, 0);
   }
-  const platsListe = () => CONFIG.menu.find(c => c.id === "plat").choix.filter(p => etat.portions[p.id] > 0).map(p => ({ ...p, q: etat.portions[p.id] }));
-  const totalPortions = () => platsListe().reduce((a, p) => a + p.q, 0);
-  const totalPlats = () => platsListe().reduce((a, p) => a + p.q * p.prix, 0);
+  // Plats principaux et desserts : chaque plat est choisi pour un nombre de personnes
+  const QTE = ["plat", "dessert"];
+  const listeQte = k => CONFIG.menu.find(c => c.id === k).choix.filter(p => etat.portions[p.id] > 0).map(p => ({ ...p, q: etat.portions[p.id] }));
+  const totalQte = k => listeQte(k).reduce((a, p) => a + p.q, 0);
+  const prixQte = k => listeQte(k).reduce((a, p) => a + p.q * p.prix, 0);
+  const platsListe = () => listeQte("plat");
+  const totalPortions = () => totalQte("plat");
+  const totalPlats = () => prixQte("plat") + prixQte("dessert");
   function repartirPortions(n) {
     if (!etat.portionsAuto) return;
     CONFIG.menu.find(c => c.id === "plat").choix.forEach(p => { etat.portions[p.id] = 0; });
@@ -995,9 +1007,9 @@
   }
   function choixMenu(id) {
     const c = CONFIG.menu.find(x => x.id === id);
-    if (id === "plat") {
-      const ps = platsListe();
-      return { id: "plats", nom: ps.length ? ps.map(p => p.nom).join(", ") : "Plats principaux à choisir", ds: CONFIG.accompagnements, prix: 0 };
+    if (QTE.includes(id)) {
+      const ps = listeQte(id);
+      return { id: id + "s", nom: ps.length ? ps.map(p => p.nom).join(", ") : (id === "plat" ? "Plats principaux à choisir" : "Desserts à choisir"), ds: id === "plat" ? CONFIG.accompagnements : "", prix: 0 };
     }
     return c.choix.find(p => p.id === etat.menu[id]);
   }
@@ -1100,8 +1112,9 @@
     } else {
       const pa = prixAutres();
       base = pa * n + totalPlats();
-      lignes.push({ lib: `Bienvenue, entrée${CONFIG.cafe.inclus ? ", dessert et café" : " et dessert"} · ${n} × CHF ${pa}`, mt: pa * n });
+      lignes.push({ lib: `Bienvenue et entrée · ${n} × CHF ${pa}`, mt: pa * n });
       platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
+      listeQte("dessert").forEach(p => lignes.push({ lib: `${p.nom}${CONFIG.cafe.inclus ? " et café" : ""} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
       // Enfants de moins de 12 ans : remise sur le menu, calculée sur le prix moyen par personne
       const k = Math.min(nbEnfants(), n);
       if (k && CONFIG.enfantsRemise > 0 && n) {
@@ -1148,6 +1161,7 @@
 
     const avertissements = [];
     if (!t.prix && totalPortions() !== n) avertissements.push(`Vous avez prévu ${totalPortions()} personne${totalPortions() > 1 ? "s" : ""} servie${totalPortions() > 1 ? "s" : ""} en plats principaux pour ${n} invités. Ajustez les nombres pour que chacun ait sa part.`);
+    if (!t.prix && totalQte("dessert") !== n) avertissements.push(`Vous avez prévu ${totalQte("dessert")} dessert${totalQte("dessert") > 1 ? "s" : ""} pour ${n} invités. Ajustez les nombres pour que chacun ait le sien.`);
     let options = 0, surDevis = [];
     CONFIG.options.forEach(o => {
       const v = etat.options[o.id];
@@ -1230,11 +1244,11 @@
     });
     document.querySelectorAll(".plat").forEach(el => {
       const inp = el.querySelector("input");
-      if (el.dataset.cours === "plat") {
+      if (QTE.includes(el.dataset.cours)) {
         const q = etat.portions[el.dataset.id] || 0;
         if (document.activeElement !== inp) inp.value = q;
         el.classList.toggle("choisie", q > 0);
-        const resteP = r.n - totalPortions();
+        const resteP = r.n - totalQte(el.dataset.cours);
         el.querySelector(".moins").disabled = q <= 0;
         el.querySelector(".plus").disabled = resteP <= 0;
         const rb = el.querySelector(".reste-btn");
@@ -1246,22 +1260,26 @@
         el.classList.toggle("choisie", sel);
       }
     });
-    const tp = totalPortions();
-    $("compteur-portions").textContent = `${tp} personne${tp > 1 ? "s" : ""} servie${tp > 1 ? "s" : ""} sur ${r.n} invités`;
-    $("compteur-portions").className = "compteur-portions " + (tp === r.n ? "ok" : tp < r.n ? "attente" : "ko");
-    if (tp !== r.n) {
-      const ecart = r.n - tp;
-      $("compteur-portions").textContent = ecart > 0
-        ? (tp === 0
-          ? `Choisissez 2 ou 3 plats pour vos tables : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.`
-          : `Il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer sur ${r.n} invités.`)
-        : `${tp} personnes servies pour ${r.n} invités : ${-ecart} de trop. Retirez-en pour pouvoir envoyer votre demande.`;
-    }
+    const compteur = (id, k) => {
+      const t = totalQte(k), z = $(id); if (!z) return;
+      const ecart = r.n - t, quoi = k === "plat" ? "plats principaux" : "desserts";
+      z.className = "compteur-portions " + (t === r.n ? "ok" : t < r.n ? "attente" : "ko");
+      z.textContent = t === r.n
+        ? `${t} personne${t > 1 ? "s" : ""} servie${t > 1 ? "s" : ""} sur ${r.n} invités`
+        : ecart > 0
+          ? (t === 0
+            ? (k === "plat" ? `Choisissez 2 ou 3 plats pour vos tables : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.` : `Choisissez les desserts : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.`)
+            : `${quoi.charAt(0).toUpperCase() + quoi.slice(1)} : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer sur ${r.n} invités.`)
+          : `${quoi.charAt(0).toUpperCase() + quoi.slice(1)} : ${t} personnes servies pour ${r.n} invités, ${-ecart} de trop. Retirez-en pour pouvoir envoyer votre demande.`;
+    };
+    compteur("compteur-portions", "plat");
+    compteur("compteur-desserts", "dessert");
+    const tp = totalPortions(), td = totalQte("dessert");
     // Envoi bloqué tant que les plats principaux ne correspondent pas au nombre d'invités
-    const platsOk = r.moment === "afterwork" || tp === r.n;
+    const platsOk = r.moment === "afterwork" || (tp === r.n && td === r.n);
     ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => { $(id).classList.toggle("bloque", !platsOk); $(id).setAttribute("aria-disabled", String(!platsOk)); });
     $("envoi-bloque").classList.toggle("cache", platsOk);
-    if (!platsOk) $("envoi-bloque").innerHTML = `Avant d’envoyer : les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster les plats</button>`;
+    if (!platsOk) $("envoi-bloque").innerHTML = `Avant d’envoyer : ${tp !== r.n ? `les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""}` : `les desserts sont prévus pour ${td} personne${td > 1 ? "s" : ""}`} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster</button>`;
     $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
     $("menu-total").innerHTML = `<span>Votre menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
     $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
@@ -1738,9 +1756,10 @@
       ["bienvenue", "entree"].forEach(id => { const p = choixMenu(id); if (p.prix || id === "bienvenue") l.push(`   – ${CONFIG.menu.find(c => c.id === id).titre} : ${p.nom}`); });
       l.push(`   – Plats principaux à partager (${totalPortions()} personnes servies) :`);
       platsListe().forEach(p => l.push(`        ${p.q} × ${p.nom}`));
-      l.push(`   – Dessert : ${choixMenu("dessert").nom}, café ou thé`);
+      l.push(`   – Desserts (${totalQte("dessert")} personnes), café ou thé :`);
+      listeQte("dessert").forEach(p => l.push(`        ${p.q} × ${p.nom}`));
     }
-    r.lignes.slice(1).filter(x => !platsListe().some(p => x.lib.startsWith(p.nom + " · "))).forEach(x => l.push(`• ${x.lib}${x.mt === null ? " : sur devis" : (x.mt ? " : " + (x.mt < 0 ? "−" + chf(-x.mt) : chf(x.mt)) : "")}`));
+    r.lignes.slice(1).filter(x => ![...platsListe(), ...listeQte("dessert")].some(p => x.lib.startsWith(p.nom + " · ") || x.lib.startsWith(p.nom + " et café · "))).forEach(x => l.push(`• ${x.lib}${x.mt === null ? " : sur devis" : (x.mt ? " : " + (x.mt < 0 ? "−" + chf(-x.mt) : chf(x.mt)) : "")}`));
     l.push(`• Ambiance musicale : ${etat.options.ambiance || "Bossa nova et MPB"}`);
     if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
     if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille consommée" : "offert"})`);
@@ -1885,7 +1904,7 @@
       const cours = CONFIG.menu.find(c => c.id === x.cours);
       if (!cours || !x.nom) return;
       cours.choix.unshift({ id: x.id, nom: x.nom, ds: x.ds || "", prix: Number(x.prix) || 0, inclus: false, vg: !!x.vg, special: true });
-      if (x.cours !== "plat") CONFIG.menuDefaut[x.cours] = x.id;
+      if (!["plat", "dessert"].includes(x.cours)) CONFIG.menuDefaut[x.cours] = x.id;
     });
     const off = o.offerts || {};
     if (off.cafe) CONFIG.cafe.inclus = true;
@@ -1931,7 +1950,7 @@
   $("apporte-nb").addEventListener("input", () => { etat.apporteAuto = false; etat.bouteillesApportees = Math.max(0, Math.min(60, Math.floor(Number($("apporte-nb").value) || 0))); maj(); });
   $("adultes").addEventListener("input", () => synchroGroupe("adultes"));
   // Clic sur un bouton d'envoi bloqué : on montre les plats à ajuster
-  const montrerPlats = () => { const c = $("compteur-portions"); c.scrollIntoView({ behavior: "smooth", block: "center" }); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); };
+  const montrerPlats = () => { const c = ["compteur-portions", "compteur-desserts"].map($).find(x => x && !x.classList.contains("ok")) || $("compteur-portions"); c.scrollIntoView({ behavior: "smooth", block: "center" }); c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); };
   ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => $(id).addEventListener("click", e => { if ($(id).classList.contains("bloque")) { e.preventDefault(); e.stopImmediatePropagation(); montrerPlats(); } }, true));
   document.addEventListener("click", e => { if (e.target && e.target.id === "voir-plats") montrerPlats(); });
   $("enfants").addEventListener("input", () => synchroGroupe("enfants"));
@@ -1984,8 +2003,9 @@
   // Ce qui empêche de passer à l'étape suivante (message, ou "" si tout va bien)
   function probleme(n) {
     if (n === 1 && !$("date").value) return { msg: "Choisissez la date souhaitée pour continuer.", el: $("date") };
-    if (n === 2 && !$("carte-menu").classList.contains("cache") && $("compteur-portions").classList.contains("ko"))
-      return { msg: $("compteur-portions").textContent.replace(/ pour pouvoir envoyer votre demande\.$/, " pour continuer."), el: $("compteur-portions") };
+    const cko = ["compteur-portions", "compteur-desserts"].map($).find(x => x && x.classList.contains("ko"));
+    if (n === 2 && !$("carte-menu").classList.contains("cache") && cko)
+      return { msg: cko.textContent.replace(/ pour pouvoir envoyer votre demande\.$/, " pour continuer."), el: cko };
     return null;
   }
   function signaler(p) {

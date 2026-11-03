@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 16,
+    version: 17,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -60,12 +60,16 @@
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
       ],
       dessert: [
-        { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9, actif: true },
-        { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9, actif: true },
+        { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 9, actif: true },
+        { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 9, actif: true },
+        { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 9, actif: true },
+        { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 9, actif: true },
         { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 7, actif: true },
         { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: false },
         { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: false },
-        { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false }
+        { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false },
+        { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9, actif: false },
+        { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9, actif: false }
       ]
     },
     cafe: { nom: "Café, espresso ou thé", inclus: true, prix: 4.5 },
@@ -210,6 +214,14 @@
     }
     // Version 16 : le frango assado devient le prix d'appel (22 -> 18), sauf prix changé dans l'admin
     if (vAvant < 16) c.menu.plat = c.menu.plat.map(x => x.id === "frango" && Number(x.prix) === 22 ? Object.assign({}, x, { prix: 18 }) : x);
+    // Version 17 : desserts choisis par personne ; tiramisùs et tartufi séparés par parfum (même prix que l'ancien duo)
+    if (vAvant < 17) {
+      const ancien = id => c.menu.dessert.find(x => x.id === id);
+      const nv = [["tiramisu-classico", "tiramisu"], ["tiramisu-mango", "tiramisu"], ["tartufo-pistache", "tartufi"], ["tartufo-nocciola", "tartufi"]]
+        .filter(([id]) => !c.menu.dessert.some(x => x.id === id))
+        .map(([id, a]) => { const d = copie(DEFAUT.menu.dessert.find(x => x.id === id)); const o = ancien(a); if (o && o.prix != null) d.prix = Number(o.prix); return d; });
+      c.menu.dessert = nv.concat(c.menu.dessert.map(x => x.id === "tiramisu" || x.id === "tartufi" ? Object.assign({}, x, { actif: false }) : x));
+    }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
