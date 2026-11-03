@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 17,
+    version: 18,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -51,7 +51,7 @@
       plat: [
         { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24, photo: "photos/feijoada.jpg", actif: true },
         { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22, photo: "photos/escondidinho.jpg", actif: true },
-        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 26, photo: "photos/rumsteck.jpg", actif: true },
+        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 24, photo: "photos/rumsteck.jpg", actif: true },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25, photo: "photos/bananier.jpg", actif: true },
         { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24, photo: "photos/arroz-mar.jpg", actif: true },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
@@ -222,6 +222,8 @@
         .map(([id, a]) => { const d = copie(DEFAUT.menu.dessert.find(x => x.id === id)); const o = ancien(a); if (o && o.prix != null) d.prix = Number(o.prix); return d; });
       c.menu.dessert = nv.concat(c.menu.dessert.map(x => x.id === "tiramisu" || x.id === "tartufi" ? Object.assign({}, x, { actif: false }) : x));
     }
+    // Version 18 : rumsteck rôti à 24 (26 avant), sauf prix changé dans l'admin
+    if (vAvant < 18) c.menu.plat = c.menu.plat.map(x => x.id === "boeuf" && Number(x.prix) === 26 ? Object.assign({}, x, { prix: 24 }) : x);
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
