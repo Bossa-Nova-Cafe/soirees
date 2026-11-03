@@ -564,7 +564,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=12"></script>
+<script src="catalogue.js?v=13"></script>
 <script>
 (function () {
   "use strict";
@@ -641,16 +641,14 @@
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 22, vg: true }
       ]},
       { id: "dessert", titre: "Dessert, café ou thé compris", choix: [
-        { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7 },
-        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8 },
         { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9 },
         { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9 },
-        { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11 }
+        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8 }
       ]}
     ],
     accompagnements: "Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four, en bols sur les tables",
     bols: ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"],
-    menuDefaut: { bienvenue: "caipi", entree: "petiscos", plat: "feijoada", dessert: "brigadeiros" },
+    menuDefaut: { bienvenue: "caipi", entree: "petiscos", plat: "feijoada", dessert: "tiramisu" },
     // Boissons pendant le repas (prix par personne)
     forfaits: [
       { id: "aucun", nom: "À la consommation", ds: "Chacun commande ce qu’il souhaite pendant le repas.", prix: 0 },

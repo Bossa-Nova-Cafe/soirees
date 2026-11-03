@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 12,
+    version: 13,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -60,11 +60,11 @@
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 22, vg: true, actif: true }
       ],
       dessert: [
-        { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: true },
-        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8, actif: true },
         { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9, actif: true },
         { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9, actif: true },
-        { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: true },
+        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8, actif: true },
+        { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: false },
+        { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: false },
         { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false }
       ]
     },
@@ -189,6 +189,14 @@
         if (c.menu.dessert.some(x => x.id === id)) return;
         const i = c.menu.dessert.findIndex(x => x.id === "gourmand");
         c.menu.dessert.splice(i >= 0 ? i : c.menu.dessert.length, 0, copie(DEFAUT.menu.dessert.find(x => x.id === id)));
+      });
+    }
+    // Version 13 : brigadeiros et assiette gourmande désactivés (réactivables dans l'admin) ; le tiramisù passe en tête
+    if (vAvant < 13) {
+      c.menu.dessert = c.menu.dessert.map(x => x.id === "brigadeiros" || x.id === "gourmand" ? Object.assign({}, x, { actif: false }) : x);
+      ["tartufi", "tiramisu"].forEach(id => {
+        const i = c.menu.dessert.findIndex(x => x.id === id);
+        if (i > 0) c.menu.dessert.unshift(c.menu.dessert.splice(i, 1)[0]);
       });
     }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
