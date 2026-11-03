@@ -564,7 +564,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=16"></script>
+<script src="catalogue.js?v=17"></script>
 <script>
 (function () {
   "use strict";
@@ -582,7 +582,7 @@
     droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
     earlyBirdJours: 30,               // early bird : réservation au moins 30 jours avant
     earlyBirdRemise: 5,               // early bird : remise en % sur le menu
-    minimumPrivatisation: 1200,       // CHF, soirées privatisées
+    minimumPrivatisation: 700,       // CHF, soirées privatisées
     acompteTaux: 0.30,
     prolongationParHeure: 200,        // CHF, vendredi et samedi
     // Moment : soirée privatisée, déjeuner ou afterwork
@@ -624,26 +624,26 @@
         { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 0 }
       ]},
       { id: "entree", titre: "Entrée", choix: [
-        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 11 },
-        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 8 },
-        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 11 },
-        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 9, vg: true },
+        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 10 },
+        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 7 },
+        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10 },
+        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, vg: true },
         { id: "aucune", nom: "Sans entrée", ds: "", prix: 0 }
       ]},
       { id: "plat", titre: "Plat principal", choix: [
-        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5 },
-        { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 23 },
-        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 28 },
-        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29 },
-        { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 27 },
+        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24 },
+        { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22 },
+        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 26 },
+        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25 },
+        { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24 },
         { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 22 },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22 },
-        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 22, vg: true }
+        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, vg: true }
       ]},
       { id: "dessert", titre: "Dessert, café ou thé compris", choix: [
         { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9 },
         { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9 },
-        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8 }
+        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 7 }
       ]}
     ],
     accompagnements: "Riz blanc, feijão, farofa, couve à l’ail, vinagrete, patates douces rôties et molho de pimenta, en bols sur les tables",
