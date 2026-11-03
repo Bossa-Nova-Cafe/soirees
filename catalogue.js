@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 9,
+    version: 10,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -33,8 +33,12 @@
     menu: {
       bienvenue: [
         { id: "caipi", nom: "Caipirinha et cacahuètes grillées", ds: "Le cocktail national, citron vert et cachaça, avec des cacahuètes grillées et salées, comme au comptoir", prix: 8, inclus: true, photo: "photos/caipirinha.jpg", actif: true },
-        { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: true },
-        { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: true }
+        { id: "quentao", nom: "Quentão", ds: "La boisson chaude des fêtes brésiliennes : cachaça, gingembre, cannelle et orange", prix: 8, inclus: true, actif: true },
+        { id: "vinho-quente", nom: "Vinho quente au Gamay vaudois", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 8, inclus: true, actif: true },
+        { id: "chasselas", nom: "Verre de Chasselas vaudois", ds: "L'apéritif de chez nous, servi frais", prix: 8, inclus: true, actif: true },
+        { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 6, inclus: true, actif: true },
+        { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: false },
+        { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: false }
       ],
       entree: [
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: true },
@@ -144,6 +148,17 @@
       const nv = DEFAUT.menu.plat.find(x => x.id === "arroz-mar");
       const i = c.menu.plat.findIndex(x => x.id === "bananier");
       c.menu.plat.splice(i >= 0 ? i + 1 : c.menu.plat.length, 0, copie(nv));
+    }
+    // Version 10 : boissons d'accueil d'hiver (quentão, vinho quente, chasselas, quentão sans alcool) ;
+    // la batida et le cocktail passion sont désactivés, réactivables dans l'admin
+    if (vAvant < 10) {
+      c.menu.bienvenue = c.menu.bienvenue.map(x => x.id === "batida" || x.id === "virgem" ? Object.assign({}, x, { actif: false }) : x);
+      ["quentao", "vinho-quente", "chasselas", "quentao-sa"].forEach(id => {
+        if (c.menu.bienvenue.some(x => x.id === id)) return;
+        const nv = DEFAUT.menu.bienvenue.find(x => x.id === id);
+        const i = c.menu.bienvenue.findIndex(x => x.id === "batida");
+        c.menu.bienvenue.splice(i >= 0 ? i : c.menu.bienvenue.length, 0, copie(nv));
+      });
     }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     c.majLe = cat.majLe || null;
