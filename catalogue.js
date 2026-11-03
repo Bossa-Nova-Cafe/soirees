@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 11,
+    version: 12,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -62,8 +62,10 @@
       dessert: [
         { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: true },
         { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 8, actif: true },
-        { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: true },
-        { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, pudim et mousse de fruit de la passion", prix: 11, actif: true }
+        { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9, actif: true },
+        { id: "tartufi", nom: "Tartufi glacés", ds: "Pistache, et noisette-chocolat au cœur fondant", prix: 9, actif: true },
+        { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: true },
+        { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false }
       ]
     },
     cafe: { nom: "Café, espresso ou thé", inclus: true, prix: 4.5 },
@@ -174,6 +176,19 @@
       });
       ["petiscos", "caldinho", "salpicao"].reverse().forEach(id => {
         if (!c.menu.entree.some(x => x.id === id)) c.menu.entree.unshift(copie(DEFAUT.menu.entree.find(x => x.id === id)));
+      });
+    }
+    // Version 12 : desserts de la carte du café (tiramisùs, tartufi) ; la mousse passion est désactivée
+    if (vAvant < 12) {
+      c.menu.dessert = c.menu.dessert.map(x => {
+        if (x.id === "maracuja") return Object.assign({}, x, { actif: false });
+        if (x.id === "gourmand" && x.ds === "Brigadeiros, pudim et mousse de fruit de la passion") return Object.assign({}, x, { ds: "Brigadeiros, tiramisù mango et pudim de leite" });
+        return x;
+      });
+      ["tiramisu", "tartufi"].forEach(id => {
+        if (c.menu.dessert.some(x => x.id === id)) return;
+        const i = c.menu.dessert.findIndex(x => x.id === "gourmand");
+        c.menu.dessert.splice(i >= 0 ? i : c.menu.dessert.length, 0, copie(DEFAUT.menu.dessert.find(x => x.id === id)));
       });
     }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
