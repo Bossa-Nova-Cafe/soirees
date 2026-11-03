@@ -208,7 +208,14 @@
   .plat .px { margin-left: auto; font-weight: 600; color: var(--violet); white-space: nowrap; padding-left: 6px; }
   .plat .vg { display: inline-block; font-size: 11px; color: #1e7a3e; border: 1px solid #1e7a3e; border-radius: 6px; padding: 0 5px; margin-left: 4px; font-weight: 500; }
   .plat .qte { margin-top: 8px; font-size: 13px; color: var(--vert); font-weight: 500; }
-  .plat .qte input { width: 64px; padding: 5px 8px; font-size: 14px; margin-left: 6px; }
+  .plat .qte input { width: 52px; padding: 5px 4px; font-size: 15px; text-align: center; margin: 0; }
+  .plat .qte .ligne-qte { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .plat .qte .pm { all: unset; box-sizing: border-box; width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--vert); color: var(--vert); font-size: 20px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: #fff; }
+  .plat .qte .pm:disabled { opacity: .3; cursor: default; }
+  .plat .qte .reste-btn { all: unset; cursor: pointer; font-size: 13px; font-weight: 700; color: #fff; background: var(--vert); border-radius: 999px; padding: 7px 12px; margin-left: 4px; }
+  .plat .qte .reste-btn.cache { display: none; }
+  .compteur-portions.attente { color: #6b4e00; background: #fff6d6; border: 2px solid #e8b400; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; margin: 4px 0 14px; }
+  .compteur-portions.attente::before { content: "👉 "; }
   .compteur-portions { text-align: right; font-size: 13.5px; font-weight: 600; margin: -6px 0 12px; }
   .compteur-portions.ok { color: #1e7a3e; }
   .compteur-portions.ok::before { content: "✓ "; }
@@ -760,7 +767,7 @@
     return new Date(Date.UTC(a, m - 1, j)).getUTCDay();
   }
 
-  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: true, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, profil: "entreprise", options: { amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
+  const etat = { placements: {}, honneurs: {}, type: "soir", menu: {}, portions: {}, portionsAuto: false, forfait: "vin", avecVins: true, vinApporte: false, bouteillesApportees: 0, apporteAuto: true, conso: "classique", bouteilles: {}, vinsAuto: true, digestifs: {}, bulles: {}, profil: "entreprise", options: { amigo: true, ambiance: "Bossa nova et MPB", plan: false, musique: false, prolongation: 0 } };
 
   // ---------- Construction de l'interface ----------
   function construireTypes() {
@@ -806,7 +813,7 @@
         el.className = "plat";
         el.dataset.cours = c.id; el.dataset.id = p.id;
         el.innerHTML = c.id === "plat"
-          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes : <input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0"></div></div>`
+          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes :<div class="ligne-qte"><button type="button" class="pm moins" aria-label="Une personne de moins">−</button><input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0" inputmode="numeric"><button type="button" class="pm plus" aria-label="Une personne de plus">+</button><button type="button" class="reste-btn cache"></button></div></div></div>`
           : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
         if (p.photo) {
@@ -831,7 +838,11 @@
             etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, Math.floor(Number(r.value) || 0)));
             maj();
           });
-          el.addEventListener("click", e => { if (e.target !== r) r.focus(); });
+          const fixer = v => { etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, v)); maj(); };
+          el.querySelector(".moins").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) - 1); });
+          el.querySelector(".plus").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + 1); });
+          el.querySelector(".reste-btn").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + Math.max(0, Number($("personnes").value) - totalPortions())); });
+          el.addEventListener("click", e => { if (!e.target.closest("button") && e.target !== r) r.focus(); });
         } else {
           r.checked = p.id === etat.menu[c.id];
           r.addEventListener("change", () => { etat.menu[c.id] = p.id; maj(); });
@@ -1220,6 +1231,12 @@
         const q = etat.portions[el.dataset.id] || 0;
         if (document.activeElement !== inp) inp.value = q;
         el.classList.toggle("choisie", q > 0);
+        const resteP = r.n - totalPortions();
+        el.querySelector(".moins").disabled = q <= 0;
+        el.querySelector(".plus").disabled = resteP <= 0;
+        const rb = el.querySelector(".reste-btn");
+        rb.classList.toggle("cache", resteP <= 0);
+        rb.textContent = resteP === 1 ? "+ la dernière personne" : `+ les ${resteP} restantes`;
       } else {
         const sel = etat.menu[el.dataset.cours] === el.dataset.id;
         inp.checked = sel;
@@ -1228,11 +1245,13 @@
     });
     const tp = totalPortions();
     $("compteur-portions").textContent = `${tp} personne${tp > 1 ? "s" : ""} servie${tp > 1 ? "s" : ""} sur ${r.n} invités`;
-    $("compteur-portions").className = "compteur-portions " + (tp === r.n ? "ok" : "ko");
+    $("compteur-portions").className = "compteur-portions " + (tp === r.n ? "ok" : tp < r.n ? "attente" : "ko");
     if (tp !== r.n) {
       const ecart = r.n - tp;
       $("compteur-portions").textContent = ecart > 0
-        ? `${tp} personne${tp > 1 ? "s" : ""} servie${tp > 1 ? "s" : ""} sur ${r.n} invités : il manque ${ecart} personne${ecart > 1 ? "s" : ""}. Ajoutez des plats principaux pour pouvoir envoyer votre demande.`
+        ? (tp === 0
+          ? `Choisissez 2 ou 3 plats pour vos tables : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.`
+          : `Il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer sur ${r.n} invités.`)
         : `${tp} personnes servies pour ${r.n} invités : ${-ecart} de trop. Retirez-en pour pouvoir envoyer votre demande.`;
     }
     // Envoi bloqué tant que les plats principaux ne correspondent pas au nombre d'invités
