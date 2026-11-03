@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 15,
+    version: 16,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -55,7 +55,7 @@
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25, photo: "photos/bananier.jpg", actif: true },
         { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24, photo: "photos/arroz-mar.jpg", actif: true },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
-        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 22, photo: "photos/frango.jpg", actif: true },
+        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
       ],
@@ -208,6 +208,8 @@
       });
       if (Number(c.regles.minimumPrivatisation) === 1200) c.regles.minimumPrivatisation = 700;
     }
+    // Version 16 : le frango assado devient le prix d'appel (22 -> 18), sauf prix changé dans l'admin
+    if (vAvant < 16) c.menu.plat = c.menu.plat.map(x => x.id === "frango" && Number(x.prix) === 22 ? Object.assign({}, x, { prix: 18 }) : x);
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
