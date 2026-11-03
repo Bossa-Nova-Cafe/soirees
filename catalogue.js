@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 4,
+    version: 5,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -44,9 +44,10 @@
       plat: [
         { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5, photo: "photos/feijoada.jpg", actif: true },
         { id: "moqueca", nom: "Moqueca de poisson de Bahia", ds: "Poisson au lait de coco et huile de dendê, pirão", prix: 26, actif: true },
-        { id: "boeuf", nom: "Filet de bœuf grillé", ds: "Grillé et tranché, à la brésilienne", prix: 28, actif: true },
+        { id: "boeuf", nom: "Picanha rôtie au four", ds: "La pièce de bœuf préférée des Brésiliens, rôtie entière et tranchée à table, au gros sel", prix: 28, actif: true },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, actif: true },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: true },
+        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 22, actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "moqueca-vg", nom: "Moqueca de cœurs de palmier et plantain", ds: "Lait de coco et poivrons", prix: 25, vg: true, actif: true }
       ],
@@ -114,6 +115,16 @@
       if (x.id === "virgem" && x.nom === "Cocktail sans alcool et pão de queijo") return Object.assign({}, x, { nom: d.nom });
       return x;
     });
+    // Version 5 : la picanha rôtie remplace le filet de bœuf grillé ; nouveau plat « Frango assado »
+    if (vAvant < 5) {
+      const pic = DEFAUT.menu.plat.find(x => x.id === "boeuf");
+      c.menu.plat = c.menu.plat.map(x => x.id === "boeuf" && x.nom === "Filet de bœuf grillé" ? Object.assign({}, x, { nom: pic.nom, ds: pic.ds }) : x);
+      if (!c.menu.plat.some(x => x.id === "frango")) {
+        const nv = DEFAUT.menu.plat.find(x => x.id === "frango");
+        const i = c.menu.plat.findIndex(x => x.id === "maluca");
+        c.menu.plat.splice(i >= 0 ? i : c.menu.plat.length, 0, copie(nv));
+      }
+    }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     c.majLe = cat.majLe || null;
     return c;
