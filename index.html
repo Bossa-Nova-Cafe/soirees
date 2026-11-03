@@ -564,7 +564,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=10"></script>
+<script src="catalogue.js?v=11"></script>
 <script>
 (function () {
   "use strict";
@@ -624,9 +624,10 @@
         { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 0 }
       ]},
       { id: "entree", titre: "Entrée", choix: [
-        { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12 },
-        { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13 },
-        { id: "veloute", nom: "Velouté de potiron au lait de coco", ds: "Gingembre et graines torréfiées", prix: 10, vg: true },
+        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 11 },
+        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 8 },
+        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 11 },
+        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 9, vg: true },
         { id: "aucune", nom: "Sans entrée", ds: "", prix: 0 }
       ]},
       { id: "plat", titre: "Plat principal", choix: [
@@ -648,7 +649,7 @@
     ],
     accompagnements: "Riz, farofa, haricots noirs, pommes de terre et légumes rôtis au four, en bols sur les tables",
     bols: ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"],
-    menuDefaut: { bienvenue: "caipi", entree: "bouchees", plat: "feijoada", dessert: "brigadeiros" },
+    menuDefaut: { bienvenue: "caipi", entree: "petiscos", plat: "feijoada", dessert: "brigadeiros" },
     // Boissons pendant le repas (prix par personne)
     forfaits: [
       { id: "aucun", nom: "À la consommation", ds: "Chacun commande ce qu’il souhaite pendant le repas.", prix: 0 },
@@ -728,7 +729,7 @@
     production: { supplement: 20, delaiJours: 15 },
     creneaux: [
       { id: "apres_bienvenue", lib: "Après le mot de bienvenue", apres: "bienvenue" },
-      { id: "entre_plats", lib: "Entre les bouchées et le plat", apres: "bouchees" },
+      { id: "entre_plats", lib: "Entre l’entrée et le plat", apres: "bouchees" },
       { id: "avant_dessert", lib: "Avant le dessert", apres: "plat" },
       { id: "apres_dessert", lib: "Après le dessert, avec le café", apres: "dessert" }
     ],

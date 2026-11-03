@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 10,
+    version: 11,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -41,9 +41,12 @@
         { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: false }
       ],
       entree: [
-        { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: true },
-        { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: true },
-        { id: "veloute", nom: "Velouté de potiron au lait de coco", ds: "Gingembre et graines torréfiées", prix: 10, vg: true, actif: true }
+        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 11, actif: true },
+        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 8, actif: true },
+        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 11, actif: true },
+        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 9, vg: true, actif: true },
+        { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: false },
+        { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: false }
       ],
       plat: [
         { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5, photo: "photos/feijoada.jpg", actif: true },
@@ -158,6 +161,19 @@
         const nv = DEFAUT.menu.bienvenue.find(x => x.id === id);
         const i = c.menu.bienvenue.findIndex(x => x.id === "batida");
         c.menu.bienvenue.splice(i >= 0 ? i : c.menu.bienvenue.length, 0, copie(nv));
+      });
+    }
+    // Version 11 : nouvelles entrées (petiscos, caldinho, salpicão) ; le velouté prend son nom brésilien ;
+    // les bouchées bahianaises et la salade de palmier sont désactivées, réactivables dans l'admin
+    if (vAvant < 11) {
+      const vel = DEFAUT.menu.entree.find(x => x.id === "veloute");
+      c.menu.entree = c.menu.entree.map(x => {
+        if (x.id === "bouchees" || x.id === "palmito") return Object.assign({}, x, { actif: false });
+        if (x.id === "veloute" && x.nom === "Velouté de potiron au lait de coco") return Object.assign({}, x, { nom: vel.nom, ds: vel.ds, prix: Number(x.prix) === 10 ? vel.prix : x.prix });
+        return x;
+      });
+      ["petiscos", "caldinho", "salpicao"].reverse().forEach(id => {
+        if (!c.menu.entree.some(x => x.id === id)) c.menu.entree.unshift(copie(DEFAUT.menu.entree.find(x => x.id === id)));
       });
     }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
