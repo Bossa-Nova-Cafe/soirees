@@ -1220,6 +1220,10 @@
   function synchroInclus() {}
 
   function maj() {
+    // Le choix des vins se lit toujours sur les boutons cochés : un clic avant la fin du chargement,
+    // ou une page rechargée qui garde l'ancien choix, ne peut plus faire compter des bouteilles par erreur
+    const rv = document.querySelector("input[name=vins]:checked");
+    if (rv) { etat.avecVins = rv.value === "oui"; etat.vinApporte = rv.value === "apporte"; }
     synchroInclus();
     $("erreur").textContent = "";
     const r = calculer();
