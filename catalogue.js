@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 13,
+    version: 14,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -69,7 +69,7 @@
       ]
     },
     cafe: { nom: "Café, espresso ou thé", inclus: true, prix: 4.5 },
-    bols: ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"],
+    bols: ["Riz blanc", "Feijão (haricots noirs mijotés)", "Farofa", "Couve à l’ail (chou vert sauté)", "Vinagrete (tomates, oignons et poivrons)", "Patates douces rôties", "Molho de pimenta (piment doux)"],
     forfaits: { soft: 12, vin: 4, complet: 14, enfant: 8 },
     vins: [
       { id: "blanc", nom: "Saint-Saphorin", ds: "Blanc · Lavaux AOC, chasselas", prix: 44, part: 40, actif: true },
@@ -200,6 +200,9 @@
       });
     }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
+    // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
+    const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
+    if (vAvant < 14 && JSON.stringify(c.bols) === JSON.stringify(BOLS_AVANT_14)) c.bols = copie(DEFAUT.bols);
     c.majLe = cat.majLe || null;
     return c;
   }
