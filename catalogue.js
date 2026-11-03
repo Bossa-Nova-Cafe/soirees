@@ -41,17 +41,17 @@
         { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: false }
       ],
       entree: [
-        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 11, actif: true },
-        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 8, actif: true },
-        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 11, actif: true },
-        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 9, vg: true, actif: true },
+        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 11, photo: "photos/petiscos.jpg", actif: true },
+        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 8, photo: "photos/caldinho.jpg", actif: true },
+        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 11, photo: "photos/salpicao.jpg", actif: true },
+        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 9, photo: "photos/veloute.jpg", vg: true, actif: true },
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: false },
         { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: false }
       ],
       plat: [
         { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5, photo: "photos/feijoada.jpg", actif: true },
-        { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 23, actif: true },
-        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 28, actif: true },
+        { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 23, photo: "photos/escondidinho.jpg", actif: true },
+        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 28, photo: "photos/rumsteck.jpg", actif: true },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, actif: true },
         { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 27, actif: true },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
