@@ -52,12 +52,12 @@
         { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 25.5, photo: "photos/feijoada.jpg", actif: true },
         { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 23, photo: "photos/escondidinho.jpg", actif: true },
         { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 28, photo: "photos/rumsteck.jpg", actif: true },
-        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, actif: true },
-        { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 27, actif: true },
+        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 29, photo: "photos/bananier.jpg", actif: true },
+        { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 27, photo: "photos/arroz-mar.jpg", actif: true },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
-        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 22, actif: true },
+        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 22, photo: "photos/frango.jpg", actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
-        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 22, vg: true, actif: true }
+        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 22, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
       ],
       dessert: [
         { id: "tiramisu", nom: "Duo de tiramisùs", ds: "Classico et mango, l’héritage italien de São Paulo", prix: 9, actif: true },
