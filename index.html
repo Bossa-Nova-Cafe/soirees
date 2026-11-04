@@ -280,7 +280,7 @@
   .etapes-points button:focus-visible { outline: 2px solid var(--jaune); outline-offset: 3px; }
   .hors-etape { display: none !important; }
   /* Une question par écran */
-  .hors-ecran { display: none !important; }
+  .hors-ecran, [data-hors-ecran] { display: none !important; }
   .question { background: #fff; border-radius: 18px; padding: 16px 18px 14px; margin-bottom: 14px; border: 1px solid var(--bord); }
   .question .q-num { font-size: 12.5px; color: var(--gris); font-weight: 500; }
   .question h2 { font-family: "Anton", sans-serif; font-weight: 400; color: var(--vert); font-size: 26px; line-height: 1.15; text-transform: none; margin: 4px 0 4px; letter-spacing: .2px; }
@@ -296,7 +296,7 @@
   .q-points i.fait { background: var(--jaune); }
   .q-points i.actif { background: var(--vert); }
   body.ecrans [data-etape] > h2:first-child, body.ecrans #carte-menu > .sous, body.ecrans .titre-groupe { display: none; }
-  body.ecrans #carte-moment > .sous, body.ecrans #lab-profil { display: none; }
+  body.ecrans #carte-moment > .sous, body.ecrans #lab-profil, body.ecrans #menu .cours > h3 { display: none; }
   .nav-etapes { margin: 4px 0 18px; }
   .nav-boutons { display: flex; gap: 10px; }
   .nav-boutons button { margin: 0; }
@@ -2195,7 +2195,8 @@
       if (vis && (c.dataset.ecran || c.querySelector("[data-ecran]"))) vis = c.dataset.ecran === id || !!c.querySelector(`[data-ecran="${id}"]`);
       c.classList.toggle("hors-etape", !vis);
     });
-    document.querySelectorAll("[data-ecran]").forEach(el => { if (!el.hasAttribute("data-etape")) el.classList.toggle("hors-ecran", el.dataset.ecran !== id); });
+    // Un attribut plutôt qu'une classe : certains compteurs réécrivent leur classe à chaque calcul
+    document.querySelectorAll("[data-ecran]").forEach(el => { if (!el.hasAttribute("data-etape")) el.toggleAttribute("data-hors-ecran", el.dataset.ecran !== id); });
     document.body.classList.toggle("etape-finale", n === N);
     const ici = ecransEtape(n), pos = ici.findIndex(x => x.id === id);
     $("etape-num").textContent = `Étape ${n} sur ${N}`;
