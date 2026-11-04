@@ -299,6 +299,19 @@
       if (f) { await offresRef(f).set({ liste, majLe: new Date().toISOString() }); return; }
       localStorage.setItem(CLE_OFFRES, JSON.stringify(liste));
     },
+    // Achats des soirées (achats.html) : soirées confirmées, recettes et prix d'achat, réservés à l'équipe
+    async chargerAchats() {
+      const f = await firebase();
+      if (f) { const d = await f.db.collection("parametres").doc("confra-achats").get(); return d.exists ? d.data() : null; }
+      try { return JSON.parse(localStorage.getItem("bossanova-confra-achats")); } catch (e) { return null; }
+    },
+    async enregistrerAchats(donnees) {
+      const propre = Object.assign({}, donnees, { majLe: new Date().toISOString() });
+      const f = await firebase();
+      if (f) { await f.db.collection("parametres").doc("confra-achats").set(JSON.parse(JSON.stringify(propre))); return propre; }
+      localStorage.setItem("bossanova-confra-achats", JSON.stringify(propre));
+      return propre;
+    },
     completer,
     mode() { return window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.projectId ? "en ligne" : "local"; },
 

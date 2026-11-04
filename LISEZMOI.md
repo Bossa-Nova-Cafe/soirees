@@ -6,10 +6,11 @@
 | --- | --- |
 | `index.html` | Le calculateur pour les clients |
 | `admin.html` | Le panneau d'administration : plats, prix, vins, digestifs, réglages |
+| `achats.html` | Les achats des soirées : soirées confirmées, liste d'achats, coût et marge |
 | `catalogue.js` | Le catalogue partagé et les valeurs d'origine |
 | `firebase-config.js` | La connexion à Firebase (vide = mode local) |
 
-Les quatre fichiers doivent rester dans le même dossier.
+Ces fichiers doivent rester dans le même dossier.
 
 ## 1. Tester en local
 
@@ -55,3 +56,22 @@ Dans `admin.html`, section « Offres personnalisées » : client, date, nombre d
 - Décocher « Visible » retire un plat du calculateur sans le supprimer : pratique pour un plat de saison.
 - « Télécharger une copie » garde une sauvegarde du catalogue sur l'ordinateur ; « Charger une copie » la remet.
 - `admin.html` n'est pas référencé par les moteurs de recherche, mais son adresse n'est pas secrète : en ligne, c'est la connexion qui protège les modifications.
+
+## Achats des soirées
+
+`achats.html` (lien « Achats des soirées » dans l'administration, même connexion).
+
+1. **Soirées** : colle la demande reçue par WhatsApp ou e-mail, clique sur « Lire le message », vérifie, puis « Enregistrer la soirée ». Un plat non reconnu est signalé : ajoute-le à la main. Statut « En option » pour une soirée pas encore confirmée.
+2. **Liste d'achats** : choisis la période ; les quantités de toutes les soirées cochées s'additionnent, classées par rayon Aligro. Imprimer, ou copier en texte pour WhatsApp.
+3. **Recettes et prix** : quantités pour 8 (la fiche de production) et prix d'achat hors TVA. Les prix marqués « Estimation » sont à vérifier ; ceux marqués « Aligro » viennent du prospectus PRO n° 45 (souvent en promotion).
+
+Coût matière et marge : calculés sur le prix du menu (hors TVA 8,1 %, hors vins et boissons du bar). Pour une offre à prix spécial, indique le « prix du menu convenu ».
+
+**Règle Firestore à ajouter une fois** (console Firebase, Firestore Database > Règles, à côté des règles `confra-offres`, puis Publier) :
+
+```
+    // Achats des soirées : réservés à l'équipe
+    match /parametres/confra-achats {
+      allow read, write: if admin();
+    }
+```

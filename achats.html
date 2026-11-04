@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Achats des soirées — Bossa Nova Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vert: #0f3d2e; --vert-clair: #1d5a45; --jaune: #f2c230; --violet: #6b3fa0;
+    --creme: #fbf6e9; --texte: #1d1d1b; --gris: #6b6b66; --bord: #e2dac3;
+    --rouge: #b3261e; --ok: #1e7a3e; --orange: #9a6b00;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Poppins", system-ui, sans-serif; background: var(--creme); color: var(--texte); font-size: 14px; }
+  header { background: var(--vert); color: var(--creme); padding: 22px 16px 18px; }
+  .entete { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+  .marque { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--jaune); }
+  h1 { font-family: "Anton", sans-serif; font-weight: 400; font-size: 34px; text-transform: uppercase; margin: 2px 0 0; letter-spacing: .5px; }
+  .entete .liens { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .badge { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(242,194,48,.5); }
+  .entete a, .entete button.lien { color: var(--creme); font: inherit; font-size: 13px; background: none; border: 0; text-decoration: underline; cursor: pointer; }
+
+  nav.onglets { position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid var(--bord); box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+  nav.onglets .in { max-width: 1100px; margin: 0 auto; padding: 8px 16px; display: flex; gap: 6px; overflow-x: auto; }
+  nav.onglets button { border: 0; background: none; font: inherit; font-weight: 600; font-size: 14px; color: var(--gris); padding: 9px 14px; border-radius: 999px; white-space: nowrap; cursor: pointer; }
+  nav.onglets button[aria-selected=true] { background: var(--vert); color: var(--creme); }
+
+  button { font: inherit; cursor: pointer; }
+  .btn { border: 1.5px solid var(--vert); background: #fff; color: var(--vert); border-radius: 999px; padding: 7px 16px; font-weight: 600; font-size: 13px; }
+  .btn.principal { background: var(--vert); color: var(--creme); }
+  .btn.discret { border-color: var(--bord); color: var(--gris); }
+  .btn.danger { border-color: var(--rouge); color: var(--rouge); }
+  .btn.petit { padding: 4px 11px; font-size: 12px; }
+  .btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--jaune); outline-offset: 2px; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 22px 16px 60px; display: flex; flex-direction: column; gap: 20px; }
+  .carte { background: #fff; border: 1px solid var(--bord); border-radius: 14px; padding: 20px; }
+  h2 { font-family: "Anton", sans-serif; font-weight: 400; font-size: 22px; text-transform: uppercase; color: var(--vert); margin: 0 0 4px; letter-spacing: .5px; }
+  h3 { font-size: 15px; margin: 18px 0 8px; color: var(--violet); }
+  .sous { color: var(--gris); font-size: 13px; margin: 0 0 14px; }
+  .champs { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; align-items: end; }
+  label.champ { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--gris); }
+  input[type=text], input[type=email], input[type=number], input[type=date], input[type=password], select, textarea {
+    font: inherit; font-size: 14px; color: var(--texte); padding: 8px 10px; border: 1.5px solid var(--bord); border-radius: 8px; background: #fff; width: 100%; min-width: 0;
+  }
+  input[type=text], input[type=number], input[type=date], input[type=email], input[type=password], select { height: 39px; }
+  textarea { min-height: 150px; resize: vertical; font-size: 13px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+  .cache { display: none !important; }
+
+  .msg { border-radius: 10px; padding: 10px 14px; font-size: 13.5px; margin: 0; }
+  .msg.info { background: #eef5f1; color: var(--vert); }
+  .msg.ok { background: #e7f4ec; color: var(--ok); font-weight: 600; }
+  .msg.avert { background: #fff6d6; color: #6b4e00; }
+  .msg.erreur { background: #fdecea; color: #8c1d18; }
+  .msg code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+  .msg pre { white-space: pre-wrap; background: rgba(0,0,0,.05); padding: 8px 10px; border-radius: 8px; font-size: 12.5px; margin: 8px 0 0; }
+  #messages { display: flex; flex-direction: column; gap: 8px; }
+
+  .connexion { max-width: 420px; margin: 40px auto; display: flex; flex-direction: column; gap: 12px; }
+
+  /* Soirées */
+  .qtes { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  .qte { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--bord); border-radius: 10px; padding: 6px 8px 6px 12px; background: #fffdf7; }
+  .qte.choisie { border-color: var(--vert); background: #f2f8f4; }
+  .qte span { font-size: 13px; }
+  .qte input { width: 64px; height: 34px; text-align: center; padding: 4px; }
+  .compteur { font-size: 13px; font-weight: 600; margin: 6px 0 0; }
+  .compteur.ok { color: var(--ok); } .compteur.ko { color: var(--rouge); }
+  .apercu { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 16px; }
+  .chiffre { background: var(--creme); border-radius: 10px; padding: 10px 12px; }
+  .chiffre small { display: block; color: var(--gris); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  .chiffre strong { font-size: 19px; }
+  .fc-ok { color: var(--ok); } .fc-moyen { color: var(--orange); } .fc-haut { color: var(--rouge); }
+
+  .soiree { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 6px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--bord); border-radius: 12px; background: #fffdf7; }
+  .soiree + .soiree { margin-top: 8px; }
+  .soiree .quand { font-weight: 600; color: var(--vert); }
+  .soiree .qui { font-weight: 600; }
+  .soiree .detail { color: var(--gris); font-size: 12.5px; }
+  .soiree .chiffres { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; margin-top: 4px; }
+  .soiree .boutons { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .puce { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+  .puce.confirmee { background: #e7f4ec; color: var(--ok); }
+  .puce.option { background: #fff1c7; color: #6b4e00; }
+  .puce.estim { background: #fff1c7; color: #6b4e00; }
+  .puce.aligro { background: #e8f0fb; color: #1d4f91; }
+  .puce.toi { background: #efe7f8; color: var(--violet); }
+  @media (max-width: 720px) { .soiree { grid-template-columns: 1fr; } .soiree .boutons { justify-content: flex-start; } }
+  details.passees summary { cursor: pointer; font-weight: 600; color: var(--gris); margin: 14px 0 8px; }
+
+  /* Liste d'achats */
+  .periode { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+  .periode label.champ { width: 170px; }
+  .choix-soirees { display: flex; flex-direction: column; gap: 6px; margin: 14px 0 4px; }
+  .choix-soirees label { display: flex; gap: 8px; align-items: center; font-size: 13.5px; }
+  .rayon h3 { display: flex; justify-content: space-between; gap: 10px; border-bottom: 2px solid var(--bord); padding-bottom: 6px; color: var(--vert); text-transform: uppercase; font-size: 13.5px; letter-spacing: .5px; }
+  .article { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto 90px; gap: 10px; align-items: center; padding: 7px 4px; border-bottom: 1px dashed var(--bord); }
+  .article input { width: 18px; height: 18px; margin: 0; }
+  .article.coche .nom, .article.coche .q { text-decoration: line-through; color: var(--gris); }
+  .article .q { font-weight: 600; text-align: right; white-space: nowrap; }
+  .article .cond { display: block; font-weight: 400; font-size: 12px; color: var(--gris); }
+  .article .px { text-align: right; color: var(--gris); font-size: 12.5px; white-space: nowrap; }
+  .total-liste { display: flex; justify-content: space-between; font-weight: 600; font-size: 16px; margin-top: 16px; padding-top: 10px; border-top: 2px solid var(--vert); }
+
+  /* Recettes et prix */
+  table.grille { width: 100%; border-collapse: collapse; }
+  table.grille th { text-align: left; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; color: var(--gris); padding: 6px; border-bottom: 1px solid var(--bord); }
+  table.grille td { padding: 5px 6px; border-bottom: 1px dashed var(--bord); vertical-align: middle; }
+  table.grille td.n { text-align: right; white-space: nowrap; }
+  table.grille input[type=number] { width: 100px; height: 34px; }
+  .defile { overflow-x: auto; }
+  .note { font-size: 12.5px; color: var(--gris); margin: 10px 0 0; }
+
+  @media print {
+    header, nav.onglets, #messages, .pas-imprime { display: none !important; }
+    body { background: #fff; font-size: 12px; }
+    main { padding: 0; }
+    .carte { border: 0; padding: 0; }
+    .article { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="entete">
+    <div>
+      <div class="marque">Bossa Nova Café · Votre soirée privée</div>
+      <h1>Achats des soirées</h1>
+    </div>
+    <div class="liens">
+      <span class="badge" id="mode"></span>
+      <a href="admin.html">Administration</a>
+      <a href="index.html" target="_blank" rel="noopener">Voir le calculateur</a>
+      <button class="lien cache" id="deconnexion" type="button">Se déconnecter</button>
+    </div>
+  </div>
+</header>
+
+<section class="carte connexion cache" id="ecran-connexion">
+  <h2>Connexion</h2>
+  <p class="sous">Réservé à l’équipe du Bossa Nova.</p>
+  <label class="champ">E-mail<input type="email" id="login-email" autocomplete="username"></label>
+  <label class="champ">Mot de passe<input type="password" id="login-mdp" autocomplete="current-password"></label>
+  <div id="login-msg"></div>
+  <button class="btn principal" type="button" id="login-btn">Se connecter</button>
+</section>
+
+<div id="ecran-app" class="cache">
+  <nav class="onglets" aria-label="Sections">
+    <div class="in" role="tablist">
+      <button type="button" role="tab" data-onglet="soirees" aria-selected="true">Soirées</button>
+      <button type="button" role="tab" data-onglet="liste" aria-selected="false">Liste d’achats</button>
+      <button type="button" role="tab" data-onglet="recettes" aria-selected="false">Recettes et prix</button>
+    </div>
+  </nav>
+  <main>
+    <div id="messages" aria-live="polite"></div>
+
+    <!-- ===== Soirées ===== -->
+    <section data-section="soirees" class="carte">
+      <h2>Ajouter une soirée</h2>
+      <p class="sous">Colle la demande reçue par WhatsApp ou e-mail : la date, le nombre de personnes, les plats et les desserts sont lus automatiquement. Tu vérifies, puis tu enregistres.</p>
+      <label class="champ">Message du client<textarea id="colle" placeholder="Bonjour le Bossa Nova, Voici notre demande pour une Festa : …"></textarea></label>
+      <div class="actions">
+        <button class="btn principal" type="button" id="lire">Lire le message</button>
+        <button class="btn discret" type="button" id="manuel">Saisie manuelle</button>
+      </div>
+    </section>
+
+    <section data-section="soirees" class="carte cache" id="formulaire">
+      <h2 id="form-titre">Vérifier la soirée</h2>
+      <div id="form-avert"></div>
+      <div class="champs" style="margin-top:10px">
+        <label class="champ">Date<input type="date" id="f-date"></label>
+        <label class="champ">Client ou groupe<input type="text" id="f-client"></label>
+        <label class="champ">Contact<input type="text" id="f-contact"></label>
+        <label class="champ">Personnes (enfants compris)<input type="number" id="f-n" min="1" max="60"></label>
+        <label class="champ">Dont enfants<input type="number" id="f-enfants" min="0" max="60"></label>
+        <label class="champ">Statut<select id="f-statut"><option value="confirmee">Confirmée</option><option value="option">En option (pas encore confirmée)</option></select></label>
+        <label class="champ">Boisson d’accueil<select id="f-bienvenue"></select></label>
+        <label class="champ">Entrée<select id="f-entree"></select></label>
+      </div>
+      <h3>Plats principaux</h3>
+      <div class="qtes" id="f-plats"></div>
+      <div class="compteur" id="f-plats-compte"></div>
+      <h3>Desserts</h3>
+      <div class="qtes" id="f-desserts"></div>
+      <div class="compteur" id="f-desserts-compte"></div>
+      <div class="champs" style="margin-top:16px">
+        <label class="champ">Prix du menu convenu, TTC (facultatif)<input type="number" id="f-prix" min="0" step="0.05" placeholder="Calculé automatiquement"></label>
+        <label class="champ" style="grid-column: span 2">Remarques (allergies, déroulement…)<input type="text" id="f-notes"></label>
+      </div>
+      <div class="apercu" id="f-apercu"></div>
+      <p class="note">Coût matière estimé avec les recettes et les prix de l’onglet « Recettes et prix ». Chiffre d’affaires du repas hors TVA (8,1 %), hors vins et boissons commandées en plus.</p>
+      <div class="actions">
+        <button class="btn principal" type="button" id="f-enregistrer">Enregistrer la soirée</button>
+        <button class="btn discret" type="button" id="f-annuler">Annuler</button>
+      </div>
+    </section>
+
+    <section data-section="soirees" class="carte">
+      <h2>Soirées à venir</h2>
+      <p class="sous" id="resume-soirees"></p>
+      <div id="liste-soirees"></div>
+      <details class="passees" id="bloc-passees"><summary>Soirées passées</summary><div id="liste-passees"></div></details>
+    </section>
+
+    <!-- ===== Liste d'achats ===== -->
+    <section data-section="liste" class="carte cache">
+      <h2>Liste d’achats</h2>
+      <p class="sous pas-imprime">Choisis la période : la liste additionne les quantités de toutes les soirées cochées, classées par rayon Aligro.</p>
+      <div class="periode pas-imprime">
+        <label class="champ">Du<input type="date" id="l-du"></label>
+        <label class="champ">Au<input type="date" id="l-au"></label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:13px;height:39px"><input type="checkbox" id="l-options"> Inclure les soirées en option</label>
+      </div>
+      <div class="choix-soirees pas-imprime" id="l-soirees"></div>
+      <h3 id="l-titre" style="color:var(--vert)"></h3>
+      <div id="l-avert"></div>
+      <div id="l-rayons"></div>
+      <div class="total-liste" id="l-total"></div>
+      <p class="note">Quantités arrondies au-dessus. Coût estimé hors TVA, avec les prix de l’onglet « Recettes et prix ».</p>
+      <div class="actions pas-imprime">
+        <button class="btn principal" type="button" id="l-imprimer">Imprimer</button>
+        <button class="btn" type="button" id="l-copier">Copier en texte</button>
+        <button class="btn discret" type="button" id="l-decocher">Tout décocher</button>
+      </div>
+    </section>
+
+    <!-- ===== Recettes et prix ===== -->
+    <section data-section="recettes" class="carte cache">
+      <h2>Prix d’achat</h2>
+      <p class="sous">Prix hors TVA. <span class="puce aligro">Aligro</span> = prospectus PRO n° 45 (2 au 7 novembre 2026, souvent en promotion). <span class="puce estim">Estimation</span> = à vérifier. Dès que tu changes un prix, il devient <span class="puce toi">Ton prix</span>.</p>
+      <div class="defile"><table class="grille" id="t-prix"></table></div>
+      <h3>Ajouter un ingrédient</h3>
+      <div class="champs">
+        <label class="champ">Nom<input type="text" id="n-nom"></label>
+        <label class="champ">Se compte en<select id="n-unite"><option value="g">grammes (prix au kg)</option><option value="ml">millilitres (prix au litre)</option><option value="pce">pièces (prix à la pièce)</option></select></label>
+        <label class="champ">Rayon<select id="n-rayon"></select></label>
+        <label class="champ">Prix CHF HT<input type="number" id="n-prix" min="0" step="0.01"></label>
+      </div>
+      <div class="actions"><button class="btn" type="button" id="n-ajouter">Ajouter l’ingrédient</button></div>
+    </section>
+
+    <section data-section="recettes" class="carte cache">
+      <h2>Recettes</h2>
+      <p class="sous">Quantités pour 8 portions (bols : par îlot de 8 ; café : pour 8 tasses). Grammes et millilitres en poids cru.</p>
+      <label class="champ" style="max-width:420px">Recette<select id="r-choix"></select></label>
+      <div class="defile" style="margin-top:12px"><table class="grille" id="t-recette"></table></div>
+      <div class="actions">
+        <select id="r-ajout-ing" style="max-width:320px"></select>
+        <button class="btn" type="button" id="r-ajouter">Ajouter à la recette</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="catalogue.js?v=22"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const copie = o => JSON.parse(JSON.stringify(o));
+  const TVA = 8.1;
+  const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  const RAYONS = ["Boucherie", "Poissonnerie", "Fruits et légumes", "Produits frais", "Surgelés", "Alimentation", "Boissons", "Stock du café"];
+  const SOURCES = { aligro: "Aligro", estim: "Estimation", toi: "Ton prix" };
+
+  // ---------- Ingrédients : [id, nom, unité (g | ml | pce), rayon, prix HT (kg | l | pièce), source, libellé des pièces, conditionnement] ----------
+  const ING = [
+    ["poulet", "Hauts de cuisses de poulet désossés (Suisse)", "g", "Boucherie", 13.94, "aligro"],
+    ["rumsteck", "Rumsteck de bœuf", "g", "Boucherie", 22.90, "aligro"],
+    ["boeuf-ragout", "Ragoût de bœuf (à effilocher)", "g", "Boucherie", 16.47, "aligro"],
+    ["lard-sale", "Lard salé Bell", "g", "Boucherie", 7.99, "aligro"],
+    ["saucisse-fumee", "Saucisse fumée", "g", "Boucherie", 14.00, "estim"],
+    ["echine-fumee", "Échine de porc fumée", "g", "Boucherie", 15.00, "estim"],
+    ["pieds-porc", "Pieds de porc (≈ 250 g)", "pce", "Boucherie", 0.66, "estim"],
+    ["lardons", "Lardons", "g", "Boucherie", 14.00, "estim"],
+    ["poisson-blanc", "Filets de colin (surgelés)", "g", "Poissonnerie", 7.31, "aligro"],
+    ["crevettes", "Queues de crevettes décortiquées (surgelées)", "g", "Poissonnerie", 12.96, "aligro"],
+    ["calamar", "Anneaux de calamar (surgelés)", "g", "Poissonnerie", 7.50, "aligro"],
+    ["moules", "Moules cuites (surgelées)", "g", "Poissonnerie", 6.92, "aligro"],
+    ["courge", "Courge muscade", "g", "Fruits et légumes", 1.27, "aligro"],
+    ["tomates", "Tomates", "g", "Fruits et légumes", 2.44, "aligro"],
+    ["oignons", "Oignons", "pce", "Fruits et légumes", 0.25, "estim"],
+    ["oignons-rouges", "Oignons rouges", "pce", "Fruits et légumes", 0.30, "estim"],
+    ["ail", "Ail", "pce", "Fruits et légumes", 0.06, "estim", "gousses"],
+    ["poivrons", "Poivrons", "pce", "Fruits et légumes", 0.80, "estim"],
+    ["courgettes", "Courgettes", "pce", "Fruits et légumes", 0.70, "estim"],
+    ["carottes", "Carottes", "g", "Fruits et légumes", 1.80, "estim"],
+    ["pomme", "Pommes", "pce", "Fruits et légumes", 0.45, "estim"],
+    ["orange", "Oranges", "pce", "Fruits et légumes", 0.50, "estim"],
+    ["citron-vert", "Citrons verts", "pce", "Fruits et légumes", 0.30, "estim"],
+    ["citron", "Citrons", "pce", "Fruits et légumes", 0.40, "estim"],
+    ["chou-vert", "Chou vert ou chou frisé", "g", "Fruits et légumes", 3.50, "estim"],
+    ["gingembre", "Gingembre frais", "g", "Fruits et légumes", 7.00, "estim"],
+    ["herbes", "Coriandre, persil ou basilic", "pce", "Fruits et légumes", 1.50, "estim", "bottes"],
+    ["feuilles-bananier", "Feuilles de bananier", "pce", "Fruits et légumes", 0.50, "estim", "feuilles"],
+    ["lait", "Lait entier UHT", "ml", "Produits frais", 1.15, "aligro"],
+    ["beurre", "Beurre", "g", "Produits frais", 12.94, "aligro"],
+    ["fromage-rape", "Fromage râpé", "g", "Produits frais", 12.43, "aligro"],
+    ["oeufs", "Œufs", "pce", "Produits frais", 0.35, "estim"],
+    ["mayonnaise", "Mayonnaise", "g", "Produits frais", 3.71, "aligro"],
+    ["manioc", "Manioc (surgelé)", "g", "Surgelés", 4.50, "estim"],
+    ["wedges", "Wedges de patate douce Kadi", "g", "Surgelés", 8.42, "aligro"],
+    ["petits-pois", "Petits pois (surgelés)", "g", "Surgelés", 3.00, "estim"],
+    ["haricots-noirs", "Haricots noirs secs", "g", "Alimentation", 4.50, "estim"],
+    ["riz", "Riz", "g", "Alimentation", 2.20, "estim"],
+    ["farine-manioc", "Farine de manioc", "g", "Alimentation", 5.00, "estim"],
+    ["tomates-concassees", "Tomates concassées", "g", "Alimentation", 2.02, "aligro"],
+    ["lait-coco", "Lait de coco", "ml", "Alimentation", 3.50, "estim", null, [400, "boîtes de 400 ml"]],
+    ["lait-concentre", "Lait concentré sucré (boîte de 395 g)", "pce", "Alimentation", 2.20, "estim", "boîtes"],
+    ["sucre", "Sucre", "g", "Alimentation", 0.96, "aligro"],
+    ["huile", "Huile de colza", "ml", "Alimentation", 3.46, "aligro"],
+    ["huile-olive", "Huile d’olive", "ml", "Alimentation", 8.45, "aligro"],
+    ["vinaigre", "Vinaigre", "ml", "Alimentation", 2.00, "estim"],
+    ["bouillon", "Bouillon (légumes ou poisson)", "ml", "Alimentation", 1.50, "estim"],
+    ["sauce-pimentee", "Sauce pimentée douce", "ml", "Alimentation", 12.00, "estim"],
+    ["raisins-secs", "Raisins secs", "g", "Alimentation", 8.00, "estim"],
+    ["batata-palha", "Batata palha", "g", "Alimentation", 15.00, "estim"],
+    ["cacahuetes", "Cacahuètes grillées salées", "g", "Alimentation", 8.00, "estim"],
+    ["graines-courge", "Graines de courge", "g", "Alimentation", 20.00, "estim"],
+    ["laurier", "Laurier", "pce", "Alimentation", 0.05, "estim", "feuilles"],
+    ["cannelle", "Cannelle", "pce", "Alimentation", 0.30, "estim", "bâtons"],
+    ["girofle", "Clous de girofle", "pce", "Alimentation", 0.02, "estim", "clous"],
+    ["paprika", "Paprika", "g", "Alimentation", 30.00, "estim"],
+    ["gros-sel", "Gros sel", "g", "Alimentation", 1.00, "estim"],
+    ["cafe-grains", "Café en grains", "g", "Alimentation", 12.96, "aligro"],
+    ["cachaca", "Cachaça", "ml", "Boissons", 18.00, "estim", null, [700, "bouteilles de 70 cl"]],
+    ["gamay", "Gamay vaudois", "ml", "Boissons", 11.30, "estim", null, [700, "bouteilles de 70 cl"]],
+    ["chasselas", "Chasselas vaudois", "ml", "Boissons", 12.80, "estim", null, [700, "bouteilles de 70 cl"]],
+    ["jus-pomme", "Jus de pomme", "ml", "Boissons", 1.80, "estim"],
+    ["glace", "Glace pilée", "g", "Boissons", 1.00, "estim"],
+    ["pao-queijo", "Pão de queijo", "pce", "Stock du café", 0.35, "estim"],
+    ["coxinha", "Coxinhas", "pce", "Stock du café", 0.80, "estim"],
+    ["empada", "Empadas", "pce", "Stock du café", 0.90, "estim"],
+    ["massas", "Portions de pâtes surgelées (Cantina Bixiga)", "pce", "Stock du café", 3.60, "toi", "portions"],
+    ["tiramisu-classico", "Tiramisù classico", "pce", "Stock du café", 2.50, "estim", "portions"],
+    ["tiramisu-mango", "Tiramisù mango", "pce", "Stock du café", 2.80, "estim", "portions"],
+    ["tartufo-pistache", "Tartufo pistache", "pce", "Stock du café", 2.20, "estim"],
+    ["tartufo-nocciola", "Tartufo nocciola & cioccolato", "pce", "Stock du café", 2.20, "estim"]
+  ];
+  const INGREDIENTS_DEFAUT = {};
+  ING.forEach(([id, nom, unite, rayon, prix, source, lib, cond]) => {
+    INGREDIENTS_DEFAUT[id] = { nom, unite, rayon, prix, source };
+    if (lib) INGREDIENTS_DEFAUT[id].lib = lib;
+    if (cond) INGREDIENTS_DEFAUT[id].cond = { q: cond[0], nom: cond[1] };
+  });
+
+  // ---------- Recettes pour 8 (fiche de production) ----------
+  const RECETTES_DEFAUT = {
+    "bienvenue.caipi": { cachaca: 400, "citron-vert": 8, sucre: 160, glace: 2000, cacahuetes: 200 },
+    "bienvenue.quentao": { cachaca: 300, sucre: 150, gingembre: 60, cannelle: 3, girofle: 8, orange: 1 },
+    "bienvenue.vinho-quente": { gamay: 1000, sucre: 120, cannelle: 2, girofle: 6, orange: 1, pomme: 1 },
+    "bienvenue.chasselas": { chasselas: 800 },
+    "bienvenue.quentao-sa": { "jus-pomme": 1000, gingembre: 60, cannelle: 2, girofle: 6, orange: 1 },
+    "entree.petiscos": { "pao-queijo": 24, coxinha: 16, empada: 8, "citron-vert": 2, "sauce-pimentee": 100 },
+    "entree.caldinho": { "haricots-noirs": 250, lardons: 150, oignons: 1, ail: 3, laurier: 2, herbes: 0.5, "huile-olive": 30 },
+    "entree.salpicao": { poulet: 650, carottes: 200, pomme: 1, "petits-pois": 100, "raisins-secs": 60, mayonnaise: 200, citron: 0.5, "batata-palha": 120 },
+    "entree.massas": { massas: 4, herbes: 0.25 },
+    "entree.veloute": { courge: 1400, "lait-coco": 400, bouillon: 600, oignons: 1, gingembre: 20, "graines-courge": 50 },
+    "plat.feijoada": { "haricots-noirs": 600, "lard-sale": 400, "saucisse-fumee": 500, "echine-fumee": 500, "pieds-porc": 2, oignons: 2, ail: 6, laurier: 3, orange: 2 },
+    "plat.escondidinho": { manioc: 1600, "boeuf-ragout": 1200, "tomates-concassees": 400, oignons: 2, ail: 4, "fromage-rape": 300, beurre: 80, lait: 200, herbes: 0.5 },
+    "plat.boeuf": { rumsteck: 1450, "gros-sel": 30, ail: 4, huile: 30 },
+    "plat.bananier": { "poisson-blanc": 1400, "lait-coco": 400, poivrons: 2, tomates: 250, oignons: 1, "citron-vert": 3, herbes: 1, "feuilles-bananier": 10 },
+    "plat.arroz-mar": { riz: 480, crevettes: 500, calamar: 400, moules: 500, bouillon: 1100, "tomates-concassees": 300, poivrons: 1, oignons: 1, ail: 4, "fromage-rape": 200, herbes: 0.5 },
+    "plat.frango": { poulet: 1600, "citron-vert": 4, ail: 8, huile: 60, paprika: 7, herbes: 1 },
+    "plat.maluca": { "boeuf-ragout": 1400, poivrons: 3, oignons: 3, "tomates-concassees": 400, ail: 4, huile: 30, herbes: 0.5 },
+    "plat.escondidinho-vg": { manioc: 1600, courge: 600, courgettes: 2, poivrons: 2, "oignons-rouges": 2, "fromage-rape": 350, beurre: 80, lait: 200, huile: 30 },
+    "dessert.tiramisu-classico": { "tiramisu-classico": 8 },
+    "dessert.tiramisu-mango": { "tiramisu-mango": 8 },
+    "dessert.tartufo-pistache": { "tartufo-pistache": 8 },
+    "dessert.tartufo-nocciola": { "tartufo-nocciola": 8 },
+    "dessert.pudim": { "lait-concentre": 1.6, lait: 560, oeufs: 4.8, sucre: 120 },
+    "bols": { riz: 480, "haricots-noirs": 400, "farine-manioc": 300, beurre: 60, "chou-vert": 600, tomates: 400, poivrons: 1, oignons: 3, ail: 9, laurier: 2, vinaigre: 45, huile: 105, herbes: 0.5, wedges: 1200, "sauce-pimentee": 150 },
+    "cafe": { "cafe-grains": 56 }
+  };
+
+  let cat = null;      // catalogue du calculateur (plats, prix de vente)
+  let data = null;     // achats : ingrédients, recettes, soirées
+  let edition = null;  // soirée en cours de saisie
+
+  // ---------- Outils ----------
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  function chf(v) {
+    const r = Math.round(v * 100) / 100;
+    const [e, d] = Math.abs(r).toFixed(2).split(".");
+    return (r < 0 ? "−" : "") + "CHF " + e.replace(/\B(?=(\d{3})+(?!\d))/g, "’") + "." + d;
+  }
+  const nb = v => String(Math.round(v * 10) / 10).replace(".", ",");
+  const aujourdHui = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  const plusJours = (iso, n) => { const [a, m, j] = iso.split("-").map(Number); const d = new Date(Date.UTC(a, m - 1, j + n)); return d.toISOString().slice(0, 10); };
+  function dateLisible(iso, court) {
+    if (!iso) return "Date à définir";
+    const [a, m, j] = iso.split("-").map(Number);
+    const jr = JOURS[new Date(Date.UTC(a, m - 1, j)).getUTCDay()];
+    const ABR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+    return court ? `${jr.slice(0, 3)}. ${j} ${ABR[m - 1]}` : `${jr} ${j} ${MOIS[m - 1]} ${a}`;
+  }
+  function message(html, type, duree) {
+    const d = document.createElement("div");
+    d.className = "msg " + (type || "info"); d.innerHTML = html;
+    $("messages").appendChild(d);
+    if (duree !== 0) setTimeout(() => d.remove(), duree || 4000);
+    return d;
+  }
+
+  // ---------- Données ----------
+  function completer(d) {
+    const c = { version: 1, ingredients: copie(INGREDIENTS_DEFAUT), recettes: copie(RECETTES_DEFAUT), soirees: [] };
+    if (!d) return c;
+    if (d.ingredients) Object.entries(d.ingredients).forEach(([id, x]) => { c.ingredients[id] = Object.assign({}, c.ingredients[id] || {}, x); });
+    if (d.recettes) Object.entries(d.recettes).forEach(([k, r]) => { c.recettes[k] = r; });
+    if (Array.isArray(d.soirees)) c.soirees = d.soirees;
+    return c;
+  }
+  let tSauve = null;
+  function sauverPlusTard() { clearTimeout(tSauve); tSauve = setTimeout(sauver, 700); }
+  async function sauver() {
+    clearTimeout(tSauve);
+    try { await window.Catalogue.enregistrerAchats(data); message("Enregistré.", "ok", 1500); return true; }
+    catch (e) {
+      const refus = e && (e.code === "permission-denied" || /permission/i.test(String(e.message)));
+      message(refus
+        ? "Enregistrement refusé par Firebase : il manque une règle. Dans la console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des règles <code>confra-offres</code>, puis Publier :<pre>    // Achats des soirées : réservés à l'équipe\n    match /parametres/confra-achats {\n      allow read, write: if admin();\n    }</pre>"
+        : "Enregistrement impossible : " + esc(e && e.message || e) + ". Vérifie la connexion internet et réessaie.", "erreur", 0);
+      return false;
+    }
+  }
+
+  // Plats du catalogue pour un cours (tous, actifs ou non)
+  const plats = k => (cat && cat.menu[k]) || [];
+  const plat = (k, id) => plats(k).find(x => x.id === id);
+  const nomPlat = (k, id) => (plat(k, id) || { nom: id }).nom;
+
+  // ---------- Calculs ----------
+  function prixUnitaire(ing) { return ing.unite === "pce" ? Number(ing.prix) || 0 : (Number(ing.prix) || 0) / 1000; }
+  function besoins(s) {
+    const out = {}, manque = [];
+    const n = Number(s.n) || 0;
+    const ajouter = (cle, facteur, nom) => {
+      const r = data.recettes[cle];
+      if (!r || !Object.keys(r).length) { manque.push(nom); return; }
+      Object.entries(r).forEach(([i, q]) => { out[i] = (out[i] || 0) + (Number(q) || 0) * facteur; });
+    };
+    if (s.bienvenue) ajouter("bienvenue." + s.bienvenue, n / 8, nomPlat("bienvenue", s.bienvenue));
+    if (s.entree && s.entree !== "aucune") ajouter("entree." + s.entree, n / 8, nomPlat("entree", s.entree));
+    Object.entries(s.plats || {}).forEach(([id, q]) => { if (q > 0) ajouter("plat." + id, q / 8, nomPlat("plat", id)); });
+    Object.entries(s.desserts || {}).forEach(([id, q]) => { if (q > 0) ajouter("dessert." + id, q / 8, nomPlat("dessert", id)); });
+    if (n) { ajouter("bols", n / 8, "Bols d’accompagnement"); ajouter("cafe", n / 8, "Café"); }
+    return { out, manque };
+  }
+  function coutDe(out) {
+    let t = 0, inconnus = [];
+    Object.entries(out).forEach(([i, q]) => { const ing = data.ingredients[i]; if (!ing) { inconnus.push(i); return; } t += q * prixUnitaire(ing); });
+    return { total: t, inconnus };
+  }
+  // Prix de vente du repas TTC : menu du calculateur (ou prix convenu), remise enfants comprise
+  function caTTC(s) {
+    if (Number(s.prixMenuTTC) > 0) return Number(s.prixMenuTTC);
+    const n = Number(s.n) || 0;
+    let t = 0;
+    const bv = plat("bienvenue", s.bienvenue); if (bv && !bv.inclus) t += (Number(bv.prix) || 0) * n;
+    const en = plat("entree", s.entree); if (en) t += (Number(en.prix) || 0) * n;
+    Object.entries(s.plats || {}).forEach(([id, q]) => { const p = plat("plat", id); if (p) t += (Number(p.prix) || 0) * q; });
+    Object.entries(s.desserts || {}).forEach(([id, q]) => { const p = plat("dessert", id); if (p) t += (Number(p.prix) || 0) * q; });
+    const k = Math.min(Number(s.enfants) || 0, n), rem = (cat && Number(cat.regles.enfantsRemise)) || 0;
+    if (k && n && rem) t -= t / n * k * rem / 100;
+    return t;
+  }
+  function bilan(s) {
+    const b = besoins(s), c = coutDe(b.out);
+    const ttc = caTTC(s), ht = ttc / (1 + TVA / 100);
+    const pct = ht > 0 ? c.total / ht * 100 : 0;
+    return { cout: c.total, ttc, ht, marge: ht - c.total, pct, manque: b.manque, n: Number(s.n) || 0 };
+  }
+  const classeFc = p => p <= 33 ? "fc-ok" : p <= 40 ? "fc-moyen" : "fc-haut";
+
+  // ---------- Lecture du message du client ----------
+  function trouver(k, texte) {
+    const t = norm(texte);
+    if (!t) return null;
+    const liste = plats(k);
+    return (liste.find(x => norm(x.nom) === t) || liste.find(x => t.startsWith(norm(x.nom)) || norm(x.nom).startsWith(t)) || {}).id || null;
+  }
+  function lireMessage(txt) {
+    const s = { id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, notes: "" };
+    const avert = [];
+    let section = null, vuMenu = false;
+    txt.split(/\r?\n/).forEach(brut => {
+      const l = brut.replace(/^[\s•*·\-–—]+/, "").trim();
+      if (!l) return;
+      let m;
+      if ((m = l.match(/^Date souhait[ée]e\s*:\s*(.+)$/i))) {
+        const d = norm(m[1]).match(/(\d{1,2}) ([a-z]+) (\d{4})/);
+        const mi = d ? MOIS.findIndex(x => norm(x) === d[2]) : -1;
+        if (d && mi >= 0) s.date = `${d[3]}-${String(mi + 1).padStart(2, "0")}-${String(d[1]).padStart(2, "0")}`;
+        else avert.push("Date non reconnue : « " + m[1] + " ».");
+        return;
+      }
+      if ((m = l.match(/^Groupe\s*:\s*(.+?)\s*(\((entreprise|club|amis)[^)]*\))?$/i))) { s.client = m[1] === "—" ? "" : m[1]; return; }
+      if ((m = l.match(/^Contact\s*:\s*(.+)$/i))) { s.contact = m[1] === "—" ? "" : m[1]; return; }
+      if ((m = l.match(/^Nombre de personnes\s*:\s*(\d+)(?:\s*,\s*dont\s*(\d+)\s*enfant)?/i))) { s.n = Number(m[1]); s.enfants = Number(m[2] || 0); return; }
+      if ((m = l.match(/^Offre personnalis[ée]e\s*n°\s*(\S+)/i))) { s.notes = "Offre n° " + m[1] + " : vérifier le prix convenu."; return; }
+      if ((m = l.match(/^Bienvenue(?:,\s*comprise)?\s*:\s*(.+)$/i))) {
+        vuMenu = true;
+        const id = trouver("bienvenue", m[1]); if (id) s.bienvenue = id; else avert.push("Boisson d’accueil non reconnue : « " + m[1] + " ».");
+        return;
+      }
+      if ((m = l.match(/^Entr[ée]e\s*:\s*(.+)$/i))) {
+        const id = trouver("entree", m[1]); if (id) s.entree = id; else avert.push("Entrée non reconnue : « " + m[1] + " ».");
+        return;
+      }
+      if (/^Plats principaux/i.test(l)) { section = "plats"; vuMenu = true; return; }
+      if (/^Desserts?\b/i.test(l)) { section = "desserts"; return; }
+      if ((m = l.match(/^(\d+)\s*[×x]\s*(.+)$/)) && section) {
+        const k = section === "plats" ? "plat" : "dessert";
+        const id = trouver(k, m[2]);
+        if (id) s[section][id] = (s[section][id] || 0) + Number(m[1]);
+        else avert.push((k === "plat" ? "Plat" : "Dessert") + " non reconnu : « " + m[2] + " » (" + m[1] + " personnes). À ajouter à la main.");
+        return;
+      }
+      if (/^(Programme|Total|Notre budget|Remarques|Saint|Gamay|Ros[ée]|Eaux|Ambiance|Placement|Vins|Boissons)/i.test(l)) section = null;
+    });
+    if (!s.n) avert.push("Nombre de personnes non trouvé.");
+    if (!vuMenu) avert.push("Aucun menu trouvé dans ce message. Vérifie qu’il s’agit bien d’une demande de soirée.");
+    return { s, avert };
+  }
+
+  // ---------- Formulaire de soirée ----------
+  function remplirSelect(sel, k, valeur, avecAucune) {
+    sel.innerHTML = "";
+    const ajouter = (v, t) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); };
+    if (avecAucune) ajouter("aucune", "Sans entrée");
+    plats(k).filter(x => x.actif !== false || x.id === valeur).forEach(x => ajouter(x.id, x.nom + (x.inclus ? " (offerte)" : ` (CHF ${x.prix})`)));
+    sel.value = valeur || (sel.options[0] && sel.options[0].value) || "";
+  }
+  function grilleQte(zone, k, cle) {
+    zone.innerHTML = "";
+    const ids = plats(k).filter(x => x.actif !== false || (edition[cle][x.id] > 0)).map(x => x.id);
+    ids.forEach(id => {
+      const el = document.createElement("label");
+      el.className = "qte";
+      el.innerHTML = `<span></span><input type="number" min="0" max="60" inputmode="numeric">`;
+      el.querySelector("span").textContent = nomPlat(k, id);
+      const inp = el.querySelector("input");
+      inp.value = edition[cle][id] || 0;
+      inp.addEventListener("input", () => { const v = Math.max(0, Math.floor(Number(inp.value) || 0)); if (v) edition[cle][id] = v; else delete edition[cle][id]; majFormulaire(); });
+      zone.appendChild(el);
+    });
+  }
+  function ouvrirFormulaire(s, avert, titre) {
+    edition = copie(s);
+    $("form-titre").textContent = titre;
+    $("form-avert").innerHTML = avert && avert.length ? `<div class="msg avert"><strong>À vérifier :</strong><br>${avert.map(esc).join("<br>")}</div>` : "";
+    $("f-date").value = s.date || "";
+    $("f-client").value = s.client || "";
+    $("f-contact").value = s.contact || "";
+    $("f-n").value = s.n || "";
+    $("f-enfants").value = s.enfants || 0;
+    $("f-statut").value = s.statut || "confirmee";
+    remplirSelect($("f-bienvenue"), "bienvenue", s.bienvenue);
+    remplirSelect($("f-entree"), "entree", s.entree, true);
+    $("f-prix").value = s.prixMenuTTC || "";
+    $("f-notes").value = s.notes || "";
+    grilleQte($("f-plats"), "plat", "plats");
+    grilleQte($("f-desserts"), "dessert", "desserts");
+    $("formulaire").classList.remove("cache");
+    majFormulaire();
+    $("formulaire").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function lireFormulaire() {
+    edition.date = $("f-date").value;
+    edition.client = $("f-client").value.trim();
+    edition.contact = $("f-contact").value.trim();
+    edition.n = Math.max(0, Math.floor(Number($("f-n").value) || 0));
+    edition.enfants = Math.min(edition.n, Math.max(0, Math.floor(Number($("f-enfants").value) || 0)));
+    edition.statut = $("f-statut").value;
+    edition.bienvenue = $("f-bienvenue").value;
+    edition.entree = $("f-entree").value;
+    edition.prixMenuTTC = Number($("f-prix").value) > 0 ? Number($("f-prix").value) : null;
+    edition.notes = $("f-notes").value.trim();
+  }
+  function compteur(el, total, n, quoi) {
+    el.className = "compteur " + (total === n && n ? "ok" : "ko");
+    el.textContent = !n ? "Indique d’abord le nombre de personnes." : total === n ? `✓ ${total} ${quoi} pour ${n} personnes` : `${total} ${quoi} pour ${n} personnes : ${total < n ? "il en manque " + (n - total) : (total - n) + " de trop"}`;
+  }
+  function majFormulaire() {
+    if (!edition) return;
+    lireFormulaire();
+    const somme = o => Object.values(o).reduce((a, b) => a + b, 0);
+    compteur($("f-plats-compte"), somme(edition.plats), edition.n, "plats");
+    compteur($("f-desserts-compte"), somme(edition.desserts), edition.n, "desserts");
+    document.querySelectorAll("#f-plats .qte, #f-desserts .qte").forEach(el => el.classList.toggle("choisie", Number(el.querySelector("input").value) > 0));
+    const b = bilan(edition);
+    $("f-apercu").innerHTML = `
+      <div class="chiffre"><small>Coût matière</small><strong>${chf(b.cout)}</strong></div>
+      <div class="chiffre"><small>Par personne</small><strong>${b.n ? chf(b.cout / b.n) : "—"}</strong></div>
+      <div class="chiffre"><small>Repas HT</small><strong>${chf(b.ht)}</strong></div>
+      <div class="chiffre"><small>Coût matière / CA</small><strong class="${classeFc(b.pct)}">${b.ht ? nb(b.pct) + " %" : "—"}</strong></div>
+      <div class="chiffre"><small>Marge brute</small><strong>${chf(b.marge)}</strong></div>`;
+    if (b.manque.length) $("f-apercu").insertAdjacentHTML("beforeend", `<div class="msg avert" style="grid-column:1/-1">Recette à compléter (coût sous-estimé) : ${b.manque.map(esc).join(", ")}.</div>`);
+  }
+  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-statut", "f-bienvenue", "f-entree", "f-prix", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
+  ["f-statut", "f-bienvenue", "f-entree"].forEach(id => $(id).addEventListener("change", majFormulaire));
+
+  $("lire").addEventListener("click", () => {
+    const txt = $("colle").value.trim();
+    if (!txt) { message("Colle d’abord le message du client.", "avert"); $("colle").focus(); return; }
+    const { s, avert } = lireMessage(txt);
+    ouvrirFormulaire(s, avert, "Vérifier la soirée lue");
+  });
+  $("manuel").addEventListener("click", () => {
+    const bv = plats("bienvenue").find(x => x.actif !== false);
+    ouvrirFormulaire({ id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: bv ? bv.id : "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, notes: "" }, [], "Nouvelle soirée");
+    $("f-date").focus();
+  });
+  $("f-annuler").addEventListener("click", () => { edition = null; $("formulaire").classList.add("cache"); });
+  $("f-enregistrer").addEventListener("click", async () => {
+    lireFormulaire();
+    if (!edition.date) { message("Indique la date de la soirée.", "avert"); $("f-date").focus(); return; }
+    if (!edition.n) { message("Indique le nombre de personnes.", "avert"); $("f-n").focus(); return; }
+    const neuf = !edition.id;
+    if (neuf) { edition.id = "s" + Date.now().toString(36); edition.creeLe = new Date().toISOString(); }
+    const i = data.soirees.findIndex(x => x.id === edition.id);
+    if (i >= 0) data.soirees[i] = copie(edition); else data.soirees.push(copie(edition));
+    if (await sauver()) {
+      if (neuf) $("colle").value = "";
+      edition = null; $("formulaire").classList.add("cache");
+      rendreSoirees(); rendreListe();
+    }
+  });
+
+  // ---------- Liste des soirées ----------
+  function carteSoiree(s) {
+    const b = bilan(s);
+    const el = document.createElement("div");
+    el.className = "soiree";
+    const resume = [
+      ...Object.entries(s.plats || {}).filter(([, q]) => q > 0).map(([id, q]) => `${q} ${nomPlat("plat", id).toLowerCase()}`),
+    ].join(", ");
+    const desserts = Object.entries(s.desserts || {}).filter(([, q]) => q > 0).map(([id, q]) => `${q} ${nomPlat("dessert", id).toLowerCase()}`).join(", ");
+    el.innerHTML = `
+      <div class="quand">${esc(dateLisible(s.date))}</div>
+      <div>
+        <div class="qui">${esc(s.client || "Client sans nom")} · ${s.n} pers.${s.enfants ? ` dont ${s.enfants} enf.` : ""}<span class="puce ${s.statut === "option" ? "option" : "confirmee"}">${s.statut === "option" ? "En option" : "Confirmée"}</span></div>
+        <div class="detail">${esc(s.bienvenue ? nomPlat("bienvenue", s.bienvenue) : "")}${s.entree && s.entree !== "aucune" ? " · " + esc(nomPlat("entree", s.entree)) : ""}${resume ? " · " + esc(resume) : ""}${desserts ? " · " + esc(desserts) : ""}</div>
+        <div class="chiffres">
+          <span>Coût matière <strong>${chf(b.cout)}</strong></span>
+          <span>Repas HT <strong>${chf(b.ht)}</strong></span>
+          <span class="${classeFc(b.pct)}">Coût / CA <strong>${b.ht ? nb(b.pct) + " %" : "—"}</strong></span>
+          <span>Marge <strong>${chf(b.marge)}</strong></span>
+        </div>
+        ${b.manque.length ? `<div class="detail" style="color:#6b4e00">Recette à compléter : ${b.manque.map(esc).join(", ")}</div>` : ""}
+        ${s.notes ? `<div class="detail">${esc(s.notes)}</div>` : ""}
+      </div>
+      <div class="boutons">
+        <button class="btn petit" type="button" data-act="modifier">Modifier</button>
+        <button class="btn petit danger" type="button" data-act="supprimer">Supprimer</button>
+      </div>`;
+    el.querySelector("[data-act=modifier]").addEventListener("click", () => ouvrirFormulaire(s, [], "Modifier la soirée"));
+    const sup = el.querySelector("[data-act=supprimer]");
+    let t = null;
+    sup.addEventListener("click", async () => {
+      if (!sup.dataset.confirmer) { sup.dataset.confirmer = "1"; sup.textContent = "Confirmer"; t = setTimeout(() => { delete sup.dataset.confirmer; sup.textContent = "Supprimer"; }, 4000); return; }
+      clearTimeout(t);
+      data.soirees = data.soirees.filter(x => x.id !== s.id);
+      if (await sauver()) { rendreSoirees(); rendreListe(); }
+    });
+    return el;
+  }
+  function rendreSoirees() {
+    const auj = aujourdHui();
+    const tri = [...data.soirees].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    const avenir = tri.filter(s => !s.date || s.date >= auj), passees = tri.filter(s => s.date && s.date < auj).reverse();
+    $("liste-soirees").innerHTML = avenir.length ? "" : `<p class="sous">Aucune soirée à venir. Colle une demande ci-dessus pour commencer.</p>`;
+    avenir.forEach(s => $("liste-soirees").appendChild(carteSoiree(s)));
+    $("bloc-passees").classList.toggle("cache", !passees.length);
+    $("liste-passees").innerHTML = "";
+    passees.forEach(s => $("liste-passees").appendChild(carteSoiree(s)));
+    const conf = avenir.filter(s => s.statut !== "option");
+    const tot = conf.reduce((a, s) => { const b = bilan(s); a.n += b.n; a.ht += b.ht; a.cout += b.cout; return a; }, { n: 0, ht: 0, cout: 0 });
+    $("resume-soirees").textContent = avenir.length
+      ? `${conf.length} soirée${conf.length > 1 ? "s" : ""} confirmée${conf.length > 1 ? "s" : ""} (${tot.n} personnes) : repas ${chf(tot.ht)} HT, coût matière ${chf(tot.cout)}${tot.ht ? ` (${nb(tot.cout / tot.ht * 100)} %)` : ""}.${avenir.length > conf.length ? ` ${avenir.length - conf.length} en option.` : ""}`
+      : "";
+  }
+
+  // ---------- Liste d'achats ----------
+  const CLE_COCHES = "bossanova-achats-coches";
+  let coches = {};
+  try { coches = JSON.parse(localStorage.getItem(CLE_COCHES)) || {}; } catch (e) { coches = {}; }
+  const garderCoches = () => { try { localStorage.setItem(CLE_COCHES, JSON.stringify(coches)); } catch (e) { /* navigateur sans stockage */ } };
+  const exclues = new Set();
+  function fmtQte(q, ing) {
+    let t;
+    if (ing.unite === "g") t = q >= 1000 ? nb(Math.ceil(q / 100) / 10) + " kg" : Math.ceil(q / 10) * 10 + " g";
+    else if (ing.unite === "ml") t = q >= 1000 ? nb(Math.ceil(q / 100) / 10) + " l" : nb(Math.ceil(q / 50) * 50 / 100) + " dl";
+    else { const p = Math.ceil(q - 1e-9); t = p + (ing.lib ? " " + ing.lib : ""); }
+    const cond = ing.cond ? `${Math.ceil(q / ing.cond.q - 1e-9)} ${ing.cond.nom}` : "";
+    return { t, cond };
+  }
+  function soireesPeriode() {
+    const du = $("l-du").value, au = $("l-au").value, opt = $("l-options").checked;
+    return [...data.soirees].filter(s => s.date && (!du || s.date >= du) && (!au || s.date <= au) && (opt || s.statut !== "option")).sort((a, b) => a.date.localeCompare(b.date));
+  }
+  function calculerListe() {
+    const ss = soireesPeriode().filter(s => !exclues.has(s.id));
+    const tot = {}, manque = new Set();
+    ss.forEach(s => { const b = besoins(s); b.manque.forEach(m => manque.add(m)); Object.entries(b.out).forEach(([i, q]) => { tot[i] = (tot[i] || 0) + q; }); });
+    return { ss, tot, manque: [...manque] };
+  }
+  function rendreListe() {
+    if (!data) return;
+    const tous = soireesPeriode();
+    $("l-soirees").innerHTML = tous.length ? "" : `<p class="sous" style="margin:0">Aucune soirée sur cette période.</p>`;
+    tous.forEach(s => {
+      const l = document.createElement("label");
+      l.innerHTML = `<input type="checkbox"> <span></span>`;
+      l.querySelector("span").textContent = `${dateLisible(s.date)} · ${s.client || "Client sans nom"} · ${s.n} pers.${s.statut === "option" ? " (en option)" : ""}`;
+      const c = l.querySelector("input");
+      c.checked = !exclues.has(s.id);
+      c.addEventListener("change", () => { if (c.checked) exclues.delete(s.id); else exclues.add(s.id); rendreListe(); });
+      $("l-soirees").appendChild(l);
+    });
+    const { ss, tot, manque } = calculerListe();
+    const n = ss.reduce((a, s) => a + (Number(s.n) || 0), 0);
+    $("l-titre").textContent = ss.length ? `Achats pour ${ss.length} soirée${ss.length > 1 ? "s" : ""}, ${n} personnes (du ${dateLisible($("l-du").value, true)} au ${dateLisible($("l-au").value, true)})` : "";
+    $("l-avert").innerHTML = manque.length ? `<div class="msg avert">Recette à compléter, non comptée dans la liste : ${manque.map(esc).join(", ")}.</div>` : "";
+    const zone = $("l-rayons"); zone.innerHTML = "";
+    let total = 0;
+    const rayons = [...RAYONS, ...new Set(Object.values(data.ingredients).map(x => x.rayon).filter(r => !RAYONS.includes(r)))];
+    rayons.forEach(r => {
+      const items = Object.entries(tot).filter(([i, q]) => q > 0 && data.ingredients[i] && data.ingredients[i].rayon === r)
+        .sort((a, b) => data.ingredients[a[0]].nom.localeCompare(data.ingredients[b[0]].nom, "fr"));
+      if (!items.length) return;
+      let sousTotal = 0;
+      const bloc = document.createElement("div");
+      bloc.className = "rayon";
+      bloc.innerHTML = `<h3><span></span><span class="st"></span></h3>`;
+      bloc.querySelector("h3 span").textContent = r;
+      items.forEach(([i, q]) => {
+        const ing = data.ingredients[i], f = fmtQte(q, ing), c = q * prixUnitaire(ing);
+        sousTotal += c;
+        const a = document.createElement("label");
+        a.className = "article" + (coches[i] ? " coche" : "");
+        a.innerHTML = `<input type="checkbox"><span class="nom"></span><span class="q"></span><span class="px"></span>`;
+        a.querySelector(".nom").textContent = ing.nom;
+        a.querySelector(".q").innerHTML = esc(f.t) + (f.cond ? `<span class="cond">${esc(f.cond)}</span>` : "");
+        a.querySelector(".px").textContent = chf(c);
+        const cb = a.querySelector("input"); cb.checked = !!coches[i];
+        cb.addEventListener("change", () => { if (cb.checked) coches[i] = 1; else delete coches[i]; garderCoches(); a.classList.toggle("coche", cb.checked); });
+        bloc.appendChild(a);
+      });
+      bloc.querySelector(".st").textContent = chf(sousTotal);
+      total += sousTotal;
+      zone.appendChild(bloc);
+    });
+    $("l-total").innerHTML = ss.length ? `<span>Coût estimé HT</span><span>${chf(total)}</span>` : "";
+    $("l-total").classList.toggle("cache", !ss.length);
+  }
+  ["l-du", "l-au", "l-options"].forEach(id => $(id).addEventListener("change", rendreListe));
+  $("l-imprimer").addEventListener("click", () => window.print());
+  $("l-decocher").addEventListener("click", () => { coches = {}; garderCoches(); rendreListe(); });
+  $("l-copier").addEventListener("click", async () => {
+    const { ss, tot } = calculerListe();
+    if (!ss.length) { message("Aucune soirée dans la liste.", "avert"); return; }
+    const l = [$("l-titre").textContent, ""];
+    RAYONS.forEach(r => {
+      const items = Object.entries(tot).filter(([i, q]) => q > 0 && data.ingredients[i] && data.ingredients[i].rayon === r);
+      if (!items.length) return;
+      l.push(r.toUpperCase());
+      items.sort((a, b) => data.ingredients[a[0]].nom.localeCompare(data.ingredients[b[0]].nom, "fr")).forEach(([i, q]) => {
+        const f = fmtQte(q, data.ingredients[i]);
+        l.push(`- ${data.ingredients[i].nom} : ${f.t}${f.cond ? " (" + f.cond + ")" : ""}`);
+      });
+      l.push("");
+    });
+    try { await navigator.clipboard.writeText(l.join("\n")); message("Liste copiée : tu peux la coller dans WhatsApp.", "ok", 2500); }
+    catch (e) { message("Copie impossible dans ce navigateur.", "erreur"); }
+  });
+
+  // ---------- Recettes et prix ----------
+  function libUnite(u) { return u === "g" ? "kg" : u === "ml" ? "l" : "pièce"; }
+  function rendrePrix() {
+    const t = $("t-prix");
+    t.innerHTML = `<thead><tr><th>Ingrédient</th><th>Prix HT</th><th>Unité</th><th>Source</th></tr></thead>`;
+    const tb = document.createElement("tbody");
+    const rayons = [...RAYONS, ...new Set(Object.values(data.ingredients).map(x => x.rayon).filter(r => !RAYONS.includes(r)))];
+    rayons.forEach(r => {
+      const ids = Object.keys(data.ingredients).filter(i => data.ingredients[i].rayon === r).sort((a, b) => data.ingredients[a].nom.localeCompare(data.ingredients[b].nom, "fr"));
+      if (!ids.length) return;
+      const h = document.createElement("tr"); h.innerHTML = `<td colspan="4" style="padding-top:14px;font-weight:600;color:var(--vert)"></td>`; h.firstChild.textContent = r; tb.appendChild(h);
+      ids.forEach(i => {
+        const ing = data.ingredients[i];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td></td><td><input type="number" min="0" step="0.01"></td><td>CHF / ${libUnite(ing.unite)}</td><td><span class="puce ${ing.source || "estim"}">${SOURCES[ing.source] || "Estimation"}</span></td>`;
+        tr.firstChild.textContent = ing.nom;
+        const inp = tr.querySelector("input"); inp.value = ing.prix;
+        inp.addEventListener("change", () => {
+          ing.prix = Math.max(0, Number(inp.value) || 0); ing.source = "toi";
+          tr.querySelector(".puce").className = "puce toi"; tr.querySelector(".puce").textContent = SOURCES.toi;
+          sauverPlusTard(); rendreRecette(); rendreSoirees(); rendreListe();
+        });
+        tb.appendChild(tr);
+      });
+    });
+    t.appendChild(tb);
+  }
+  function optionsRecettes() {
+    const sel = $("r-choix"), avant = sel.value;
+    sel.innerHTML = "";
+    const groupes = [["bienvenue", "Boissons d’accueil"], ["entree", "Entrées"], ["plat", "Plats principaux"], ["dessert", "Desserts"]];
+    groupes.forEach(([k, t]) => {
+      const g = document.createElement("optgroup"); g.label = t;
+      plats(k).filter(x => x.actif !== false || data.recettes[k + "." + x.id]).forEach(x => {
+        const o = document.createElement("option"); o.value = k + "." + x.id;
+        const vide = !data.recettes[o.value] || !Object.keys(data.recettes[o.value]).length;
+        o.textContent = x.nom + (x.actif === false ? " (masqué)" : "") + (vide ? " — à compléter" : "");
+        g.appendChild(o);
+      });
+      sel.appendChild(g);
+    });
+    const g = document.createElement("optgroup"); g.label = "Toujours servis";
+    [["bols", "Bols d’accompagnement (par îlot de 8)"], ["cafe", "Café (8 tasses)"]].forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; g.appendChild(o); });
+    sel.appendChild(g);
+    sel.value = avant && [...sel.options].some(o => o.value === avant) ? avant : "plat.frango";
+    const ai = $("r-ajout-ing"); ai.innerHTML = "";
+    Object.keys(data.ingredients).sort((a, b) => data.ingredients[a].nom.localeCompare(data.ingredients[b].nom, "fr")).forEach(i => { const o = document.createElement("option"); o.value = i; o.textContent = data.ingredients[i].nom; ai.appendChild(o); });
+  }
+  function rendreRecette() {
+    const cle = $("r-choix").value;
+    const r = data.recettes[cle] || {};
+    const t = $("t-recette");
+    t.innerHTML = `<thead><tr><th>Ingrédient</th><th>Quantité pour 8</th><th>Unité</th><th class="n">Coût</th><th></th></tr></thead>`;
+    const tb = document.createElement("tbody");
+    let total = 0;
+    Object.entries(r).forEach(([i, q]) => {
+      const ing = data.ingredients[i] || { nom: i + " (inconnu)", unite: "pce", prix: 0 };
+      const c = q * prixUnitaire(ing); total += c;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td></td><td><input type="number" min="0" step="any"></td><td>${ing.unite === "pce" ? esc(ing.lib || "pièces") : ing.unite}</td><td class="n">${chf(c)}</td><td><button class="btn petit discret" type="button" aria-label="Retirer">Retirer</button></td>`;
+      tr.firstChild.textContent = ing.nom;
+      const inp = tr.querySelector("input"); inp.value = q;
+      inp.addEventListener("change", () => { const v = Math.max(0, Number(inp.value) || 0); data.recettes[cle] = Object.assign({}, data.recettes[cle], { [i]: v }); sauverPlusTard(); rendreRecette(); rendreSoirees(); rendreListe(); });
+      tr.querySelector("button").addEventListener("click", () => { const n = Object.assign({}, data.recettes[cle]); delete n[i]; data.recettes[cle] = n; sauverPlusTard(); rendreRecette(); optionsRecettes(); rendreSoirees(); rendreListe(); });
+      tb.appendChild(tr);
+    });
+    if (!Object.keys(r).length) { const tr = document.createElement("tr"); tr.innerHTML = `<td colspan="5" class="sous" style="padding:12px 6px">Recette vide : ajoute ses ingrédients ci-dessous.</td>`; tb.appendChild(tr); }
+    const pied = document.createElement("tr");
+    const parPers = cle === "bols" || cle === "cafe" ? "par personne" : "par portion";
+    pied.innerHTML = `<td colspan="3" style="font-weight:600;padding-top:10px">Coût pour 8 · ${parPers}</td><td class="n" style="font-weight:600;padding-top:10px">${chf(total)} · ${chf(total / 8)}</td><td></td>`;
+    tb.appendChild(pied);
+    t.appendChild(tb);
+  }
+  $("r-choix").addEventListener("change", rendreRecette);
+  $("r-ajouter").addEventListener("click", () => {
+    const cle = $("r-choix").value, i = $("r-ajout-ing").value;
+    if (!cle || !i) return;
+    const r = Object.assign({}, data.recettes[cle] || {});
+    if (r[i] == null) r[i] = data.ingredients[i].unite === "pce" ? 1 : 100;
+    data.recettes[cle] = r;
+    sauverPlusTard(); rendreRecette(); optionsRecettes(); rendreSoirees(); rendreListe();
+  });
+  RAYONS.forEach(r => { const o = document.createElement("option"); o.value = r; o.textContent = r; $("n-rayon").appendChild(o); });
+  $("n-ajouter").addEventListener("click", () => {
+    const nom = $("n-nom").value.trim();
+    if (!nom) { message("Donne un nom à l’ingrédient.", "avert"); $("n-nom").focus(); return; }
+    let id = norm(nom).replace(/ /g, "-") || "ingredient";
+    while (data.ingredients[id]) id += "-2";
+    data.ingredients[id] = { nom, unite: $("n-unite").value, rayon: $("n-rayon").value, prix: Math.max(0, Number($("n-prix").value) || 0), source: "toi" };
+    $("n-nom").value = ""; $("n-prix").value = "";
+    sauverPlusTard(); rendrePrix(); optionsRecettes();
+    message(`« ${esc(nom)} » ajouté. Tu peux maintenant l’ajouter à une recette.`, "ok");
+  });
+
+  // ---------- Onglets ----------
+  function onglet(nom) {
+    document.querySelectorAll("nav.onglets button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.onglet === nom)));
+    document.querySelectorAll("[data-section]").forEach(s => s.classList.toggle("cache", s.dataset.section !== nom || (s.id === "formulaire" && !edition)));
+    try { localStorage.setItem("bossanova-achats-onglet", nom); } catch (e) { /* sans stockage */ }
+    window.scrollTo({ top: 0 });
+  }
+  document.querySelectorAll("nav.onglets button").forEach(b => b.addEventListener("click", () => onglet(b.dataset.onglet)));
+
+  // ---------- Démarrage ----------
+  async function ouvrir() {
+    $("ecran-connexion").classList.add("cache");
+    $("ecran-app").classList.remove("cache");
+    try {
+      const [c, d] = await Promise.all([window.Catalogue.charger(), window.Catalogue.chargerAchats().catch(e => { throw e; })]);
+      cat = c; data = completer(d);
+    } catch (e) {
+      cat = cat || await window.Catalogue.charger();
+      data = completer(null);
+      const refus = e && (e.code === "permission-denied" || /permission/i.test(String(e.message)));
+      message(refus
+        ? "Lecture refusée par Firebase : il manque une règle. Dans la console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des règles <code>confra-offres</code>, puis Publier :<pre>    // Achats des soirées : réservés à l'équipe\n    match /parametres/confra-achats {\n      allow read, write: if admin();\n    }</pre>Tant que la règle manque, rien ne peut être enregistré."
+        : "Chargement impossible : " + esc(e && e.message || e), "erreur", 0);
+    }
+    $("l-du").value = aujourdHui();
+    $("l-au").value = plusJours(aujourdHui(), 7);
+    rendreSoirees(); rendreListe(); rendrePrix(); optionsRecettes(); rendreRecette();
+    let o = "soirees"; try { o = localStorage.getItem("bossanova-achats-onglet") || "soirees"; } catch (e) { /* sans stockage */ }
+    onglet(["soirees", "liste", "recettes"].includes(o) ? o : "soirees");
+    if (window.Catalogue.mode() === "local") message("Mode local : les données restent dans ce navigateur, pour tester.", "info", 6000);
+  }
+
+  $("mode").textContent = window.Catalogue.mode() === "local" ? "Mode local" : "En ligne";
+  $("login-btn").addEventListener("click", async () => {
+    $("login-msg").innerHTML = "";
+    try { await window.Catalogue.connexion($("login-email").value.trim(), $("login-mdp").value); }
+    catch (e) { $("login-msg").innerHTML = `<div class="msg erreur">E-mail ou mot de passe incorrect.</div>`; }
+  });
+  $("login-mdp").addEventListener("keydown", e => { if (e.key === "Enter") $("login-btn").click(); });
+  $("deconnexion").addEventListener("click", () => window.Catalogue.deconnexion());
+  window.Catalogue.surConnexion(u => {
+    if (u && u.local) { ouvrir(); return; }
+    $("deconnexion").classList.toggle("cache", !u);
+    if (u) ouvrir();
+    else { $("ecran-app").classList.add("cache"); $("ecran-connexion").classList.remove("cache"); }
+  });
+})();
+</script>
+</body>
+</html>
