@@ -218,6 +218,8 @@
   .compteur-portions.attente::before { content: "👉 "; }
   .regle-plats { font-size: 13px; color: var(--gris); margin: -4px 0 10px; }
   .plat.ferme { opacity: .5; }
+  .plat .vg.porc { color: #7a4a2a; border-color: #b98a6a; }
+  .note-porc { font-size: 13px; color: var(--vert); background: #f2f8f4; border-radius: 8px; padding: 8px 12px; margin: -4px 0 12px; }
   .compteur-portions { text-align: right; font-size: 13.5px; font-weight: 600; margin: -6px 0 12px; }
   .compteur-portions.ok { color: #1e7a3e; }
   .compteur-portions.ok::before { content: "✓ "; }
@@ -340,6 +342,8 @@
       </div>
       <label class="champ" for="enfants" id="lab-enfants">Enfants de moins de 12 ans</label>
       <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="25" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
+      <label class="champ" for="sansporc">Dont invités sans porc</label>
+      <div class="enfants-ligne"><input type="number" id="sansporc" min="0" max="26" value="0" inputmode="numeric"><span class="aide" style="margin:0">Leur part d’entrée est préparée sans porc. Sans porc ne signifie pas halal : nos viandes ne sont pas certifiées halal, et nous ne pouvons pas proposer de repas halal pour l’instant.</span></div>
       <div class="total-groupe">Total : <strong id="personnes-val">20</strong> personnes <span id="repartition"></span></div>
       <div class="groupe-alerte" id="groupe-alerte" role="status"></div>
       <input type="hidden" id="personnes" value="20">
@@ -566,7 +570,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=27"></script>
+<script src="catalogue.js?v=28"></script>
 <script>
 (function () {
   "use strict";
@@ -629,15 +633,15 @@
       ]},
       { id: "entree", titre: "Entrée", choix: [
         { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 10 },
-        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 7 },
+        { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 7, porc: true },
         { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10 },
-        { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10 },
-        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8 },
+        { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true },
+        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true },
         { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, vg: true },
         { id: "aucune", nom: "Sans entrée", ds: "", prix: 0 }
       ]},
       { id: "plat", titre: "Plat principal", choix: [
-        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24 },
+        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24, porc: true },
         { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22 },
         { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 24 },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25 },
@@ -843,6 +847,7 @@
           v.classList.add("large"); el.classList.add("avec-photo"); el.insertBefore(v, el.firstElementChild);
         }
         if (p.vg) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg">végétarien</span>');
+        if (p.porc) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg porc">porc</span>');
         if (p.special) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg" style="color:var(--violet);border-color:var(--violet)">proposé pour vous</span>');
         el.querySelector(".ds").textContent = p.ds;
         el.querySelector(".px").textContent = p.inclus ? "Compris" : (p.prix ? chf(p.prix) : "—");
@@ -885,6 +890,7 @@
         bloc.querySelector(".plats").appendChild(el);
       });
       zone.appendChild(bloc);
+      if (c.id === "entree") { const np = document.createElement("div"); np.className = "note-porc cache"; np.id = "note-porc"; zone.appendChild(np); }
       if (c.id === "plat") zone.appendChild($("compteur-portions"));
       if (c.id === "dessert") {
         const cd = document.createElement("div");
@@ -1023,6 +1029,7 @@
   const platsListe = () => listeQte("plat");
   // Règles des plats principaux : minimum par plat et nombre de plats ; le plat végétarien (et un plat d'offre) en est libre
   const platLibre = p => !!(p && (p.vg || p.special));
+  const nbSansPorc = () => Math.max(0, Math.min(Number($("personnes").value) || 0, Math.floor(Number($("sansporc").value) || 0)));
   const choixPlat = id => CONFIG.menu.find(c => c.id === "plat").choix.find(x => x.id === id);
   const minPlat = p => platLibre(p) ? 1 : Math.max(1, Number(CONFIG.platsMin) || 1);
   const platsComptes = sauf => listeQte("plat").filter(x => !platLibre(x) && x.id !== sauf).length;
@@ -1032,6 +1039,10 @@
     listeQte("plat").filter(x => !platLibre(x) && x.q < minPlat(x)).forEach(x => fautes.push(`${x.nom} : ${x.q} personne${x.q > 1 ? "s" : ""}, minimum ${minPlat(x)} par plat.`));
     const nb = platsComptes(null);
     if (Number(CONFIG.platsMax) && nb > Number(CONFIG.platsMax)) fautes.push(`${nb} plats choisis : ${CONFIG.platsMax} au maximum, plus le plat végétarien.`);
+    // Invités sans porc : il faut assez de portions sans porc (y compris celles qui restent à placer)
+    const sp = nbSansPorc(), n = Number($("personnes").value) || 0;
+    const sansPorcPrevus = listeQte("plat").filter(x => !x.porc).reduce((a, x) => a + x.q, 0);
+    if (sp && sansPorcPrevus + Math.max(0, n - totalQte("plat")) < sp) fautes.push(`${sp} invité${sp > 1 ? "s" : ""} sans porc : prévoyez au moins ${sp} portion${sp > 1 ? "s" : ""} de plats sans porc (tous sauf ceux marqués « porc »).`);
     return fautes;
   }
   const totalPortions = () => totalQte("plat");
@@ -1289,6 +1300,14 @@
       el.classList.toggle("choisie", el.dataset.id === etat.type);
       el.querySelector("input").checked = el.dataset.id === etat.type;
     });
+    {
+      const sp = nbSansPorc(), en = choixMenu("entree"), np = $("note-porc");
+      if (np) {
+        np.classList.toggle("cache", !(sp && en && en.porc));
+        np.textContent = sp && en && en.porc ? `Pour ${sp === 1 ? "votre invité" : `vos ${sp} invités`} sans porc, nous préparons ${sp === 1 ? "sa" : "leur"} part d’entrée sans porc.` : "";
+      }
+      $("sansporc").max = Number($("personnes").value) || 26;
+    }
     document.querySelectorAll(".plat").forEach(el => {
       const inp = el.querySelector("input");
       if (QTE.includes(el.dataset.cours)) {
@@ -1809,6 +1828,8 @@
     l.push(`• Date souhaitée : ${r.date ? dateLisible(r.date) : "à définir"}`);
     const kE = nbEnfants();
     l.push(`• Nombre de personnes : ${r.n}${kE ? `, dont ${kE} enfant${kE > 1 ? "s" : ""} de moins de ${CONFIG.enfantsAge} ans (menu à −${CONFIG.enfantsRemise} %, boissons sans alcool, cocktail de bienvenue sans alcool)` : ""}`);
+    const spM = nbSansPorc();
+    if (spM) l.push(`• Sans porc : ${spM} invité${spM > 1 ? "s" : ""} (leur part d’entrée sans porc)`);
     const ty = CONFIG.types.find(x => x.id === etat.type);
     l.push(`• Moment : ${ty.nom} (${ty.quand.split(",")[0]})`);
     if (r.moment !== "afterwork") {
@@ -1916,7 +1937,7 @@
     CONFIG.enfantsAge = rg.enfantsAge != null ? (Number(rg.enfantsAge) || 12) : 12;
     CONFIG.enfantsRemise = rg.enfantsRemise != null ? (Number(rg.enfantsRemise) || 0) : 50;
     $("lab-enfants").textContent = `Enfants de moins de ${CONFIG.enfantsAge} ans`;
-    const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg });
+    const nettoie = x => ({ id: x.id, nom: x.nom, ds: x.ds || "", prix: x.inclus ? 0 : (Number(x.prix) || 0), inclus: !!x.inclus, vg: !!x.vg, porc: !!x.porc });
     ["bienvenue", "entree", "plat", "dessert"].forEach(k => {
       const cours = CONFIG.menu.find(c => c.id === k);
       cours.choix = visibles(cat.menu[k]).map(nettoie);
@@ -2016,6 +2037,8 @@
   ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => $(id).addEventListener("click", e => { if ($(id).classList.contains("bloque")) { e.preventDefault(); e.stopImmediatePropagation(); montrerPlats(); } }, true));
   document.addEventListener("click", e => { if (e.target && e.target.id === "voir-plats") montrerPlats(); });
   $("enfants").addEventListener("input", () => synchroGroupe("enfants"));
+  $("sansporc").addEventListener("input", maj);
+  $("sansporc").addEventListener("change", () => { $("sansporc").value = nbSansPorc(); maj(); });
   $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
   appliquerProfil();

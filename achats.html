@@ -180,6 +180,7 @@
         <label class="champ">Contact<input type="text" id="f-contact"></label>
         <label class="champ">Personnes (enfants compris)<input type="number" id="f-n" min="1" max="60"></label>
         <label class="champ">Dont enfants<input type="number" id="f-enfants" min="0" max="60"></label>
+        <label class="champ">Dont sans porc<input type="number" id="f-sansporc" min="0" max="60"></label>
         <label class="champ">Statut<select id="f-statut"><option value="confirmee">Confirmée</option><option value="option">En option (pas encore confirmée)</option></select></label>
         <label class="champ">Boisson d’accueil<select id="f-bienvenue"></select></label>
         <label class="champ">Entrée<select id="f-entree"></select></label>
@@ -261,7 +262,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=27"></script>
+<script src="catalogue.js?v=28"></script>
 <script>
 (function () {
   "use strict";
@@ -569,6 +570,7 @@
       if ((m = l.match(/^Groupe\s*:\s*(.+?)\s*(\((entreprise|club|amis)[^)]*\))?$/i))) { s.client = m[1] === "—" ? "" : m[1]; return; }
       if ((m = l.match(/^Contact\s*:\s*(.+)$/i))) { s.contact = m[1] === "—" ? "" : m[1]; return; }
       if ((m = l.match(/^Nombre de personnes\s*:\s*(\d+)(?:\s*,\s*dont\s*(\d+)\s*enfant)?/i))) { s.n = Number(m[1]); s.enfants = Number(m[2] || 0); return; }
+      if ((m = l.match(/^Sans porc\s*:\s*(\d+)/i))) { s.sansPorc = Number(m[1]); return; }
       if ((m = l.match(/^Offre personnalis[ée]e\s*n°\s*(\S+)/i))) { s.notes = "Offre n° " + m[1] + " : vérifier le prix convenu."; return; }
       if ((m = l.match(/^Bienvenue(?:,\s*comprise)?\s*:\s*(.+)$/i))) {
         vuMenu = true;
@@ -646,6 +648,7 @@
     $("f-contact").value = s.contact || "";
     $("f-n").value = s.n || "";
     $("f-enfants").value = s.enfants || 0;
+    $("f-sansporc").value = s.sansPorc || 0;
     $("f-statut").value = s.statut || "confirmee";
     remplirSelect($("f-bienvenue"), "bienvenue", s.bienvenue);
     remplirSelect($("f-entree"), "entree", s.entree, true);
@@ -664,6 +667,7 @@
     edition.contact = $("f-contact").value.trim();
     edition.n = Math.max(0, Math.floor(Number($("f-n").value) || 0));
     edition.enfants = Math.min(edition.n, Math.max(0, Math.floor(Number($("f-enfants").value) || 0)));
+    edition.sansPorc = Math.min(edition.n, Math.max(0, Math.floor(Number($("f-sansporc").value) || 0)));
     edition.statut = $("f-statut").value;
     edition.bienvenue = $("f-bienvenue").value;
     edition.entree = $("f-entree").value;
@@ -705,7 +709,7 @@
       <div class="chiffre"><small>Marge brute</small><strong>${chf(b.marge)}</strong></div>`;
     if (b.manque.length) $("f-apercu").insertAdjacentHTML("beforeend", `<div class="msg avert" style="grid-column:1/-1">Recette à compléter (coût sous-estimé) : ${b.manque.map(esc).join(", ")}.</div>`);
   }
-  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-statut", "f-bienvenue", "f-entree", "f-prix", "f-remise", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
+  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-sansporc", "f-statut", "f-bienvenue", "f-entree", "f-prix", "f-remise", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
   ["f-statut", "f-bienvenue", "f-entree"].forEach(id => $(id).addEventListener("change", majFormulaire));
 
   $("lire").addEventListener("click", () => {
@@ -748,7 +752,7 @@
     el.innerHTML = `
       <div class="quand">${esc(dateLisible(s.date))}</div>
       <div>
-        <div class="qui">${esc(s.client || "Client sans nom")} · ${s.n} pers.${s.enfants ? ` dont ${s.enfants} enf.` : ""}<span class="puce ${s.statut === "option" ? "option" : "confirmee"}">${s.statut === "option" ? "En option" : "Confirmée"}</span></div>
+        <div class="qui">${esc(s.client || "Client sans nom")} · ${s.n} pers.${s.enfants ? ` dont ${s.enfants} enf.` : ""}${s.sansPorc ? ` · ${s.sansPorc} sans porc` : ""}<span class="puce ${s.statut === "option" ? "option" : "confirmee"}">${s.statut === "option" ? "En option" : "Confirmée"}</span></div>
         <div class="detail">${esc(s.bienvenue ? nomPlat("bienvenue", s.bienvenue) : "")}${s.entree && s.entree !== "aucune" ? " · " + esc(nomPlat("entree", s.entree)) : ""}${resume ? " · " + esc(resume) : ""}${desserts ? " · " + esc(desserts) : ""}</div>
         <div class="chiffres">
           <span>Coût matière <strong>${chf(b.cout)}</strong></span>

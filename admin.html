@@ -285,7 +285,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=27"></script>
+<script src="catalogue.js?v=28"></script>
 <script>
 (function () {
   "use strict";
@@ -440,11 +440,16 @@
       p.classList.add("c-prix", "num"); l.appendChild(p);
     }
     if (cfg.vg) {
-      const v = document.createElement("label"); v.className = "vg c-extra";
-      const c = document.createElement("input"); c.type = "checkbox"; c.checked = !!x.vg;
-      c.addEventListener("change", () => { x.vg = c.checked; majStatut(); });
-      v.append(c, document.createTextNode("Végé"));
-      l.appendChild(v);
+      // Mentions : végétarien et porc (le calculateur s'en sert pour les invités sans porc)
+      const w = document.createElement("div"); w.className = "c-extra"; w.style.cssText = "display:flex;flex-direction:column;gap:2px";
+      [["vg", "Végé"], ["porc", "Porc"]].forEach(([cle, lib]) => {
+        const v = document.createElement("label"); v.className = "vg";
+        const c = document.createElement("input"); c.type = "checkbox"; c.checked = !!x[cle];
+        c.addEventListener("change", () => { x[cle] = c.checked; majStatut(); });
+        v.append(c, document.createTextNode(lib));
+        w.appendChild(v);
+      });
+      l.appendChild(w);
     } else if (cfg.part) {
       const p = entree(x.part, v => { x.part = v; totalParts(); }, { type: "number", step: "5", min: 0, label: "Part en pourcent", placeholder: "%" });
       p.classList.add("c-extra", "num"); l.appendChild(p);
