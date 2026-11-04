@@ -219,6 +219,10 @@
   .regle-plats { font-size: 13px; color: var(--gris); margin: -4px 0 10px; }
   .plat.ferme { opacity: .5; }
   .plat .vg.porc { color: #7a4a2a; border-color: #b98a6a; }
+  .note-porc .alt-porc { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+  .note-porc .alt-porc button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--vert); background: #fff; color: var(--vert); cursor: pointer; }
+  .note-porc .alt-porc button.choisie { background: var(--vert); color: #fff; }
+  .note-porc .petit { font-size: 12px; opacity: .8; }
   .note-porc { font-size: 13px; color: var(--vert); background: #f2f8f4; border-radius: 8px; padding: 8px 12px; margin: -4px 0 12px; }
   .compteur-portions { text-align: right; font-size: 13.5px; font-weight: 600; margin: -6px 0 12px; }
   .compteur-portions.ok { color: #1e7a3e; }
@@ -370,7 +374,7 @@
       <label class="champ" for="enfants" id="lab-enfants">Enfants de moins de 12 ans</label>
       <div class="enfants-ligne"><input type="number" id="enfants" min="0" max="25" value="0" inputmode="numeric"><span class="aide" id="enfants-aide" style="margin:0">Menu à moitié prix, boissons sans alcool.</span></div>
       <label class="champ" for="sansporc">Dont invités sans porc</label>
-      <div class="enfants-ligne"><input type="number" id="sansporc" min="0" max="26" value="0" inputmode="numeric"><span class="aide" style="margin:0">Leur part d’entrée est préparée sans porc. Sans porc ne signifie pas halal : nos viandes ne sont pas certifiées halal, et nous ne pouvons pas proposer de repas halal pour l’instant.</span></div>
+      <div class="enfants-ligne"><input type="number" id="sansporc" min="0" max="26" value="0" inputmode="numeric"><span class="aide" style="margin:0">Tu pourras leur choisir une autre entrée. Sans porc ne signifie pas halal : nos viandes ne sont pas certifiées halal, et nous ne pouvons pas proposer de repas halal pour l’instant.</span></div>
       <div class="total-groupe">Total : <strong id="personnes-val">20</strong> personnes <span id="repartition"></span></div>
       <div class="groupe-alerte" id="groupe-alerte" role="status"></div>
       <input type="hidden" id="personnes" value="20">
@@ -929,7 +933,7 @@
         bloc.querySelector(".plats").appendChild(el);
       });
       zone.appendChild(bloc);
-      if (c.id === "entree") { const np = document.createElement("div"); np.className = "note-porc cache"; np.id = "note-porc"; np.dataset.ecran = "2-entree"; zone.appendChild(np); }
+      if (c.id === "entree") { const np = document.createElement("div"); np.className = "note-porc cache"; np.id = "note-porc"; np.dataset.ecran = "2-entree"; np.addEventListener("click", e => { const b = e.target.closest("[data-alt]"); if (!b) return; etat.entreeSansPorc = etat.entreeSansPorc === b.dataset.alt ? "" : b.dataset.alt; maj(); }); zone.appendChild(np); }
       if (c.id === "plat") zone.appendChild($("compteur-portions"));
       if (c.id === "dessert") {
         const cd = document.createElement("div");
@@ -1354,8 +1358,14 @@
     {
       const sp = nbSansPorc(), en = choixMenu("entree"), np = $("note-porc");
       if (np) {
-        np.classList.toggle("cache", !(sp && en && en.porc));
-        np.textContent = sp && en && en.porc ? `Pour ${sp === 1 ? "ton invité" : `tes ${sp} invités`} sans porc, nous préparons ${sp === 1 ? "sa" : "leur"} part d’entrée sans porc.` : "";
+        const montre = !!(sp && en && en.porc);
+        np.classList.toggle("cache", !montre);
+        if (montre) {
+          const alt = CONFIG.menu.find(x => x.id === "entree").choix.filter(p => p.actif !== false && !p.porc && p.id !== "aucune" && p.id !== en.id);
+          if (!alt.some(p => p.id === etat.entreeSansPorc)) etat.entreeSansPorc = "";
+          const qui = sp === 1 ? "ton invité" : `tes ${sp} invités`;
+          np.innerHTML = `<div>Pour ${qui} sans porc, quelle entrée à la place ?</div><div class="alt-porc">${alt.map(p => `<button type="button" data-alt="${p.id}" class="${p.id === etat.entreeSansPorc ? "choisie" : ""}">${p.nom}</button>`).join("")}</div>${etat.entreeSansPorc ? "" : `<div class="petit">Sinon, nous préparons ${sp === 1 ? "sa" : "leur"} part de ${en.nom} sans porc.</div>`}`;
+        } else np.innerHTML = "";
       }
       $("sansporc").max = Number($("personnes").value) || 26;
     }
@@ -1880,7 +1890,10 @@
     const kE = nbEnfants();
     l.push(`• Nombre de personnes : ${r.n}${kE ? `, dont ${kE} enfant${kE > 1 ? "s" : ""} de moins de ${CONFIG.enfantsAge} ans (menu à −${CONFIG.enfantsRemise} %, boissons sans alcool, cocktail de bienvenue sans alcool)` : ""}`);
     const spM = nbSansPorc();
-    if (spM) l.push(`• Sans porc : ${spM} invité${spM > 1 ? "s" : ""} (leur part d’entrée sans porc)`);
+    if (spM) {
+      const enM = choixMenu("entree"), altM = enM && enM.porc && etat.entreeSansPorc ? CONFIG.menu.find(x => x.id === "entree").choix.find(p => p.id === etat.entreeSansPorc) : null;
+      l.push(`• Sans porc : ${spM} invité${spM > 1 ? "s" : ""}${altM ? ` (entrée à la place : ${altM.nom})` : " (leur part d’entrée sans porc)"}`);
+    }
     const ty = CONFIG.types.find(x => x.id === etat.type);
     l.push(`• Moment : ${ty.nom} (${ty.quand.split(",")[0]})`);
     if (r.moment !== "afterwork") {

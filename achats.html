@@ -184,6 +184,7 @@
         <label class="champ">Statut<select id="f-statut"><option value="confirmee">Confirmée</option><option value="option">En option (pas encore confirmée)</option></select></label>
         <label class="champ">Boisson d’accueil<select id="f-bienvenue"></select></label>
         <label class="champ">Entrée<select id="f-entree"></select></label>
+        <label class="champ">Entrée des sans porc<select id="f-entree-sp"></select></label>
       </div>
       <h3>Plats principaux</h3>
       <div class="qtes" id="f-plats"></div>
@@ -458,7 +459,11 @@
       Object.entries(r).forEach(([i, q]) => { out[i] = (out[i] || 0) + (Number(q) || 0) * facteur; });
     };
     if (s.bienvenue) ajouter("bienvenue." + s.bienvenue, n / 8, nomPlat("bienvenue", s.bienvenue));
-    if (s.entree && s.entree !== "aucune") ajouter("entree." + s.entree, n / 8, nomPlat("entree", s.entree));
+    if (s.entree && s.entree !== "aucune") {
+      const sp = s.entreeSansPorc && s.entreeSansPorc !== s.entree ? Math.min(n, s.sansPorc || 0) : 0;
+      if (n - sp > 0) ajouter("entree." + s.entree, (n - sp) / 8, nomPlat("entree", s.entree));
+      if (sp) ajouter("entree." + s.entreeSansPorc, sp / 8, nomPlat("entree", s.entreeSansPorc));
+    }
     Object.entries(s.plats || {}).forEach(([id, q]) => { if (q > 0) ajouter("plat." + id, q / 8, nomPlat("plat", id)); });
     Object.entries(s.desserts || {}).forEach(([id, q]) => { if (q > 0) ajouter("dessert." + id, q / 8, nomPlat("dessert", id)); });
     if (n) { ajouter("bols", n / 8, "Bols d’accompagnement"); ajouter("cafe", n / 8, "Café"); }
@@ -570,7 +575,7 @@
       if ((m = l.match(/^Groupe\s*:\s*(.+?)\s*(\((entreprise|club|amis)[^)]*\))?$/i))) { s.client = m[1] === "—" ? "" : m[1]; return; }
       if ((m = l.match(/^Contact\s*:\s*(.+)$/i))) { s.contact = m[1] === "—" ? "" : m[1]; return; }
       if ((m = l.match(/^Nombre de personnes\s*:\s*(\d+)(?:\s*,\s*dont\s*(\d+)\s*enfant)?/i))) { s.n = Number(m[1]); s.enfants = Number(m[2] || 0); return; }
-      if ((m = l.match(/^Sans porc\s*:\s*(\d+)/i))) { s.sansPorc = Number(m[1]); return; }
+      if ((m = l.match(/^Sans porc\s*:\s*(\d+)/i))) { s.sansPorc = Number(m[1]); const a = l.match(/entr[ée]e à la place\s*:\s*([^)]+)\)/i); if (a) { const id = trouver("entree", a[1]); if (id) s.entreeSansPorc = id; else avert.push("Entrée sans porc non reconnue : « " + a[1] + " »."); } return; }
       if ((m = l.match(/^Offre personnalis[ée]e\s*n°\s*(\S+)/i))) { s.notes = "Offre n° " + m[1] + " : vérifier le prix convenu."; return; }
       if ((m = l.match(/^Bienvenue(?:,\s*comprise)?\s*:\s*(.+)$/i))) {
         vuMenu = true;
@@ -652,6 +657,8 @@
     $("f-statut").value = s.statut || "confirmee";
     remplirSelect($("f-bienvenue"), "bienvenue", s.bienvenue);
     remplirSelect($("f-entree"), "entree", s.entree, true);
+    remplirSelect($("f-entree-sp"), "entree", s.entreeSansPorc || "", true);
+    { const o = $("f-entree-sp").querySelector('option[value="aucune"]'); if (o) { o.textContent = "La même (sans porc)"; o.value = ""; } if (!s.entreeSansPorc) $("f-entree-sp").value = ""; }
     $("f-prix").value = s.prixMenuTTC || "";
     $("f-remise").value = s.remiseMenu || "";
     $("f-notes").value = s.notes || "";
@@ -671,6 +678,7 @@
     edition.statut = $("f-statut").value;
     edition.bienvenue = $("f-bienvenue").value;
     edition.entree = $("f-entree").value;
+    edition.entreeSansPorc = $("f-entree-sp").value;
     edition.prixMenuTTC = Number($("f-prix").value) > 0 ? Number($("f-prix").value) : null;
     edition.remiseMenu = Math.max(0, Number($("f-remise").value) || 0);
     edition.notes = $("f-notes").value.trim();
@@ -709,8 +717,8 @@
       <div class="chiffre"><small>Marge brute</small><strong>${chf(b.marge)}</strong></div>`;
     if (b.manque.length) $("f-apercu").insertAdjacentHTML("beforeend", `<div class="msg avert" style="grid-column:1/-1">Recette à compléter (coût sous-estimé) : ${b.manque.map(esc).join(", ")}.</div>`);
   }
-  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-sansporc", "f-statut", "f-bienvenue", "f-entree", "f-prix", "f-remise", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
-  ["f-statut", "f-bienvenue", "f-entree"].forEach(id => $(id).addEventListener("change", majFormulaire));
+  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-sansporc", "f-statut", "f-bienvenue", "f-entree", "f-entree-sp", "f-prix", "f-remise", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
+  ["f-statut", "f-bienvenue", "f-entree", "f-entree-sp"].forEach(id => $(id).addEventListener("change", majFormulaire));
 
   $("lire").addEventListener("click", () => {
     const txt = $("colle").value.trim();
