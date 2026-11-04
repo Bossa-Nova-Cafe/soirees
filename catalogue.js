@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 19,
+    version: 20,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -47,6 +47,7 @@
         { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 7, photo: "photos/caldinho.jpg", actif: true },
         { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10, photo: "photos/salpicao.jpg", actif: true },
         { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, actif: true },
+        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas à partager : margherita, diavola, dolce crudo, jambon et salami. Une pinsa pour deux à trois personnes", prix: 8, actif: true },
         { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, photo: "photos/veloute.jpg", vg: true, actif: true },
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: false },
         { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: false }
@@ -231,6 +232,11 @@
     if (vAvant < 19 && !c.menu.entree.some(x => x.id === "massas")) {
       const i = c.menu.entree.findIndex(x => x.id === "veloute");
       c.menu.entree.splice(i >= 0 ? i : c.menu.entree.length, 0, copie(DEFAUT.menu.entree.find(x => x.id === "massas")));
+    }
+    // Version 20 : nouvelle entrée « Pinsas da Cantina São Paulo », après les massas
+    if (vAvant < 20 && !c.menu.entree.some(x => x.id === "pinsas")) {
+      const i = c.menu.entree.findIndex(x => x.id === "massas");
+      c.menu.entree.splice(i >= 0 ? i + 1 : c.menu.entree.length, 0, copie(DEFAUT.menu.entree.find(x => x.id === "pinsas")));
     }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
