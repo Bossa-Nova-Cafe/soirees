@@ -93,6 +93,9 @@
     .ligne .c-ds, .ligne .c-prix, .ligne .c-extra { grid-column: 2 / 4; }
     .ligne > span:empty { display: none; }
   }
+  .mdp-ligne { display: flex; gap: 6px; align-items: stretch; }
+  .mdp-ligne input { flex: 1; min-width: 0; }
+  .mdp-voir { flex: none; width: auto; margin: 0; padding: 0 12px; font: inherit; font-size: 13px; border: 1.5px solid #ccc; border-radius: 8px; background: #fff; color: #1f3b2f; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -115,8 +118,8 @@
 <section class="carte connexion cache" id="ecran-connexion">
   <h2>Connexion</h2>
   <p class="sous">Réservé à l’équipe du Bossa Nova.</p>
-  <label class="champ">E-mail<input type="email" id="login-email" autocomplete="username"></label>
-  <label class="champ">Mot de passe<input type="password" id="login-mdp" autocomplete="current-password"></label>
+  <label class="champ">E-mail<input type="email" id="login-email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></label>
+  <label class="champ">Mot de passe<span class="mdp-ligne"><input type="password" id="login-mdp" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false"><button type="button" class="mdp-voir" id="mdp-voir" aria-label="Afficher le mot de passe">Afficher</button></span></label>
   <div class="messages" id="login-msg"></div>
   <button class="btn principal" id="login-btn" type="button">Se connecter</button>
 </section>
@@ -285,7 +288,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=28"></script>
+<script src="catalogue.js?v=29"></script>
 <script>
 (function () {
   "use strict";
@@ -806,8 +809,14 @@
   // Connexion
   $("login-btn").addEventListener("click", async () => {
     $("login-msg").innerHTML = "";
-    try { await window.Catalogue.connexion($("login-email").value.trim(), $("login-mdp").value); }
-    catch (e) { const d = document.createElement("div"); d.className = "msg erreur"; d.textContent = "E-mail ou mot de passe incorrect."; $("login-msg").appendChild(d); }
+    const b = $("login-btn"); b.disabled = true; b.textContent = "Connexion…";
+    try { await window.Catalogue.connexion($("login-email").value, $("login-mdp").value); }
+    catch (e) { console.error(e); const d = document.createElement("div"); d.className = "msg erreur"; d.textContent = window.Catalogue.messageConnexion(e); $("login-msg").appendChild(d); }
+    finally { b.disabled = false; b.textContent = "Se connecter"; }
+  });
+  $("mdp-voir").addEventListener("click", () => {
+    const i = $("login-mdp"), v = i.type === "password";
+    i.type = v ? "text" : "password"; $("mdp-voir").textContent = v ? "Masquer" : "Afficher";
   });
   $("login-mdp").addEventListener("keydown", e => { if (e.key === "Enter") $("login-btn").click(); });
   $("deconnexion").addEventListener("click", () => window.Catalogue.deconnexion());

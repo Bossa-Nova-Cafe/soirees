@@ -357,7 +357,29 @@
     },
 
     // Connexion de l'administrateur (mode en ligne uniquement)
-    async connexion(email, motDePasse) { const f = await firebase(); return f.auth.signInWithEmailAndPassword(email, motDePasse); },
+    async connexion(email, motDePasse) {
+      let f;
+      try { f = await firebase(); } catch (e) { const er = new Error("sdk"); er.code = "app/sdk"; throw er; }
+      return f.auth.signInWithEmailAndPassword(email.trim().toLowerCase(), motDePasse);
+    },
+    // Message clair selon l'erreur de connexion (tablettes, réseau, navigateur intégré…)
+    messageConnexion(e) {
+      const c = (e && e.code) || "";
+      const t = {
+        "auth/invalid-credential": "E-mail ou mot de passe incorrect. Vérifie les majuscules du mot de passe (le clavier de la tablette en ajoute parfois une au début).",
+        "auth/wrong-password": "Mot de passe incorrect. Vérifie les majuscules (le clavier de la tablette en ajoute parfois une au début).",
+        "auth/invalid-login-credentials": "E-mail ou mot de passe incorrect. Vérifie les majuscules du mot de passe.",
+        "auth/user-not-found": "Aucun compte avec cet e-mail.",
+        "auth/invalid-email": "L’adresse e-mail n’est pas valide. Vérifie qu’il n’y a pas d’espace ou de faute.",
+        "auth/missing-password": "Indique ton mot de passe.",
+        "auth/too-many-requests": "Trop d’essais : la connexion est bloquée quelques minutes. Réessaie plus tard.",
+        "auth/network-request-failed": "Pas de connexion internet, ou le réseau bloque Firebase. Vérifie le Wi-Fi et réessaie.",
+        "auth/web-storage-unsupported": "Ce navigateur bloque l’enregistrement de la session (navigation privée ou navigateur intégré à une app). Ouvre la page dans Chrome, hors navigation privée.",
+        "auth/operation-not-supported-in-this-environment": "Ce navigateur n’est pas pris en charge. Ouvre la page dans Chrome.",
+        "app/sdk": "Impossible de charger le module de connexion. Vérifie internet, désactive un éventuel bloqueur de publicité, ou ouvre la page dans Chrome."
+      }[c];
+      return t || "Connexion impossible" + (c ? " (" + c + ")" : "") + ". Ouvre la page dans Chrome et réessaie.";
+    },
     async deconnexion() { const f = await firebase(); if (f) await f.auth.signOut(); },
     async surConnexion(rappel) { const f = await firebase(); if (!f) { rappel({ local: true }); return; } f.auth.onAuthStateChanged(u => rappel(u)); }
   };
