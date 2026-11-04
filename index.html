@@ -319,6 +319,22 @@
     body:not(.etape-finale) .barre-mobile button { display: block; width: auto; margin: 0; background: var(--vert); color: var(--creme); padding: 10px 22px; font-size: 15px; }
     .etapes-points button { font-size: 11px; }
   }
+
+  /* Budget replié pendant la composition */
+  .recap-toggle { display: none; width: auto; margin: 10px 0 0; padding: 6px 14px; font-size: 13px; font-weight: 600; background: transparent; color: var(--vert); border: 1.5px solid var(--vert); border-radius: 999px; cursor: pointer; }
+  body:not(.etape-finale) .recap-toggle { display: inline-block; }
+  body:not(.etape-finale) aside.recap:not(.ouvert) #recap-lignes, body:not(.etape-finale) aside.recap:not(.ouvert) .acompte { display: none; }
+  body:not(.etape-finale) aside.recap:not(.ouvert) .total { margin-top: 4px; }
+  .barre-mobile .barre-somme { cursor: pointer; }
+  .barre-mobile .barre-somme .fl { font-size: 12px; color: var(--vert); margin-left: 4px; }
+  @media (max-width: 820px) {
+    body.detail-mobile:not(.etape-finale) aside.recap { display: block; position: fixed; left: 0; right: 0; top: auto; bottom: 69px; z-index: 9; max-height: 72vh; overflow-y: auto; padding: 0 8px; }
+    body.detail-mobile:not(.etape-finale) aside.recap .carte { box-shadow: 0 -8px 24px rgba(0,0,0,.3); border-radius: 18px 18px 0 0; }
+    body.detail-mobile:not(.etape-finale) aside.recap .recap-toggle { display: none; }
+    body.detail-mobile:not(.etape-finale) aside.recap #recap-lignes, body.detail-mobile:not(.etape-finale) aside.recap .acompte { display: block; }
+    body.detail-mobile:not(.etape-finale) aside.recap .acompte { display: flex; }
+    body.etape-finale .barre-somme .fl { display: none; }
+  }
   @media print { .colonne > .carte.programme.hors-etape { display: block !important; } }
 </style>
 </head>
@@ -561,6 +577,7 @@
       <div id="recap-lignes"></div>
       <div class="total"><span class="lib">Total estimé</span><span class="mt" id="total">CHF 0</span></div>
       <div class="parpers" id="parpers"></div>
+      <button type="button" class="recap-toggle pas-imprime" id="recap-toggle" aria-expanded="false" aria-controls="recap-lignes">Voir le détail <span>▾</span></button>
       <div class="acompte"><span id="acompte-lib">Acompte à la réservation</span><strong id="acompte"></strong></div>
 
       <div class="aside-suite pas-imprime" id="aside-suite">Le budget se met à jour à chaque choix. Tu enverras ta demande à la dernière étape.</div>
@@ -607,7 +624,7 @@
   </aside>
 </main>
 
-<div class="barre-mobile pas-imprime"><div><div class="t" id="barre-total"></div><div class="p" id="barre-pp"></div></div><a href="#budget" id="barre-detail">Voir le détail</a><button type="button" id="barre-suivant">Suivant</button></div>
+<div class="barre-mobile pas-imprime"><div class="barre-somme" id="barre-somme" role="button" tabindex="0" aria-label="Voir le détail du budget"><div class="t"><span id="barre-total"></span><span class="fl" id="barre-fl">détail ▴</span></div><div class="p" id="barre-pp"></div></div><a href="#budget" id="barre-detail">Voir le détail</a><button type="button" id="barre-suivant">Suivant</button></div>
 
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
@@ -2305,6 +2322,23 @@
   <img src="" alt="">
   <div class="leg"><div><strong></strong><span class="ds-grande"></span></div><button type="button" onclick="this.closest('dialog').close()">Fermer</button></div>
 </dialog>
-<script>document.getElementById("photo-grande").addEventListener("click", e => { if (e.target.id === "photo-grande") e.target.close(); });</script>
+<script>document.getElementById("photo-grande").addEventListener("click", e => { if (e.target.id === "photo-grande") e.target.close(); });
+  // Budget replié (desktop) et détail en volet (mobile)
+  { const $ = id => document.getElementById(id);
+  $("recap-toggle").addEventListener("click", () => {
+    const o = $("budget").classList.toggle("ouvert");
+    $("recap-toggle").setAttribute("aria-expanded", o);
+    $("recap-toggle").innerHTML = o ? "Masquer le détail <span>▴</span>" : "Voir le détail <span>▾</span>";
+  });
+  const basculerDetailMobile = (forcer) => {
+    if (document.body.classList.contains("etape-finale")) { $("budget").scrollIntoView({ behavior: "smooth" }); return; }
+    const o = document.body.classList.toggle("detail-mobile", forcer);
+    $("barre-fl").textContent = o ? "fermer ▾" : "détail ▴";
+  };
+  $("barre-somme").addEventListener("click", () => basculerDetailMobile());
+  $("barre-somme").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); basculerDetailMobile(); } });
+  document.addEventListener("click", e => { if (e.target.closest(".nav-boutons, #barre-suivant")) basculerDetailMobile(false); }, true);
+  }
+</script>
 </body>
 </html>
