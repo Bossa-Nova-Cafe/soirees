@@ -501,14 +501,34 @@
   function lireMessage(txt) {
     const s = { id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, remiseMenu: 0, notes: "" };
     const avert = [];
-    let section = null, vuMenu = false, attenteRemise = false, prixBienvenueEntree = null;
+    let section = null, vuMenu = false, attenteRemise = false, prixBienvenueEntree = null, programme = false;
+    const platsProgramme = [], dessertsProgramme = [];
     txt.split(/\r?\n/).forEach(brut => {
       const bt = brut.trim();
       if (attenteRemise && /^[−-]?\s*CHF\s*[\d'’]/.test(bt)) { s.remiseMenu = montant(bt); attenteRemise = false; return; }
       attenteRemise = false;
-      const l = brut.replace(/^[\s•*·\-–—]+/, "").trim();
-      if (!l) return;
+      const l0 = brut.replace(/^[\s•*·\-–—]+/, "").trim();
+      if (!l0) return;
       let m;
+      // Programme envoyé aux invités : « 20h15  Plats à partager : … — … »
+      if (/^Programme de notre Festa/i.test(l0)) { programme = true; return; }
+      if (programme && !s.date && /^[a-zéû]+di\s+\d{1,2}\s+[a-zéû]+\s+\d{4}$/i.test(l0)) { s.date = lireDate(l0); return; }
+      const horaire = l0.match(/^\d{1,2}h\d{2}\s+(.+)$/);
+      if (programme && horaire) {
+        const ligne = horaire[1], avant = ligne.split(/\s+—\s+/)[0].trim();
+        if ((m = avant.match(/^Accueil\s*:\s*(.+)$/i))) { const id = trouver("bienvenue", m[1]); if (id) s.bienvenue = id; vuMenu = true; return; }
+        if ((m = avant.match(/^Plats à partager\s*:\s*(.+)$/i))) {
+          vuMenu = true;
+          m[1].split(/\s*,\s*/).forEach(n => { const id = trouver("plat", n); if (id) platsProgramme.push(id); else avert.push("Plat non reconnu : « " + n + " »."); });
+          return;
+        }
+        const ent = trouver("entree", avant);
+        if (ent) { s.entree = ent; return; }
+        const ds = avant.split(/\s*,\s*/).map(n => trouver("dessert", n));
+        if (ds.length && ds.every(Boolean)) { ds.forEach(id => dessertsProgramme.push(id)); return; }
+        return;
+      }
+      const l = l0;
       if ((m = l.match(/^Date souhait[ée]e\s*:\s*(.+)$/i))) {
         s.date = lireDate(m[1]);
         if (!s.date) avert.push("Date non reconnue : « " + m[1] + " ».");
@@ -576,9 +596,15 @@
       }
       avert.push("Boisson d’accueil et client : le budget ne les nomme pas, complète-les ci-dessous. Le message WhatsApp ou e-mail du client les contient.");
     }
+    if (programme) {
+      avert.unshift("C’est le programme envoyé aux invités : il ne donne ni le nombre de personnes ni les quantités. Indique le nombre de personnes, puis combien de personnes pour chaque plat et chaque dessert. La demande du client (« Voici notre demande pour une Festa ») contient tout.");
+      if (platsProgramme.length) avert.push("Plats choisis : " + platsProgramme.map(id => nomPlat("plat", id)).join(", ") + ".");
+      if (dessertsProgramme.length) avert.push("Desserts choisis : " + dessertsProgramme.map(id => nomPlat("dessert", id)).join(", ") + ".");
+      s._programme = { plats: platsProgramme, desserts: dessertsProgramme };
+    }
     if (s.remiseMenu) avert.push("Remise sur le menu lue : CHF " + s.remiseMenu.toFixed(2) + " (early bird ou offre). Elle est déduite du chiffre d’affaires.");
-    if (!s.n) avert.push("Nombre de personnes non trouvé.");
-    if (!vuMenu) avert.push("Aucun menu trouvé dans ce message. Vérifie qu’il s’agit bien d’une demande de soirée.");
+    if (!s.n && !programme) avert.push("Nombre de personnes non trouvé.");
+    if (!vuMenu && !programme) avert.push("Aucun menu trouvé dans ce message. Vérifie qu’il s’agit bien d’une demande de soirée.");
     return { s, avert };
   }
 
@@ -592,12 +618,14 @@
   }
   function grilleQte(zone, k, cle) {
     zone.innerHTML = "";
+    const suggeres = (edition._programme && edition._programme[cle]) || [];
     const ids = plats(k).filter(x => x.actif !== false || (edition[cle][x.id] > 0)).map(x => x.id);
     ids.forEach(id => {
       const el = document.createElement("label");
       el.className = "qte";
       el.innerHTML = `<span></span><input type="number" min="0" max="60" inputmode="numeric">`;
-      el.querySelector("span").textContent = nomPlat(k, id);
+      el.querySelector("span").textContent = nomPlat(k, id) + (suggeres.includes(id) ? " ★" : "");
+      if (suggeres.includes(id)) el.title = "Choisi dans le programme";
       const inp = el.querySelector("input");
       inp.value = edition[cle][id] || 0;
       inp.addEventListener("input", () => { const v = Math.max(0, Math.floor(Number(inp.value) || 0)); if (v) edition[cle][id] = v; else delete edition[cle][id]; majFormulaire(); });
@@ -642,9 +670,23 @@
     el.className = "compteur " + (total === n && n ? "ok" : "ko");
     el.textContent = !n ? "Indique d’abord le nombre de personnes." : total === n ? `✓ ${total} ${quoi} pour ${n} personnes` : `${total} ${quoi} pour ${n} personnes : ${total < n ? "il en manque " + (n - total) : (total - n) + " de trop"}`;
   }
+  // Programme sans quantités : dès que le nombre de personnes est connu, on répartit à parts égales entre les plats choisis
+  function repartirProgramme() {
+    const pg = edition && edition._programme;
+    if (!pg || !edition.n) return;
+    [["plats", pg.plats, "#f-plats"], ["desserts", pg.desserts, "#f-desserts"]].forEach(([cle, ids]) => {
+      if (!ids.length || Object.values(edition[cle]).some(v => v > 0)) return;
+      const base = Math.floor(edition.n / ids.length), reste = edition.n % ids.length;
+      ids.forEach((id, i) => { edition[cle][id] = base + (i < reste ? 1 : 0); });
+    });
+    delete edition._programme;
+    grilleQte($("f-plats"), "plat", "plats"); grilleQte($("f-desserts"), "dessert", "desserts");
+    message("Personnes réparties à parts égales entre les plats et les desserts du programme : ajuste selon la commande réelle.", "info", 6000);
+  }
   function majFormulaire() {
     if (!edition) return;
     lireFormulaire();
+    if (edition._programme && edition.n) repartirProgramme();
     const somme = o => Object.values(o).reduce((a, b) => a + b, 0);
     compteur($("f-plats-compte"), somme(edition.plats), edition.n, "plats");
     compteur($("f-desserts-compte"), somme(edition.desserts), edition.n, "desserts");
@@ -677,6 +719,7 @@
     lireFormulaire();
     if (!edition.date) { message("Indique la date de la soirée.", "avert"); $("f-date").focus(); return; }
     if (!edition.n) { message("Indique le nombre de personnes.", "avert"); $("f-n").focus(); return; }
+    delete edition._programme;
     const neuf = !edition.id;
     if (neuf) { edition.id = "s" + Date.now().toString(36); edition.creeLe = new Date().toISOString(); }
     const i = data.soirees.findIndex(x => x.id === edition.id);
