@@ -216,6 +216,8 @@
   .plat .qte .reste-btn.cache { display: none; }
   .compteur-portions.attente { color: #6b4e00; background: #fff6d6; border: 2px solid #e8b400; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; margin: 4px 0 14px; }
   .compteur-portions.attente::before { content: "👉 "; }
+  .regle-plats { font-size: 13px; color: var(--gris); margin: -4px 0 10px; }
+  .plat.ferme { opacity: .5; }
   .compteur-portions { text-align: right; font-size: 13.5px; font-weight: 600; margin: -6px 0 12px; }
   .compteur-portions.ok { color: #1e7a3e; }
   .compteur-portions.ok::before { content: "✓ "; }
@@ -564,7 +566,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=22"></script>
+<script src="catalogue.js?v=23"></script>
 <script>
 (function () {
   "use strict";
@@ -576,6 +578,8 @@
     saisonDebut: "2026-11-16",
     saisonFin: "2027-02-28",
     maxPersonnes: 26,                 // capacité maximale, enfants compris
+    platsMin: 4,                      // plats principaux : minimum de personnes par plat (plat végétarien : dès 1)
+    platsMax: 3,                      // plats principaux : nombre de plats au choix (le végétarien en plus)
     enfantsAge: 12,                   // enfants de moins de 12 ans
     enfantsRemise: 50,                // remise en % sur le menu pour les enfants
     forfaitEnfant: 8,                 // eaux minérales et jus, obligatoire par enfant
@@ -814,6 +818,12 @@
       bloc.className = "cours";
       bloc.innerHTML = `<h3></h3><div class="plats"></div>`;
       bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, à partager" : c.id === "dessert" ? c.titre.replace(/^Dessert/, "Desserts") : c.titre;
+      if (c.id === "plat" && (Number(CONFIG.platsMin) > 1 || Number(CONFIG.platsMax))) {
+        const aide = document.createElement("p");
+        aide.className = "regle-plats";
+        aide.textContent = [Number(CONFIG.platsMin) > 1 ? `Minimum ${CONFIG.platsMin} personnes par plat` : "", Number(CONFIG.platsMax) ? `${CONFIG.platsMax} plats au choix` : ""].filter(Boolean).join(", ") + ". Le plat végétarien se commande dès 1 personne, en plus.";
+        bloc.querySelector("h3").after(aide);
+      }
       c.choix.forEach(p => {
         const el = document.createElement("label");
         el.className = "plat";
@@ -844,9 +854,27 @@
             etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, Math.floor(Number(r.value) || 0)));
             maj();
           });
+          const estPlat = c.id === "plat";
+          // Valeur tapée à la main : on applique le minimum par plat et le nombre de plats au choix
+          r.addEventListener("change", () => {
+            if (!estPlat) return;
+            let v = etat.portions[p.id] || 0;
+            if (v > 0 && !peutOuvrir(p)) v = 0;
+            else if (v > 0 && v < minPlat(p)) v = minPlat(p);
+            if (v !== etat.portions[p.id]) { etat.portions[p.id] = v; r.value = v; maj(); }
+          });
           const fixer = v => { etat.portions[p.id] = Math.max(0, Math.min(CONFIG.maxPersonnes, v)); maj(); };
-          el.querySelector(".moins").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) - 1); });
-          el.querySelector(".plus").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + 1); });
+          el.querySelector(".moins").addEventListener("click", e => {
+            e.preventDefault(); e.stopPropagation();
+            let v = (etat.portions[p.id] || 0) - 1;
+            if (estPlat && v > 0 && v < minPlat(p)) v = 0;
+            fixer(v);
+          });
+          el.querySelector(".plus").addEventListener("click", e => {
+            e.preventDefault(); e.stopPropagation();
+            const q = etat.portions[p.id] || 0;
+            fixer(estPlat && q === 0 ? minPlat(p) : q + 1);
+          });
           el.querySelector(".reste-btn").addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); fixer((etat.portions[p.id] || 0) + Math.max(0, Number($("personnes").value) - totalQte(c.id))); });
           el.addEventListener("click", e => { if (!e.target.closest("button") && e.target !== r) r.focus(); });
         } else {
@@ -992,6 +1020,19 @@
   const totalQte = k => listeQte(k).reduce((a, p) => a + p.q, 0);
   const prixQte = k => listeQte(k).reduce((a, p) => a + p.q * p.prix, 0);
   const platsListe = () => listeQte("plat");
+  // Règles des plats principaux : minimum par plat et nombre de plats ; le plat végétarien (et un plat d'offre) en est libre
+  const platLibre = p => !!(p && (p.vg || p.special));
+  const choixPlat = id => CONFIG.menu.find(c => c.id === "plat").choix.find(x => x.id === id);
+  const minPlat = p => platLibre(p) ? 1 : Math.max(1, Number(CONFIG.platsMin) || 1);
+  const platsComptes = sauf => listeQte("plat").filter(x => !platLibre(x) && x.id !== sauf).length;
+  const peutOuvrir = p => platLibre(p) || !Number(CONFIG.platsMax) || platsComptes(p.id) < Number(CONFIG.platsMax);
+  function reglesPlats() {
+    const fautes = [];
+    listeQte("plat").filter(x => !platLibre(x) && x.q < minPlat(x)).forEach(x => fautes.push(`${x.nom} : ${x.q} personne${x.q > 1 ? "s" : ""}, minimum ${minPlat(x)} par plat.`));
+    const nb = platsComptes(null);
+    if (Number(CONFIG.platsMax) && nb > Number(CONFIG.platsMax)) fautes.push(`${nb} plats choisis : ${CONFIG.platsMax} au maximum, plus le plat végétarien.`);
+    return fautes;
+  }
   const totalPortions = () => totalQte("plat");
   const totalPlats = () => prixQte("plat") + prixQte("dessert");
   function repartirPortions(n) {
@@ -1254,10 +1295,14 @@
         if (document.activeElement !== inp) inp.value = q;
         el.classList.toggle("choisie", q > 0);
         const resteP = r.n - totalQte(el.dataset.cours);
+        const pl = el.dataset.cours === "plat" ? choixPlat(el.dataset.id) : null;
+        // Un plat pas encore choisi ne peut s'ouvrir que s'il reste assez de personnes et de place parmi les plats au choix
+        const ferme = !!pl && q === 0 && (!peutOuvrir(pl) || resteP < minPlat(pl));
+        el.classList.toggle("ferme", ferme && resteP > 0);
         el.querySelector(".moins").disabled = q <= 0;
-        el.querySelector(".plus").disabled = resteP <= 0;
+        el.querySelector(".plus").disabled = resteP <= 0 || ferme;
         const rb = el.querySelector(".reste-btn");
-        rb.classList.toggle("cache", resteP <= 0);
+        rb.classList.toggle("cache", resteP <= 0 || ferme);
         rb.textContent = resteP === 1 ? "+ la dernière personne" : `+ les ${resteP} restantes`;
       } else {
         const sel = etat.menu[el.dataset.cours] === el.dataset.id;
@@ -1279,12 +1324,21 @@
     };
     compteur("compteur-portions", "plat");
     compteur("compteur-desserts", "dessert");
+    const fautes = reglesPlats();
+    {
+      const z = $("compteur-portions"), ecart = r.n - totalPortions();
+      if (fautes.length) { z.className = "compteur-portions ko"; z.textContent = fautes.join(" ") + " Ajustez pour pouvoir envoyer votre demande."; }
+      else if (ecart > 0 && totalPortions() > 0) {
+        const ouvrables = CONFIG.menu.find(c => c.id === "plat").choix.filter(x => !(etat.portions[x.id] > 0) && !platLibre(x) && peutOuvrir(x) && ecart >= minPlat(x));
+        if (!ouvrables.length) z.textContent = `Il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer : ajoutez-${ecart > 1 ? "les" : "la"} à un plat déjà choisi, ou au plat végétarien.`;
+      }
+    }
     const tp = totalPortions(), td = totalQte("dessert");
-    // Envoi bloqué tant que les plats principaux ne correspondent pas au nombre d'invités
-    const platsOk = r.moment === "afterwork" || (tp === r.n && td === r.n);
+    // Envoi bloqué tant que les plats principaux ne correspondent pas au nombre d'invités ou aux règles des plats
+    const platsOk = r.moment === "afterwork" || (tp === r.n && td === r.n && !fautes.length);
     ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => { $(id).classList.toggle("bloque", !platsOk); $(id).setAttribute("aria-disabled", String(!platsOk)); });
     $("envoi-bloque").classList.toggle("cache", platsOk);
-    if (!platsOk) $("envoi-bloque").innerHTML = `Avant d’envoyer : ${tp !== r.n ? `les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""}` : `les desserts sont prévus pour ${td} personne${td > 1 ? "s" : ""}`} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster</button>`;
+    if (!platsOk) $("envoi-bloque").innerHTML = fautes.length && tp === r.n && td === r.n ? `Avant d’envoyer : ${fautes[0]} <button type="button" id="voir-plats">Ajuster</button>` : `Avant d’envoyer : ${tp !== r.n ? `les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""}` : `les desserts sont prévus pour ${td} personne${td > 1 ? "s" : ""}`} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster</button>`;
     $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
     $("menu-total").innerHTML = `<span>Votre menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
     $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
@@ -1852,6 +1906,8 @@
     CONFIG.production.delaiJours = Number(rg.productionDelaiJours) || 0;
     CONFIG.droitBouchon = rg.droitBouchon != null ? (Number(rg.droitBouchon) || 0) : 10;
     CONFIG.maxPersonnes = Math.max(12, Number(rg.maxPersonnes) || 26);
+    CONFIG.platsMin = rg.platsMin != null ? Math.max(0, Number(rg.platsMin) || 0) : 4;
+    CONFIG.platsMax = rg.platsMax != null ? Math.max(0, Number(rg.platsMax) || 0) : 3;
     $("adultes").max = CONFIG.maxPersonnes; $("enfants").max = CONFIG.maxPersonnes - 1;
     if (Number($("adultes").value) > CONFIG.maxPersonnes) $("adultes").value = CONFIG.maxPersonnes;
     document.querySelectorAll(".max-pers").forEach(x => { x.textContent = CONFIG.maxPersonnes; });

@@ -20,6 +20,8 @@
     regles: {
       minimumPrivatisation: 700,
       maxPersonnes: 26,
+      platsMin: 4,
+      platsMax: 3,
       acomptePourcent: 30,
       prolongationParHeure: 200,
       afterworkPrix: 42,
