@@ -47,6 +47,7 @@
     font: inherit; font-size: 14px; color: var(--texte); padding: 8px 10px; border: 1.5px solid var(--bord); border-radius: 8px; background: #fff; width: 100%; min-width: 0;
   }
   input[type=text], input[type=number], input[type=date], input[type=email], input[type=password], select { height: 39px; }
+  textarea.survol { outline: 3px dashed var(--jaune); background: #fffbea; }
   textarea { min-height: 150px; resize: vertical; font-size: 13px; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
   .cache { display: none !important; }
@@ -163,11 +164,13 @@
     <!-- ===== Soirées ===== -->
     <section data-section="soirees" class="carte">
       <h2>Ajouter une soirée</h2>
-      <p class="sous">Colle la demande reçue par WhatsApp ou e-mail (ou le bloc « Votre budget » du calculateur) : la date, le nombre de personnes, les plats et les desserts sont lus automatiquement. Tu vérifies, puis tu enregistres.</p>
-      <label class="champ">Message du client<textarea id="colle" placeholder="Bonjour le Bossa Nova, Voici notre demande pour une Festa : …"></textarea></label>
+      <p class="sous">Colle la demande reçue par WhatsApp ou e-mail (ou le bloc « Ton budget » du calculateur), ou importe le PDF du client : la date, le nombre de personnes, les plats et les desserts sont lus automatiquement. Tu vérifies, puis tu enregistres.</p>
+      <label class="champ">Message du client<textarea id="colle" placeholder="Bonjour le Bossa Nova, Voici notre demande pour une Festa : …  (tu peux aussi glisser un PDF ici)"></textarea></label>
       <div class="actions">
         <button class="btn principal" type="button" id="lire">Lire le message</button>
+        <button class="btn discret" type="button" id="pdf-btn">Importer un PDF</button>
         <button class="btn discret" type="button" id="manuel">Saisie manuelle</button>
+        <input type="file" id="pdf-fichier" accept="application/pdf,.pdf" hidden>
       </div>
     </section>
 
@@ -512,7 +515,7 @@
   function lireMessage(txt) {
     const s = { id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, remiseMenu: 0, notes: "" };
     const avert = [];
-    let section = null, vuMenu = false, attenteRemise = false, prixBienvenueEntree = null, programme = false;
+    let section = null, vuMenu = false, attenteRemise = false, prixBienvenueEntree = null, programme = false, apresTitre = false, apresFesta = false, entreeProgramme = null;
     const platsProgramme = [], dessertsProgramme = [];
     txt.split(/\r?\n/).forEach(brut => {
       const bt = brut.trim();
@@ -523,6 +526,17 @@
       let m;
       // Programme envoyé aux invités : « 20h15  Plats à partager : … — … »
       if (/^Programme de notre Festa/i.test(l0)) { programme = true; return; }
+      // PDF du calculateur : « NOTRE FESTA » puis le nom du groupe ; « Nom · Société · e-mail · tél. » sous le titre du budget
+      if (/^Notre Festa$/i.test(l0)) { programme = true; apresFesta = true; return; }
+      if (apresFesta) { apresFesta = false; if (!/^[a-zéû]+di\s+\d/i.test(l0)) { if (!s.client) s.client = l0.toLowerCase().replace(/(^|[\s-])(\p{L})/gu, (x, a, c) => a + c.toUpperCase()); return; } }
+      if (apresTitre) {
+        apresTitre = false;
+        if (l0.includes(" · ") && !/CHF|×/.test(l0)) {
+          const parts = l0.split(/\s*·\s*/), contact = parts.filter(x => /@|\d{3}/.test(x)), noms = parts.filter(x => !contact.includes(x));
+          s.client = noms[1] || noms[0] || s.client; s.contact = [noms.length > 1 ? noms[0] : "", ...contact].filter(Boolean).join(", ");
+          return;
+        }
+      }
       if (programme && !s.date && /^[a-zéû]+di\s+\d{1,2}\s+[a-zéû]+\s+\d{4}$/i.test(l0)) { s.date = lireDate(l0); return; }
       const horaire = l0.match(/^\d{1,2}h\d{2}\s+(.+)$/);
       if (programme && horaire) {
@@ -534,7 +548,7 @@
           return;
         }
         const ent = trouver("entree", avant);
-        if (ent) { s.entree = ent; return; }
+        if (ent) { s.entree = ent; entreeProgramme = ent; return; }
         const ds = avant.split(/\s*,\s*/).map(n => trouver("dessert", n));
         if (ds.length && ds.every(Boolean)) { ds.forEach(id => dessertsProgramme.push(id)); return; }
         return;
@@ -549,6 +563,7 @@
       if ((m = l.match(/^(\d+)\s+personnes?(?:\s+dont\s+(\d+)\s+enfants?)?\s*·(.*)$/i))) {
         s.n = Number(m[1]); s.enfants = Number(m[2] || 0);
         if (!s.date) s.date = lireDate(m[3]);
+        apresTitre = true;
         return;
       }
       if ((m = l.match(/^Bienvenue et entr[ée]e\s*·\s*(\d+)\s*×\s*CHF\s*([\d.]+)/i))) {
@@ -600,14 +615,17 @@
     if (prixBienvenueEntree != null) {
       // Le budget ne nomme pas l'entrée : on la retrouve par son prix quand il est unique
       if (prixBienvenueEntree === 0) s.entree = "aucune";
+      else if (entreeProgramme && Number((plats("entree").find(x => x.id === entreeProgramme) || {}).prix) === prixBienvenueEntree) s.entree = entreeProgramme;
       else {
         const cands = plats("entree").filter(x => x.actif !== false && Number(x.prix) === prixBienvenueEntree);
         if (cands.length === 1) { s.entree = cands[0].id; avert.push("Entrée déduite de son prix (CHF " + prixBienvenueEntree + ") : " + cands[0].nom + ". Vérifie-la."); }
         else if (cands.length > 1) { s.entree = cands[0].id; avert.push("Entrée à vérifier : plusieurs entrées coûtent CHF " + prixBienvenueEntree + " (" + cands.map(x => x.nom).join(", ") + "). " + cands[0].nom + " est présélectionnée, change-la si besoin."); }
         else avert.push("Entrée à choisir ci-dessous : aucune entrée ne coûte CHF " + prixBienvenueEntree + " par personne.");
       }
-      avert.push("Boisson d’accueil et client : le budget ne les nomme pas, complète-les ci-dessous. Le message WhatsApp ou e-mail du client les contient.");
+      const manquent = [!s.bienvenue && "la boisson d’accueil", !s.client && "le client"].filter(Boolean);
+      if (manquent.length) avert.push("Le budget ne nomme pas " + manquent.join(" ni ") + " : complète ci-dessous. Le message WhatsApp ou e-mail du client les contient.");
     }
+    if (programme && (Object.keys(s.plats).length || Object.keys(s.desserts).length)) programme = false; // le budget donne déjà les quantités
     if (programme) {
       avert.unshift("C’est le programme envoyé aux invités : il ne donne ni le nombre de personnes ni les quantités. Indique le nombre de personnes, puis combien de personnes pour chaque plat et chaque dessert. La demande du client (« Voici notre demande pour une Festa ») contient tout.");
       if (platsProgramme.length) avert.push("Plats choisis : " + platsProgramme.map(id => nomPlat("plat", id)).join(", ") + ".");
@@ -1037,6 +1055,73 @@
     else { $("ecran-app").classList.add("cache"); $("ecran-connexion").classList.remove("cache"); }
   });
 })();
+
+  // ---------- Import d'un PDF (texte extrait dans le navigateur avec pdf.js) ----------
+  {
+    const $ = id => document.getElementById(id);
+    const PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+    let chargement = null;
+    const chargerPdfjs = () => chargement || (chargement = new Promise((ok, ko) => {
+      if (window.pdfjsLib) return ok(window.pdfjsLib);
+      const sc = document.createElement("script"); sc.src = PDFJS + "pdf.min.js";
+      sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; ok(window.pdfjsLib); };
+      sc.onerror = () => { chargement = null; ko(new Error("pdf.js")); };
+      document.head.appendChild(sc);
+    }));
+    async function texteDuPdf(fichier) {
+      const lib = await chargerPdfjs();
+      const doc = await lib.getDocument({ data: await fichier.arrayBuffer() }).promise;
+      const lignes = [];
+      for (let n = 1; n <= doc.numPages; n++) {
+        const page = await doc.getPage(n);
+        const { items } = await page.getTextContent();
+        const rangs = [];
+        items.filter(it => it.str && it.str.trim()).forEach(it => {
+          const y = it.transform[5], x = it.transform[4], h = Math.abs(it.transform[3]) || 10;
+          let r = rangs.find(r => Math.abs(r.y - y) < h * 0.45);
+          if (!r) rangs.push(r = { y, h, items: [] });
+          r.items.push({ x, w: it.width, s: it.str });
+        });
+        rangs.sort((a, b) => b.y - a.y).forEach(r => {
+          r.items.sort((a, b) => a.x - b.x);
+          let t = "", fin = null;
+          r.items.forEach(it => {
+            if (fin !== null && it.x - fin > r.h * 0.15 && !/\s$/.test(t) && !/^\s/.test(it.s)) t += it.x - fin > r.h * 2.5 ? "   " : " ";
+            t += it.s; fin = it.x + it.w;
+          });
+          lignes.push(t.replace(/\s+$/, ""));
+        });
+      }
+      // Lignes coupées par la mise en page : on recolle une suite qui commence en minuscule
+      const out = [];
+      lignes.forEach(l => {
+        const prec = out[out.length - 1];
+        if (prec && /^[a-zà-ÿ×(]/.test(l.trim()) && !/[.:!?]$/.test(prec.trim())) out[out.length - 1] = prec.replace(/\s+$/, "") + " " + l.trim();
+        else out.push(l);
+      });
+      return out.join("\n");
+    }
+    async function importer(fichier) {
+      if (!fichier) return;
+      if (!/pdf$/i.test(fichier.type) && !/\.pdf$/i.test(fichier.name)) { message("Ce fichier n’est pas un PDF.", "avert"); return; }
+      const b = $("pdf-btn"), lib = b.textContent; b.disabled = true; b.textContent = "Lecture du PDF…";
+      try {
+        const t = await texteDuPdf(fichier);
+        if (!t.trim()) { message("Ce PDF ne contient pas de texte lisible (c’est peut-être une photo ou un scan). Recopie la demande à la main.", "avert"); return; }
+        $("colle").value = t;
+        $("lire").click();
+      } catch (e) {
+        console.error(e);
+        message(e.message === "pdf.js" ? "Impossible de charger le lecteur de PDF. Vérifie ta connexion et réessaie." : "Ce PDF n’a pas pu être lu.", "avert");
+      } finally { b.disabled = false; b.textContent = lib; $("pdf-fichier").value = ""; }
+    }
+    $("pdf-btn").addEventListener("click", () => $("pdf-fichier").click());
+    $("pdf-fichier").addEventListener("change", e => importer(e.target.files[0]));
+    const zone = $("colle");
+    zone.addEventListener("dragover", e => { if ([...e.dataTransfer.items].some(i => i.kind === "file")) { e.preventDefault(); zone.classList.add("survol"); } });
+    zone.addEventListener("dragleave", () => zone.classList.remove("survol"));
+    zone.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (!f) return; e.preventDefault(); zone.classList.remove("survol"); importer(f); });
+  }
 </script>
 </body>
 </html>

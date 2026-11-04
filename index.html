@@ -574,6 +574,7 @@
       <h2>Ton budget</h2>
       <p class="sous" id="recap-titre"></p>
       <div class="impression-seule" id="recap-client"></div>
+      <div class="impression-seule" id="recap-sansporc" style="font-size:13px"></div>
       <div id="recap-lignes"></div>
       <div class="total"><span class="lib">Total estimé</span><span class="mt" id="total">CHF 0</span></div>
       <div class="parpers" id="parpers"></div>
@@ -1561,6 +1562,8 @@
 
     const recapBoissons = texteBoissons();
     $("recap-boissons").textContent = "Boissons commandées en plus au bar : " + recapBoissons;
+    { const spR = nbSansPorc(), enR = choixMenu("entree"), altR = spR && enR && enR.porc && etat.entreeSansPorc ? CONFIG.menu.find(x => x.id === "entree").choix.find(p => p.id === etat.entreeSansPorc) : null;
+      $("recap-sansporc").textContent = spR ? `Sans porc : ${spR} invité${spR > 1 ? "s" : ""}${altR ? ` (entrée à la place : ${altR.nom})` : " (leur part d’entrée sans porc)"}` : ""; }
     $("recap-client").textContent = [$("nom").value, $("societe").value, $("email").value, $("tel").value].filter(Boolean).join(" · ");
 
     // Liens d'envoi
