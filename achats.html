@@ -163,7 +163,7 @@
     <!-- ===== Soirées ===== -->
     <section data-section="soirees" class="carte">
       <h2>Ajouter une soirée</h2>
-      <p class="sous">Colle la demande reçue par WhatsApp ou e-mail : la date, le nombre de personnes, les plats et les desserts sont lus automatiquement. Tu vérifies, puis tu enregistres.</p>
+      <p class="sous">Colle la demande reçue par WhatsApp ou e-mail (ou le bloc « Votre budget » du calculateur) : la date, le nombre de personnes, les plats et les desserts sont lus automatiquement. Tu vérifies, puis tu enregistres.</p>
       <label class="champ">Message du client<textarea id="colle" placeholder="Bonjour le Bossa Nova, Voici notre demande pour une Festa : …"></textarea></label>
       <div class="actions">
         <button class="btn principal" type="button" id="lire">Lire le message</button>
@@ -191,6 +191,7 @@
       <div class="qtes" id="f-desserts"></div>
       <div class="compteur" id="f-desserts-compte"></div>
       <div class="champs" style="margin-top:16px">
+        <label class="champ">Remise sur le menu, CHF TTC (early bird…)<input type="number" id="f-remise" min="0" step="0.05" placeholder="0"></label>
         <label class="champ">Prix du menu convenu, TTC (facultatif)<input type="number" id="f-prix" min="0" step="0.05" placeholder="Calculé automatiquement"></label>
         <label class="champ" style="grid-column: span 2">Remarques (allergies, déroulement…)<input type="text" id="f-notes"></label>
       </div>
@@ -473,7 +474,7 @@
     Object.entries(s.desserts || {}).forEach(([id, q]) => { const p = plat("dessert", id); if (p) t += (Number(p.prix) || 0) * q; });
     const k = Math.min(Number(s.enfants) || 0, n), rem = (cat && Number(cat.regles.enfantsRemise)) || 0;
     if (k && n && rem) t -= t / n * k * rem / 100;
-    return t;
+    return Math.max(0, t - (Number(s.remiseMenu) || 0));
   }
   function bilan(s) {
     const b = besoins(s), c = coutDe(b.out);
@@ -490,19 +491,54 @@
     const liste = plats(k);
     return (liste.find(x => norm(x.nom) === t) || liste.find(x => t.startsWith(norm(x.nom)) || norm(x.nom).startsWith(t)) || {}).id || null;
   }
+  function lireDate(t) {
+    const d = norm(t).match(/(\d{1,2}) ([a-z]+) (\d{4})/);
+    const mi = d ? MOIS.findIndex(x => norm(x) === d[2]) : -1;
+    return d && mi >= 0 ? `${d[3]}-${String(mi + 1).padStart(2, "0")}-${String(d[1]).padStart(2, "0")}` : "";
+  }
+  const montant = t => { const m = String(t).match(/CHF\s*([\d'’]+(?:\.\d+)?)/); return m ? Number(m[1].replace(/['’]/g, "")) : 0; };
+  // Lit la demande du client (WhatsApp ou e-mail) ou le bloc « Votre budget » copié du calculateur
   function lireMessage(txt) {
-    const s = { id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, notes: "" };
+    const s = { id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, remiseMenu: 0, notes: "" };
     const avert = [];
-    let section = null, vuMenu = false;
+    let section = null, vuMenu = false, attenteRemise = false, prixBienvenueEntree = null;
     txt.split(/\r?\n/).forEach(brut => {
+      const bt = brut.trim();
+      if (attenteRemise && /^[−-]?\s*CHF\s*[\d'’]/.test(bt)) { s.remiseMenu = montant(bt); attenteRemise = false; return; }
+      attenteRemise = false;
       const l = brut.replace(/^[\s•*·\-–—]+/, "").trim();
       if (!l) return;
       let m;
       if ((m = l.match(/^Date souhait[ée]e\s*:\s*(.+)$/i))) {
-        const d = norm(m[1]).match(/(\d{1,2}) ([a-z]+) (\d{4})/);
-        const mi = d ? MOIS.findIndex(x => norm(x) === d[2]) : -1;
-        if (d && mi >= 0) s.date = `${d[3]}-${String(mi + 1).padStart(2, "0")}-${String(d[1]).padStart(2, "0")}`;
-        else avert.push("Date non reconnue : « " + m[1] + " ».");
+        s.date = lireDate(m[1]);
+        if (!s.date) avert.push("Date non reconnue : « " + m[1] + " ».");
+        return;
+      }
+      // Budget : « 22 personnes dont 2 enfants · Soirée privatisée · jeudi 17 décembre 2026 »
+      if ((m = l.match(/^(\d+)\s+personnes?(?:\s+dont\s+(\d+)\s+enfants?)?\s*·(.*)$/i))) {
+        s.n = Number(m[1]); s.enfants = Number(m[2] || 0);
+        if (!s.date) s.date = lireDate(m[3]);
+        return;
+      }
+      if ((m = l.match(/^Bienvenue et entr[ée]e\s*·\s*(\d+)\s*×\s*CHF\s*([\d.]+)/i))) {
+        vuMenu = true; prixBienvenueEntree = Number(m[2]);
+        if (!s.n) s.n = Number(m[1]);
+        return;
+      }
+      if ((m = l.match(/^Enfants de moins de \d+ ans\s*·\s*(\d+)\s*×/i))) { if (!s.enfants) s.enfants = Number(m[1]); return; }
+      if (/^(Remise early bird|Early bird)/i.test(l)) {
+        const v = montant(l.replace(/^[^:]*:/, ""));
+        if (v) s.remiseMenu = v; else attenteRemise = true;
+        return;
+      }
+      // Budget : « Frango assado · 16 pers. × CHF 18 », « Tiramisù mango et café · 11 pers. × CHF 9 »
+      if ((m = l.match(/^(.+?)\s*·\s*(\d+)\s*pers\.\s*×/i))) {
+        vuMenu = true;
+        const nom = m[1].replace(/\s+et\s+(café|thé)$/i, ""), q = Number(m[2]);
+        let id = trouver("plat", nom);
+        if (id) s.plats[id] = (s.plats[id] || 0) + q;
+        else if ((id = trouver("dessert", nom))) s.desserts[id] = (s.desserts[id] || 0) + q;
+        else avert.push("Plat non reconnu : « " + nom + " » (" + q + " personnes). À ajouter à la main.");
         return;
       }
       if ((m = l.match(/^Groupe\s*:\s*(.+?)\s*(\((entreprise|club|amis)[^)]*\))?$/i))) { s.client = m[1] === "—" ? "" : m[1]; return; }
@@ -529,6 +565,18 @@
       }
       if (/^(Programme|Total|Notre budget|Remarques|Saint|Gamay|Ros[ée]|Eaux|Ambiance|Placement|Vins|Boissons)/i.test(l)) section = null;
     });
+    if (prixBienvenueEntree != null) {
+      // Le budget ne nomme pas l'entrée : on la retrouve par son prix quand il est unique
+      if (prixBienvenueEntree === 0) s.entree = "aucune";
+      else {
+        const cands = plats("entree").filter(x => x.actif !== false && Number(x.prix) === prixBienvenueEntree);
+        if (cands.length === 1) { s.entree = cands[0].id; avert.push("Entrée déduite de son prix (CHF " + prixBienvenueEntree + ") : " + cands[0].nom + ". Vérifie-la."); }
+        else if (cands.length > 1) { s.entree = cands[0].id; avert.push("Entrée à vérifier : plusieurs entrées coûtent CHF " + prixBienvenueEntree + " (" + cands.map(x => x.nom).join(", ") + "). " + cands[0].nom + " est présélectionnée, change-la si besoin."); }
+        else avert.push("Entrée à choisir ci-dessous : aucune entrée ne coûte CHF " + prixBienvenueEntree + " par personne.");
+      }
+      avert.push("Boisson d’accueil et client : le budget ne les nomme pas, complète-les ci-dessous. Le message WhatsApp ou e-mail du client les contient.");
+    }
+    if (s.remiseMenu) avert.push("Remise sur le menu lue : CHF " + s.remiseMenu.toFixed(2) + " (early bird ou offre). Elle est déduite du chiffre d’affaires.");
     if (!s.n) avert.push("Nombre de personnes non trouvé.");
     if (!vuMenu) avert.push("Aucun menu trouvé dans ce message. Vérifie qu’il s’agit bien d’une demande de soirée.");
     return { s, avert };
@@ -569,6 +617,7 @@
     remplirSelect($("f-bienvenue"), "bienvenue", s.bienvenue);
     remplirSelect($("f-entree"), "entree", s.entree, true);
     $("f-prix").value = s.prixMenuTTC || "";
+    $("f-remise").value = s.remiseMenu || "";
     $("f-notes").value = s.notes || "";
     grilleQte($("f-plats"), "plat", "plats");
     grilleQte($("f-desserts"), "dessert", "desserts");
@@ -586,6 +635,7 @@
     edition.bienvenue = $("f-bienvenue").value;
     edition.entree = $("f-entree").value;
     edition.prixMenuTTC = Number($("f-prix").value) > 0 ? Number($("f-prix").value) : null;
+    edition.remiseMenu = Math.max(0, Number($("f-remise").value) || 0);
     edition.notes = $("f-notes").value.trim();
   }
   function compteur(el, total, n, quoi) {
@@ -608,7 +658,7 @@
       <div class="chiffre"><small>Marge brute</small><strong>${chf(b.marge)}</strong></div>`;
     if (b.manque.length) $("f-apercu").insertAdjacentHTML("beforeend", `<div class="msg avert" style="grid-column:1/-1">Recette à compléter (coût sous-estimé) : ${b.manque.map(esc).join(", ")}.</div>`);
   }
-  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-statut", "f-bienvenue", "f-entree", "f-prix", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
+  ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-statut", "f-bienvenue", "f-entree", "f-prix", "f-remise", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
   ["f-statut", "f-bienvenue", "f-entree"].forEach(id => $(id).addEventListener("change", majFormulaire));
 
   $("lire").addEventListener("click", () => {
@@ -619,7 +669,7 @@
   });
   $("manuel").addEventListener("click", () => {
     const bv = plats("bienvenue").find(x => x.actif !== false);
-    ouvrirFormulaire({ id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: bv ? bv.id : "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, notes: "" }, [], "Nouvelle soirée");
+    ouvrirFormulaire({ id: null, date: "", client: "", contact: "", n: 0, enfants: 0, statut: "confirmee", bienvenue: bv ? bv.id : "", entree: "aucune", plats: {}, desserts: {}, prixMenuTTC: null, remiseMenu: 0, notes: "" }, [], "Nouvelle soirée");
     $("f-date").focus();
   });
   $("f-annuler").addEventListener("click", () => { edition = null; $("formulaire").classList.add("cache"); });
