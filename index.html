@@ -1042,7 +1042,19 @@
     // Invités sans porc : il faut assez de portions sans porc (y compris celles qui restent à placer)
     const sp = nbSansPorc(), n = Number($("personnes").value) || 0;
     const sansPorcPrevus = listeQte("plat").filter(x => !x.porc).reduce((a, x) => a + x.q, 0);
-    if (sp && sansPorcPrevus + Math.max(0, n - totalQte("plat")) < sp) fautes.push(`${sp} invité${sp > 1 ? "s" : ""} sans porc : prévoyez au moins ${sp} portion${sp > 1 ? "s" : ""} de plats sans porc (tous sauf ceux marqués « porc »).`);
+    const restant = Math.max(0, n - totalQte("plat"));
+    if (sp && sansPorcPrevus + restant < sp) {
+      const manque = sp - sansPorcPrevus - restant, pl = s => s > 1 ? "s" : "";
+      const avecPorc = listeQte("plat").filter(x => x.porc).map(x => x.nom).join(" ou ");
+      const sansPorc = listeQte("plat").filter(x => !x.porc && !x.vg).map(x => x.nom);
+      const exemple = sansPorc[0] || (CONFIG.menu.find(c => c.id === "plat").choix.find(x => !x.porc && !x.vg) || {}).nom;
+      const prevus = sansPorcPrevus === 1 ? "qu’une portion" : `que ${sansPorcPrevus} portions`;
+      // Un plat sans porc déjà choisi reçoit les portions ; sinon il faut en ouvrir un, avec le minimum par plat
+      const conseil = sansPorc.length
+        ? `Passez ${manque} portion${pl(manque)} de ${avecPorc} à ${sansPorc.join(" ou ")}.`
+        : `Remplacez au moins ${Math.max(manque, Number(CONFIG.platsMin) || 1)} portions de ${avecPorc} par un plat sans porc${exemple ? `, par exemple : ${exemple}` : ""}${Number(CONFIG.platsMin) > 1 ? ` (minimum ${CONFIG.platsMin} personnes par plat)` : ""}.`;
+      fautes.push(`Vous avez signalé ${sp} invité${pl(sp)} qui ne mange${sp > 1 ? "nt" : ""} pas de porc, mais ${sansPorcPrevus ? `vos plats ne prévoient ${prevus} sans porc` : "aucun de vos plats n’est sans porc"} : il en manque ${manque}. ${conseil}`);
+    }
     return fautes;
   }
   const totalPortions = () => totalQte("plat");
