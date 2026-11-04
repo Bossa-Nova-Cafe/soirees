@@ -366,7 +366,7 @@
     "entree.caldinho": { "haricots-noirs": 250, lardons: 150, oignons: 1, ail: 3, laurier: 2, herbes: 0.5, "huile-olive": 30 },
     "entree.salpicao": { poulet: 650, carottes: 200, pomme: 1, "petits-pois": 100, "raisins-secs": 60, mayonnaise: 200, citron: 0.5, "batata-palha": 120 },
     "entree.massas": { massas: 4, herbes: 0.25 },
-    "entree.pinsas": { pinsa: 3.5 },
+    "entree.pinsas": { pinsa: 3 },
     "entree.veloute": { courge: 1400, "lait-coco": 400, bouillon: 600, oignons: 1, gingembre: 20, "graines-courge": 50 },
     "plat.feijoada": { "haricots-noirs": 600, "lard-sale": 400, "saucisse-fumee": 500, "echine-fumee": 500, "pieds-porc": 2, oignons: 2, ail: 6, laurier: 3, orange: 2 },
     "plat.escondidinho": { manioc: 1600, "boeuf-ragout": 1200, "tomates-concassees": 400, oignons: 2, ail: 4, "fromage-rape": 300, beurre: 80, lait: 200, herbes: 0.5 },
@@ -422,8 +422,8 @@
     if (d.ingredients) Object.entries(d.ingredients).forEach(([id, x]) => { c.ingredients[id] = Object.assign({}, c.ingredients[id] || {}, x); });
     if (d.recettes) Object.entries(d.recettes).forEach(([k, r]) => { c.recettes[k] = r; });
     const pz = c.recettes["entree.pinsas"];
-    // Pinsas : 3,5 par îlot de 8, coupées en carrés apéro (3,2 puis 3 auparavant), si la recette n'a pas été modifiée
-    if (pz && Object.keys(pz).length === 1 && (pz.pinsa === 3.2 || pz.pinsa === 3)) c.recettes["entree.pinsas"] = { pinsa: 3.5 };
+    // Pinsas : 3 par îlot de 8, coupées en 15 carrés apéro (environ 5 à 6 carrés par personne), si la recette n'a pas été modifiée
+    if (pz && Object.keys(pz).length === 1 && (pz.pinsa === 3.2 || pz.pinsa === 3.5)) c.recettes["entree.pinsas"] = { pinsa: 3 };
     if (Array.isArray(d.soirees)) c.soirees = d.soirees;
     return c;
   }
