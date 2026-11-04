@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Votre soirée privée — Bossa Nova Café</title>
-<meta property="og:title" content="Votre soirée privée au Bossa Nova Café, Vevey">
-<meta property="og:description" content="Fermé au public. Ouvert à votre fête. Composez votre soirée privée au Bossa Nova Café et voyez votre budget en direct.">
+<title>Ta soirée privée — Bossa Nova Café</title>
+<meta property="og:title" content="Ta soirée privée au Bossa Nova Café, Vevey">
+<meta property="og:description" content="Fermé au public. Ouvert à ta fête. Compose ta soirée privée au Bossa Nova Café et vois ton budget en direct.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Chango&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -279,6 +279,24 @@
   .etapes-points li.bloquee button { cursor: default; }
   .etapes-points button:focus-visible { outline: 2px solid var(--jaune); outline-offset: 3px; }
   .hors-etape { display: none !important; }
+  /* Une question par écran */
+  .hors-ecran { display: none !important; }
+  .question { background: #fff; border-radius: 18px; padding: 16px 18px 14px; margin-bottom: 14px; border: 1px solid var(--bord); }
+  .question .q-num { font-size: 12.5px; color: var(--gris); font-weight: 500; }
+  .question h2 { font-family: "Anton", sans-serif; font-weight: 400; color: var(--vert); font-size: 26px; line-height: 1.15; text-transform: none; margin: 4px 0 4px; letter-spacing: .2px; }
+  .question .q-sous { color: var(--gris); font-size: 14px; margin: 0; }
+  .question .q-sous:empty { display: none; }
+  .question .q-confirm { margin-top: 10px; font-weight: 600; color: #1e7a3e; font-size: 14.5px; }
+  .question .q-confirm:empty { display: none; }
+  .question .q-confirm::before { content: "✓ "; }
+  .question .q-confirm.pop { animation: pop .35s ease-out; }
+  @keyframes pop { from { transform: translateY(4px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .q-points { display: flex; gap: 5px; margin-top: 8px; }
+  .q-points i { flex: 1; height: 4px; border-radius: 4px; background: var(--bord); }
+  .q-points i.fait { background: var(--jaune); }
+  .q-points i.actif { background: var(--vert); }
+  body.ecrans [data-etape] > h2:first-child, body.ecrans #carte-menu > .sous, body.ecrans .titre-groupe { display: none; }
+  body.ecrans #carte-moment > .sous, body.ecrans #lab-profil { display: none; }
   .nav-etapes { margin: 4px 0 18px; }
   .nav-boutons { display: flex; gap: 10px; }
   .nav-boutons button { margin: 0; }
@@ -303,12 +321,12 @@
 <body>
 <header>
   <div class="marque">BOSSA NOVA CAFÉ</div>
-  <h1>Votre soirée privée</h1>
-  <p class="slogan">Fermé au public. Ouvert à votre fête.</p>
-  <p>La nouvelle façon de fêter entre collègues, membres ou amis : un lieu rien que pour vous, tout organisé, et à votre image jusqu'à la musique. Composez votre soirée et voyez votre budget en direct.</p>
+  <h1>Ta soirée privée</h1>
+  <p class="slogan">Fermé au public. Ouvert à ta fête.</p>
+  <p>La nouvelle façon de fêter entre collègues, membres ou amis : un lieu rien que pour ton groupe, tout organisé, et à ton image jusqu'à la musique. Compose ta soirée et vois ton budget en direct.</p>
   <div class="atouts">
-    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour votre groupe, de 12 à <span class="max-pers">26</span> personnes, enfants compris.</span></div>
-    <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour vos invités : nous nous occupons de tout.</span></div>
+    <div><strong>Privatisé</strong><span>Le Bossa Nova ferme ses portes pour ton groupe, de 12 à <span class="max-pers">26</span> personnes, enfants compris.</span></div>
+    <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour tes invités : nous nous occupons de tout.</span></div>
     <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
   </div>
   <div class="offre-bandeau cache" id="offre-bandeau"></div>
@@ -317,7 +335,7 @@
 <main>
   <div class="colonne">
     <nav class="etapes pas-imprime" id="etapes" aria-label="Étapes">
-      <div class="etapes-titre"><span id="etape-num">Étape 1 sur 5</span><strong id="etape-nom">Votre groupe</strong></div>
+      <div class="etapes-titre"><span id="etape-num">Étape 1 sur 5</span><strong id="etape-nom">Ton groupe</strong></div>
       <ol class="etapes-points" id="etapes-points">
         <li><button type="button" data-aller="1">Groupe</button></li>
         <li><button type="button" data-aller="2">Repas</button></li>
@@ -326,15 +344,24 @@
         <li><button type="button" data-aller="5">Demande</button></li>
       </ol>
     </nav>
+    <div class="question pas-imprime" id="question">
+      <div class="q-num" id="q-num"></div>
+      <h2 id="q-titre"></h2>
+      <p class="q-sous" id="q-sous"></p>
+      <div class="q-confirm" id="q-confirm" aria-live="polite"></div>
+    </div>
     <!-- 1. Groupe et date -->
     <div class="carte pas-imprime" data-etape="1">
-      <p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 26 personnes, enfants compris, rien que pour vous.</p>
-      <label class="champ" id="lab-profil">Vous êtes</label>
+      <div data-ecran="1-combien"><p class="sous" id="sous-groupe">Le Bossa Nova accueille de 12 à 26 personnes, enfants compris, rien que pour ton groupe.</p></div>
+      <div data-ecran="1-qui">
+      <label class="champ" id="lab-profil">C’est pour</label>
       <div class="profils" id="profils" role="radiogroup" aria-labelledby="lab-profil">
         <label class="choisie"><input type="radio" name="profil" value="entreprise" checked>Une entreprise<small>collègues, équipe</small></label>
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
       </div>
+      </div>
+      <div data-ecran="1-combien">
       <label class="champ" for="adultes">Adultes</label>
       <div class="compteur">
         <input type="range" id="adultes" min="1" max="26" value="20">
@@ -347,48 +374,51 @@
       <div class="total-groupe">Total : <strong id="personnes-val">20</strong> personnes <span id="repartition"></span></div>
       <div class="groupe-alerte" id="groupe-alerte" role="status"></div>
       <input type="hidden" id="personnes" value="20">
+      </div>
+      <div data-ecran="1-date">
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
       <div class="aide" id="date-aide"></div>
       <div class="alerte cache" id="date-alerte"></div>
+      </div>
     </div>
 
     <!-- 2. Moment et menu -->
-    <div class="carte pas-imprime" id="carte-moment" data-etape="1">
-      <h2>Votre moment</h2>
+    <div class="carte pas-imprime" id="carte-moment" data-etape="1" data-ecran="1-date">
+      <h2>Ton moment</h2>
       <p class="sous">Prix TVA incluse.</p>
       <div class="formules" id="types"></div>
     </div>
 
     <div class="carte pas-imprime" id="carte-menu" data-etape="2">
-      <h2>Votre menu</h2>
-      <p class="sous">Composez le menu de votre groupe. Le café ou thé est compris. Le prix se calcule selon vos choix. Photos d’illustration.</p>
-      <div class="alerte" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Choisissez vos plats principaux et pour combien de personnes chacun, selon les goûts de vos invités. Riz, feijão, farofa, couve, vinagrete et patates douces rôties arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
+      <h2>Ton menu</h2>
+      <p class="sous">Compose le menu de ton groupe. Le café ou thé est compris. Le prix se calcule selon tes choix. Photos d’illustration.</p>
+      <div class="alerte" data-ecran="2-plat" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Choisis tes plats principaux et pour combien de personnes chacun, selon les goûts de tes invités. Riz, feijão, farofa, couve, vinagrete et patates douces rôties arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
       <div id="menu"></div>
-      <div class="compteur-portions" id="compteur-portions"></div>
-      <div class="menu-total" id="menu-total"></div>
+      <div class="compteur-portions" id="compteur-portions" data-ecran="2-plat"></div>
+      <div class="menu-total" id="menu-total" data-ecran="2-dessert"></div>
     </div>
 
     <!-- Moments à l'honneur -->
-    <div class="carte pas-imprime" data-etape="4">
+    <div class="carte pas-imprime" data-etape="4" data-ecran="4-honneurs">
       <h2>Moments à l'honneur</h2>
-      <p class="sous" id="sous-honneurs">Mettez vos collègues à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
+      <p class="sous" id="sous-honneurs">Mets tes collègues à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
       <div id="honneurs"></div>
       <div id="bloc-production" class="cache">
         <label class="champ">Trophées et cadeaux</label>
         <div class="choix-boissons" id="choix-production">
           <label><input type="radio" name="production" value="client" checked>
-            <span><strong id="prod-client">Vous apportez vos trophées</strong> · offert<small>Nous les remettons au bon moment, avec l'annonce, le diplôme et la photo souvenir. Aucun frais.</small></span></label>
+            <span><strong id="prod-client">Tu apportes tes trophées</strong> · offert<small>Nous les remettons au bon moment, avec l'annonce, le diplôme et la photo souvenir. Aucun frais.</small></span></label>
           <label><input type="radio" name="production" value="bossanova">
             <span><strong>Le Bossa Nova les réalise</strong> <span id="prix-production"></span><small id="texte-production"></small></span></label>
         </div>
         <div class="alerte cache" id="production-alerte"></div>
       </div>
-      <div class="aide">Vous nous donnerez les noms et quelques mots sur chaque personne lors de la préparation de la soirée.</div>
+      <div class="aide">Tu nous donneras les noms et quelques mots sur chaque personne lors de la préparation de la soirée.</div>
     </div>
 
     <!-- 3. Options -->
-    <div class="carte pas-imprime" data-etape="4">
+    <div class="carte pas-imprime" data-etape="4" data-ecran="4-options">
       <h2>Options</h2>
       <p class="sous">Pour faire de la soirée la vôtre.</p>
       <div id="options"></div>
@@ -397,50 +427,57 @@
     <!-- Boissons -->
     <div class="carte pas-imprime" data-etape="3">
       <h2>Boissons</h2>
+      <div data-ecran="3-vins">
       <p class="sous" id="boissons-incluses"></p>
-      <label class="champ">1. Les vins, à la bouteille</label>
+      <label class="champ titre-groupe">1. Les vins, à la bouteille</label>
       <div class="choix-boissons" id="choix-vins">
         <label><input type="radio" name="vins" value="oui" checked>
-          <span><strong>Oui, des vins vaudois sur les tables</strong><small>Facturés à la bouteille de 70 cl. Nous calculons le nombre de bouteilles selon vos invités ; vous pouvez l’ajuster.</small></span></label>
+          <span><strong>Oui, des vins vaudois sur les tables</strong><small>Facturés à la bouteille de 70 cl. Nous calculons le nombre de bouteilles selon tes invités ; tu peux l’ajuster.</small></span></label>
         <label><input type="radio" name="vins" value="apporte">
-          <span><strong>Vous apportez votre propre vin</strong><small id="bouchon-detail">Nous le servons à table. Droit de bouchon : CHF 10 par bouteille consommée.</small></span></label>
+          <span><strong>Tu apportes ton propre vin</strong><small id="bouchon-detail">Nous le servons à table. Droit de bouchon : CHF 10 par bouteille consommée.</small></span></label>
         <label><input type="radio" name="vins" value="non">
           <span><strong>Pas de vin sur les tables</strong><small>Les invités pourront en commander au bar.</small></span></label>
       </div>
       <div class="bols" id="bloc-vins" style="margin-top:4px">
-        <div class="bols-titre">Vos vins</div>
+        <div class="bols-titre">Tes vins</div>
         <select id="consommation" style="margin-bottom:10px"></select>
         <div id="vins"></div>
         <div class="compteur-portions ok" id="vins-total" style="margin:8px 0 0"></div>
       </div>
       <div class="bols cache" id="bloc-apporte" style="margin-top:4px">
-        <div class="bols-titre">Votre vin</div>
+        <div class="bols-titre">Ton vin</div>
         <div class="digestif">
           <div class="texte"><div class="titre">Bouteilles prévues</div><div class="detail" id="apporte-detail"></div></div>
           <div class="montant" id="apporte-prix"></div>
           <input type="number" min="0" max="60" id="apporte-nb" aria-label="Nombre de bouteilles apportées">
         </div>
-        <div class="aide" style="margin:8px 0 0">Une estimation pour votre budget. Seules les bouteilles ouvertes le soir même sont facturées.</div>
+        <div class="aide" style="margin:8px 0 0">Une estimation pour ton budget. Seules les bouteilles ouvertes le soir même sont facturées.</div>
       </div>
-      <label class="champ">2. Les eaux et les softs, par adulte</label>
+      </div>
+      <div data-ecran="3-eaux">
+      <label class="champ titre-groupe">2. Les eaux et les softs, par adulte</label>
       <div class="aide cache" id="aide-forfait-enfant" style="margin-top:0;margin-bottom:8px"></div>
       <div class="choix-boissons" id="forfaits"></div>
-      <label class="champ">3. Les digestifs, à la bouteille</label>
-      <div class="aide" style="margin-top:0">Posées sur la table pour le groupe, à un prix de bouteille avantageux. Non inclus : ajoutez celles que vous voulez.</div>
+      </div>
+      <div data-ecran="3-digestifs">
+      <label class="champ titre-groupe">3. Les digestifs, à la bouteille</label>
+      <div class="aide" style="margin-top:0">Posées sur la table pour le groupe, à un prix de bouteille avantageux. Non inclus : ajoute celles que tu veux.</div>
       <div id="digestifs"></div>
-      <div id="bloc-bulles">
-        <label class="champ">4. Les bulles, pour trinquer</label>
-        <div class="aide" style="margin-top:0">Une coupe pour lever son verre au bon moment : à l’accueil, avec les trophées ou au dessert. Vous choisissez le moment dans le programme.</div>
+      </div>
+      <div id="bloc-bulles" data-ecran="3-bulles">
+        <label class="champ titre-groupe">4. Les bulles, pour trinquer</label>
+        <div class="aide" style="margin-top:0">Une coupe pour lever son verre au bon moment : à l’accueil, avec les trophées ou au dessert. Tu choisis le moment dans le programme.</div>
         <div id="bulles"></div>
         <div class="aide" id="bulles-conseil" style="margin-top:6px"></div>
       </div>
-      <label class="champ" id="titre-bar">5. Les boissons commandées en plus au bar</label>
+      <div data-ecran="3-bar">
+      <label class="champ titre-groupe" id="titre-bar">5. Les boissons commandées en plus au bar</label>
       <div class="aide" style="margin-top:0;margin-bottom:8px">Un cocktail, une bière, un apéritif : tout ce qui n’est pas prévu ci-dessus. Ces boissons ne sont pas dans le total estimé. Qui les paie ?</div>
       <div class="choix-boissons" id="choix-boissons">
         <label><input type="radio" name="boissons" value="individuel" checked>
-          <span><strong>Chaque invité paie ce qu’il commande</strong><small>Les invités règlent eux-mêmes au bar, par carte ou TWINT. Rien n’est ajouté à votre facture.</small></span></label>
+          <span><strong>Chaque invité paie ce qu’il commande</strong><small>Les invités règlent eux-mêmes au bar, par carte ou TWINT. Rien n’est ajouté à ta facture.</small></span></label>
         <label><input type="radio" name="boissons" value="facture">
-          <span><strong>L’organisateur paie, jusqu’à un montant maximum</strong><small>Les invités commandent librement : c’est ajouté à votre facture. Quand le montant maximum est atteint, nous vous prévenons et vous choisissez : soit vous augmentez le montant, soit les invités paient eux-mêmes leurs boissons à partir de ce moment.</small></span></label>
+          <span><strong>L’organisateur paie, jusqu’à un montant maximum</strong><small>Les invités commandent librement : c’est ajouté à ta facture. Quand le montant maximum est atteint, nous te prévenons et tu choisis : soit tu augmentes le montant, soit les invités paient eux-mêmes leurs boissons à partir de ce moment.</small></span></label>
         <div id="bloc-plafond">
           <div class="rangee" style="align-items:center">
             <div style="flex:0 0 auto">Montant maximum : CHF</div>
@@ -448,13 +485,14 @@
           </div>
         </div>
         <label><input type="radio" name="boissons" value="mixte">
-          <span><strong>L’organisateur paie jusqu’au dessert, les invités ensuite</strong><small>Pendant le repas, les boissons commandées au bar vont sur votre facture. Après le dessert, chacun paie les siennes.</small></span></label>
+          <span><strong>L’organisateur paie jusqu’au dessert, les invités ensuite</strong><small>Pendant le repas, les boissons commandées au bar vont sur ta facture. Après le dessert, chacun paie les siennes.</small></span></label>
+      </div>
       </div>
     </div>
 
     <!-- 5. Coordonnées -->
-    <div class="carte pas-imprime" data-etape="5">
-      <h2>Vos coordonnées</h2>
+    <div class="carte pas-imprime" data-etape="5" data-ecran="5-coord">
+      <h2>Tes coordonnées</h2>
       <div class="rangee">
         <div><label class="champ" for="nom">Nom et prénom</label><input type="text" id="nom" autocomplete="name"></div>
         <div><label class="champ" for="societe" id="lab-societe">Entreprise</label><input type="text" id="societe" autocomplete="organization"></div>
@@ -468,16 +506,16 @@
     </div>
 
     <!-- Programme -->
-    <div class="carte pas-imprime" data-etape="4">
-      <h2>Le programme de votre soirée</h2>
-      <p class="sous">Choisissez à quel moment de la soirée chaque animation a lieu. Le programme se met à jour, prêt à être envoyé à vos invités.</p>
+    <div class="carte pas-imprime" data-etape="4" data-ecran="4-programme">
+      <h2>Le programme de ta soirée</h2>
+      <p class="sous">Choisis à quel moment de la soirée chaque animation a lieu. Le programme se met à jour, prêt à être envoyé à tes invités.</p>
       <label class="champ" for="societe-prog" style="margin-top:0">Nom affiché en titre du programme</label>
-      <input type="text" id="societe-prog" placeholder="Le nom de votre entreprise ou association">
+      <input type="text" id="societe-prog" placeholder="Le nom de ton entreprise ou association">
       <div id="placements" style="margin-top:12px"></div>
-      <div class="aide" id="placements-vide">Ajoutez un Amigo Secreto ou un moment à l'honneur pour choisir quand il a lieu.</div>
+      <div class="aide" id="placements-vide">Ajoute un Amigo Secreto ou un moment à l'honneur pour choisir quand il a lieu.</div>
     </div>
 
-    <div class="carte programme" id="programme" data-etape="4">
+    <div class="carte programme" id="programme" data-etape="4" data-ecran="4-programme">
       <div class="prog-entete">
         <div class="marque-prog">BOSSA NOVA CAFÉ · VEVEY</div>
         <div class="prog-sur" id="prog-sur">Notre Festa</div>
@@ -513,7 +551,7 @@
   <!-- Récapitulatif -->
   <aside class="recap" id="budget">
     <div class="carte">
-      <h2>Votre budget</h2>
+      <h2>Ton budget</h2>
       <p class="sous" id="recap-titre"></p>
       <div class="impression-seule" id="recap-client"></div>
       <div id="recap-lignes"></div>
@@ -521,13 +559,13 @@
       <div class="parpers" id="parpers"></div>
       <div class="acompte"><span id="acompte-lib">Acompte à la réservation</span><strong id="acompte"></strong></div>
 
-      <div class="aside-suite pas-imprime" id="aside-suite">Le budget se met à jour à chaque choix. Vous enverrez votre demande à la dernière étape.</div>
+      <div class="aside-suite pas-imprime" id="aside-suite">Le budget se met à jour à chaque choix. Tu enverras ta demande à la dernière étape.</div>
       <div class="envoi-zone" id="envoi-zone">
       <div class="nego pas-imprime">
-        <div class="nego-titre">Ce budget ne vous convient pas tout à fait ?</div>
-        <p>Ce montant est une base de discussion, sans engagement. Indiquez votre budget : nous adaptons avec vous le menu, les quantités ou les conditions.</p>
+        <div class="nego-titre">Ce budget ne te convient pas tout à fait ?</div>
+        <p>Ce montant est une base de discussion, sans engagement. Indique ton budget : nous adaptons avec toi le menu, les quantités ou les conditions.</p>
         <div class="nego-champs">
-          <input type="number" id="budget-cible" min="0" step="50" placeholder="Votre budget" aria-label="Votre budget en CHF">
+          <input type="number" id="budget-cible" min="0" step="50" placeholder="Ton budget" aria-label="Ton budget en CHF">
           <select id="budget-unite" aria-label="Unité du budget"><option value="total">CHF au total</option><option value="pers">CHF par personne</option></select>
         </div>
         <div class="nego-ecart cache" id="budget-ecart"></div>
@@ -540,10 +578,10 @@
       <a class="bouton mail" id="envoyer-mail" href="#">Envoyer ma demande par e-mail</a>
       <button type="button" class="bouton rappel" id="rappel-ouvrir">Être rappelé par le Bossa Nova</button>
       <div class="rappel-bloc cache" id="rappel-bloc">
-        <p>Laissez-nous votre numéro : nous vous appelons pour parler de votre soirée, sans engagement.</p>
-        <label class="champ" for="rappel-tel" style="margin-top:0">Votre téléphone</label>
+        <p>Laisse-nous ton numéro : nous t’appelons pour parler de ta soirée, sans engagement.</p>
+        <label class="champ" for="rappel-tel" style="margin-top:0">Ton téléphone</label>
         <input type="tel" id="rappel-tel" autocomplete="tel" placeholder="079 123 45 67">
-        <label class="champ" for="rappel-moment">Quand vous appeler ?</label>
+        <label class="champ" for="rappel-moment">Quand t’appeler ?</label>
         <select id="rappel-moment">
           <option>Dès que possible</option>
           <option>Le matin (8h – 12h)</option>
@@ -557,7 +595,7 @@
       <button class="imprimer" id="imprimer">Imprimer ou enregistrer en PDF</button>
 
       <div class="notes">
-        <p>Demande sans engagement, prix TVA incluse. Nous vous répondons avec une proposition, que nous pouvons ajuster ensemble avant toute confirmation.</p>
+        <p>Demande sans engagement, prix TVA incluse. Nous te répondons avec une proposition, que nous pouvons ajuster ensemble avant toute confirmation.</p>
         <p>Nombre définitif de convives 5 jours avant. Acompte remboursé en cas d'annulation jusqu'à 14 jours avant la soirée.</p>
       </div>
       </div>
@@ -616,7 +654,7 @@
     },
     types: [
       { id: "soir", nom: "Soirée privatisée", quand: "19h00–23h30, prolongation possible jusqu'à 00h30",
-        desc: "Le Bossa Nova ferme ses portes pour vous. Menu à composer.", privatise: true },
+        desc: "Le Bossa Nova ferme ses portes pour ton groupe. Menu à composer.", privatise: true },
       { id: "midi", nom: "Déjeuner de groupe", quand: "12h00–14h00",
         desc: "Un repas de fête à midi. Menu à composer.", privatise: false, actif: false },
       { id: "afterwork", nom: "Afterwork Caipi", quand: "17h30–20h30", prix: 42,
@@ -693,7 +731,7 @@
     ],
     honneurs: [
       { id: "trofeu", nom: "Trophées de l'année", sous: "Employé·e·s ou membres de l'année", max: 3, prix: 15, duree: (k) => 5 + 4 * k, titreProg: "Remise des Trophées de l'année", sousProg: "Les employé·e·s ou membres de l'année", defaut: "avant_dessert",
-        detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de votre entreprise ou de votre association." },
+        detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de ton entreprise ou de ton association." },
       { id: "revelacao", nom: "Révélation de l'année", sous: "La jeune promesse", max: 2, prix: 15, duree: (k) => 3 + 4 * k, titreProg: "Révélation de l'année", sousProg: "La jeune promesse de l'année", defaut: "avant_dessert",
         detail: "Un apprenti, un nouveau venu, un jeune talent qui s'est fait remarquer." },
       { id: "anos", nom: "Jubilés de fidélité", sous: "10, 20, 25 ans et plus", max: 10, prix: 10, duree: (k) => 3 + 3 * k, titreProg: "Jubilés de fidélité", sousProg: "Nous fêtons les années passées ensemble", defaut: "entre_plats",
@@ -704,33 +742,33 @@
     // Textes des moments à l'honneur selon le groupe
     profils: {
       entreprise: {
-        societe: "Entreprise", titreVide: "Nom de votre entreprise", objet: "vos trophées",
-        sous: "Mettez vos collègues à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.",
-        production: "Trophées au nom et au logo de votre entreprise, gravés au nom de chaque lauréat, ou cadeaux brésiliens.",
+        societe: "Entreprise", titreVide: "Nom de ton entreprise", objet: "tes trophées",
+        sous: "Mets tes collègues à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.",
+        production: "Trophées au nom et au logo de ton entreprise, gravés au nom de chaque lauréat, ou cadeaux brésiliens.",
         honneurs: {
-          trofeu: { sous: "Employé·e·s de l'année", sousProg: "Les employé·e·s de l'année", detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de votre entreprise." },
+          trofeu: { sous: "Employé·e·s de l'année", sousProg: "Les employé·e·s de l'année", detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de ton entreprise." },
           revelacao: {},
           anos: { detail: "Les collègues qui fêtent 10, 20, 25 ans ou plus dans l'entreprise." },
           boaviagem: {}
         }
       },
       club: {
-        societe: "Club ou association", titreVide: "Nom de votre club ou association", objet: "vos trophées",
-        sous: "Mettez vos membres à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.",
-        production: "Trophées au nom et au logo de votre club, gravés au nom de chaque lauréat, ou cadeaux brésiliens.",
+        societe: "Club ou association", titreVide: "Nom de ton club ou association", objet: "tes trophées",
+        sous: "Mets tes membres à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.",
+        production: "Trophées au nom et au logo de ton club, gravés au nom de chaque lauréat, ou cadeaux brésiliens.",
         honneurs: {
-          trofeu: { nom: "Trophées de la saison", sous: "Joueurs, joueuses ou membres de la saison", titreProg: "Remise des Trophées de la saison", sousProg: "Les joueurs et les membres de la saison", detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de votre club." },
+          trofeu: { nom: "Trophées de la saison", sous: "Joueurs, joueuses ou membres de la saison", titreProg: "Remise des Trophées de la saison", sousProg: "Les joueurs et les membres de la saison", detail: "Jusqu'à trois lauréats, annoncés comme une remise de prix. Les trophées portent le nom et le logo de ton club." },
           revelacao: { nom: "Révélation de la saison", sous: "Le jeune talent", titreProg: "Révélation de la saison", sousProg: "Le jeune talent de la saison", detail: "Un junior, un nouveau membre, un talent qui s'est fait remarquer cette saison." },
           anos: { nom: "Fidélité au club", sous: "10, 20, 25 ans et plus", titreProg: "Fidélité au club", sousProg: "Nous fêtons les années passées ensemble", detail: "Les membres, bénévoles ou entraîneurs qui fêtent 10, 20, 25 ans ou plus au club." },
           boaviagem: { nom: "Merci et bonne route", sous: "Un départ : entraîneur, président, bénévole", titreProg: "Merci et bonne route !", sousProg: "Un hommage pour un départ", detail: "Pour remercier quelqu'un qui quitte le club. En plus : une carte signée par tout le groupe et un grand brigadeiro à son nom." }
         }
       },
       amis: {
-        societe: "Nom du groupe", titreVide: "Le nom de votre groupe", objet: "vos cadeaux",
-        sous: "Fêtez quelqu'un pendant la soirée. Chaque moment comprend une annonce par notre animateur et une photo souvenir.",
+        societe: "Nom du groupe", titreVide: "Le nom de ton groupe", objet: "tes cadeaux",
+        sous: "Fête quelqu'un pendant la soirée. Chaque moment comprend une annonce par notre animateur et une photo souvenir.",
         production: "Cadeaux brésiliens préparés par nos soins, ou trophées pour rire gravés à leur nom.",
         honneurs: {
-          trofeu: { nom: "Trophées pour rire", sous: "Le plus fêtard, le plus en retard…", titreProg: "Les trophées de la soirée", sousProg: "Des prix pour rire, préparés en secret", detail: "Jusqu'à trois prix humoristiques que vous inventez avec nous, annoncés comme une vraie remise de prix." },
+          trofeu: { nom: "Trophées pour rire", sous: "Le plus fêtard, le plus en retard…", titreProg: "Les trophées de la soirée", sousProg: "Des prix pour rire, préparés en secret", detail: "Jusqu'à trois prix humoristiques que tu inventes avec nous, annoncés comme une vraie remise de prix." },
           revelacao: { masque: true },
           anos: { nom: "Anniversaire", sous: "On souffle les bougies", titreProg: "Joyeux anniversaire !", sousProg: "Bougies, chanson et photo souvenir", detail: "Une bougie sur le dessert, la chanson d'anniversaire brésilienne et une photo souvenir." },
           boaviagem: { nom: "Bon voyage", sous: "Un départ, un déménagement, une nouvelle vie", titreProg: "Bon voyage !", sousProg: "Un hommage pour un départ", detail: "Pour fêter quelqu'un qui part. En plus : une carte signée par tout le groupe et un grand brigadeiro à son nom." }
@@ -747,10 +785,10 @@
     options: [
       { id: "amigo", titreProg: "Amigo Secreto", sousProg: "Chacun fait deviner son ami secret avec trois indices, puis lui offre son cadeau", defaut: "apres_dessert", titre: "Amigo Secreto", detail: "L'ami secret brésilien : tirage en ligne avant la soirée et jeu animé le soir même.",
         type: "case", prix: 0 },
-      { id: "plan", titre: "Plan de table et noms sur les tables", detail: "Les tables sont dressées en lignes. Chevalets au nom de chaque invité, aux couleurs du Bossa Nova. Vous nous envoyez la liste des noms et la répartition par table 5 jours avant la soirée. Sinon, chacun s'installe librement.",
+      { id: "plan", titre: "Plan de table et noms sur les tables", detail: "Les tables sont dressées en lignes. Chevalets au nom de chaque invité, aux couleurs du Bossa Nova. Tu nous envoies la liste des noms et la répartition par table 5 jours avant la soirée. Sinon, chacun s'installe librement.",
         type: "case", prix: 0 },
-      { id: "ambiance", titre: "Ambiance musicale", detail: "Choisissez le son de votre soirée, ou envoyez-nous votre propre playlist.",
-        type: "choix", choix: ["Bossa nova et MPB", "Samba et pagode, pour danser", "Tubes des années 80 et 90", "Votre propre playlist", "Mélange brésilien et international"] },
+      { id: "ambiance", titre: "Ambiance musicale", detail: "Choisis le son de ta soirée, ou envoie-nous ta propre playlist.",
+        type: "choix", choix: ["Bossa nova et MPB", "Samba et pagode, pour danser", "Tubes des années 80 et 90", "Ta propre playlist", "Mélange brésilien et international"] },
       { id: "musique", titre: "Duo bossa nova live", detail: "Musique live pendant la soirée. Tarif selon les musiciens, communiqué avec le devis.",
         type: "case", surDevis: true, soirSeulement: true },
       { id: "prolongation", titre: "Prolongation jusqu'à 00h30", detail: "Tous les soirs, taxis réservés pour la fin de soirée.",
@@ -794,7 +832,7 @@
     if (actifs.length <= 1) {
       $("carte-moment").classList.add("cache");
       const seul = actifs[0];
-      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour vous, de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
+      if (seul) $("sous-groupe").textContent = `Le Bossa Nova ferme ses portes pour ton groupe, de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris. De ${seul.quand.replace("–", " à ")}. Prix TVA incluse.`;
       let k = 0;
       document.querySelectorAll(".carte > h2").forEach(h => {
         if (h.closest(".cache") || !/^\d+\.\s/.test(h.textContent)) return;
@@ -807,7 +845,7 @@
       el.dataset.id = t.id;
       el.innerHTML = `<input type="radio" name="type" value="${t.id}"><div class="nom"></div><div class="prix"></div><div class="desc"></div><div class="quand"></div>`;
       el.querySelector(".nom").textContent = t.nom;
-      el.querySelector(".prix").innerHTML = t.prix ? `CHF ${t.prix} <small>/ pers.</small>` : `<small>Selon votre menu</small>`;
+      el.querySelector(".prix").innerHTML = t.prix ? `CHF ${t.prix} <small>/ pers.</small>` : `<small>Selon ton menu</small>`;
       el.querySelector(".desc").textContent = t.desc;
       el.querySelector(".quand").textContent = t.quand;
       el.querySelector("input").addEventListener("change", () => { etat.type = t.id; maj(); });
@@ -821,6 +859,7 @@
       etat.menu[c.id] = CONFIG.menuDefaut[c.id];
       const bloc = document.createElement("div");
       bloc.className = "cours";
+      bloc.dataset.ecran = "2-" + c.id;
       bloc.innerHTML = `<h3></h3><div class="plats"></div>`;
       bloc.querySelector("h3").textContent = c.id === "plat" ? "Plats principaux, à partager" : c.id === "dessert" ? c.titre.replace(/^Dessert/, "Desserts") : c.titre;
       if (c.id === "plat" && (Number(CONFIG.platsMin) > 1 || Number(CONFIG.platsMax))) {
@@ -848,7 +887,7 @@
         }
         if (p.vg) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg">végétarien</span>');
         if (p.porc) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg porc">porc</span>');
-        if (p.special) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg" style="color:var(--violet);border-color:var(--violet)">proposé pour vous</span>');
+        if (p.special) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg" style="color:var(--violet);border-color:var(--violet)">proposé pour toi</span>');
         el.querySelector(".ds").textContent = p.ds;
         el.querySelector(".px").textContent = p.inclus ? "Compris" : (p.prix ? chf(p.prix) : "—");
         const r = el.querySelector("input");
@@ -890,16 +929,16 @@
         bloc.querySelector(".plats").appendChild(el);
       });
       zone.appendChild(bloc);
-      if (c.id === "entree") { const np = document.createElement("div"); np.className = "note-porc cache"; np.id = "note-porc"; zone.appendChild(np); }
+      if (c.id === "entree") { const np = document.createElement("div"); np.className = "note-porc cache"; np.id = "note-porc"; np.dataset.ecran = "2-entree"; zone.appendChild(np); }
       if (c.id === "plat") zone.appendChild($("compteur-portions"));
       if (c.id === "dessert") {
         const cd = document.createElement("div");
-        cd.className = "compteur-portions"; cd.id = "compteur-desserts";
+        cd.className = "compteur-portions"; cd.id = "compteur-desserts"; cd.dataset.ecran = "2-dessert";
         zone.appendChild(cd);
       }
       if (c.id === "plat") {
         const b = document.createElement("div");
-        b.className = "bols";
+        b.className = "bols"; b.dataset.ecran = "2-plat";
         b.innerHTML = `<div class="bols-titre">Sur toutes les tables, en bols renouvelés · compris</div><div class="bols-liste"></div>`;
         CONFIG.bols.forEach(x => { const t = document.createElement("span"); t.textContent = x; b.querySelector(".bols-liste").appendChild(t); });
         zone.appendChild(b);
@@ -1051,9 +1090,9 @@
       const prevus = sansPorcPrevus === 1 ? "qu’une portion" : `que ${sansPorcPrevus} portions`;
       // Un plat sans porc déjà choisi reçoit les portions ; sinon il faut en ouvrir un, avec le minimum par plat
       const conseil = sansPorc.length
-        ? `Passez ${manque} portion${pl(manque)} de ${avecPorc} à ${sansPorc.join(" ou ")}.`
-        : `Remplacez au moins ${Math.max(manque, Number(CONFIG.platsMin) || 1)} portions de ${avecPorc} par un plat sans porc${exemple ? `, par exemple : ${exemple}` : ""}${Number(CONFIG.platsMin) > 1 ? ` (minimum ${CONFIG.platsMin} personnes par plat)` : ""}.`;
-      fautes.push(`Vous avez signalé ${sp} invité${pl(sp)} qui ne mange${sp > 1 ? "nt" : ""} pas de porc, mais ${sansPorcPrevus ? `vos plats ne prévoient ${prevus} sans porc` : "aucun de vos plats n’est sans porc"} : il en manque ${manque}. ${conseil}`);
+        ? `Passe ${manque} portion${pl(manque)} de ${avecPorc} à ${sansPorc.join(" ou ")}.`
+        : `Remplace au moins ${Math.max(manque, Number(CONFIG.platsMin) || 1)} portions de ${avecPorc} par un plat sans porc${exemple ? `, par exemple : ${exemple}` : ""}${Number(CONFIG.platsMin) > 1 ? ` (minimum ${CONFIG.platsMin} personnes par plat)` : ""}.`;
+      fautes.push(`Tu as signalé ${sp} invité${pl(sp)} qui ne mange${sp > 1 ? "nt" : ""} pas de porc, mais ${sansPorcPrevus ? `tes plats ne prévoient ${prevus} sans porc` : "aucun de tes plats n’est sans porc"} : il en manque ${manque}. ${conseil}`);
     }
     return fautes;
   }
@@ -1123,7 +1162,7 @@
     });
     $("sous-honneurs").textContent = pr.sous;
     $("lab-societe").textContent = pr.societe;
-    $("prod-client").textContent = "Vous apportez " + pr.objet;
+    $("prod-client").textContent = "Tu apportes " + pr.objet;
     document.querySelectorAll("#profils label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
   }
 
@@ -1205,7 +1244,7 @@
     if (etat.vinApporte && etat.bouteillesApportees) {
       const nb = etat.bouteillesApportees, pb = CONFIG.droitBouchon;
       boissons += nb * pb;
-      lignes.push({ lib: `Droit de bouchon, votre vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
+      lignes.push({ lib: `Droit de bouchon, ton vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
     }
     // Boissons par personne : le forfait choisi pour les adultes, eaux minérales et jus pour les enfants
     const kB = Math.min(nbEnfants(), n), aB = n - kB;
@@ -1226,8 +1265,8 @@
     if (remise) lignes.push({ lib: ebOffert ? `Remise early bird : −${CONFIG.earlyBirdRemise} % sur le menu` : `Early bird : −${CONFIG.earlyBirdRemise} % sur le menu (réservé au moins ${CONFIG.earlyBirdJours} jours avant)`, mt: -remise, cls: "remise" });
 
     const avertissements = [];
-    if (!t.prix && totalPortions() !== n) avertissements.push(`Vous avez prévu ${totalPortions()} personne${totalPortions() > 1 ? "s" : ""} servie${totalPortions() > 1 ? "s" : ""} en plats principaux pour ${n} invités. Ajustez les nombres pour que chacun ait sa part.`);
-    if (!t.prix && totalQte("dessert") !== n) avertissements.push(`Vous avez prévu ${totalQte("dessert")} dessert${totalQte("dessert") > 1 ? "s" : ""} pour ${n} invités. Ajustez les nombres pour que chacun ait le sien.`);
+    if (!t.prix && totalPortions() !== n) avertissements.push(`Tu as prévu ${totalPortions()} personne${totalPortions() > 1 ? "s" : ""} servie${totalPortions() > 1 ? "s" : ""} en plats principaux pour ${n} invités. Ajuste les nombres pour que chacun ait sa part.`);
+    if (!t.prix && totalQte("dessert") !== n) avertissements.push(`Tu as prévu ${totalQte("dessert")} dessert${totalQte("dessert") > 1 ? "s" : ""} pour ${n} invités. Ajuste les nombres pour que chacun ait le sien.`);
     let options = 0, surDevis = [];
     CONFIG.options.forEach(o => {
       const v = etat.options[o.id];
@@ -1316,7 +1355,7 @@
       const sp = nbSansPorc(), en = choixMenu("entree"), np = $("note-porc");
       if (np) {
         np.classList.toggle("cache", !(sp && en && en.porc));
-        np.textContent = sp && en && en.porc ? `Pour ${sp === 1 ? "votre invité" : `vos ${sp} invités`} sans porc, nous préparons ${sp === 1 ? "sa" : "leur"} part d’entrée sans porc.` : "";
+        np.textContent = sp && en && en.porc ? `Pour ${sp === 1 ? "ton invité" : `tes ${sp} invités`} sans porc, nous préparons ${sp === 1 ? "sa" : "leur"} part d’entrée sans porc.` : "";
       }
       $("sansporc").max = Number($("personnes").value) || 26;
     }
@@ -1350,19 +1389,19 @@
         ? `${t} personne${t > 1 ? "s" : ""} servie${t > 1 ? "s" : ""} sur ${r.n} invités`
         : ecart > 0
           ? (t === 0
-            ? (k === "plat" ? `Choisissez 2 ou 3 plats pour vos tables : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.` : `Choisissez les desserts : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.`)
+            ? (k === "plat" ? `Choisis 2 ou 3 plats pour tes tables : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.` : `Choisis les desserts : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer.`)
             : `${quoi.charAt(0).toUpperCase() + quoi.slice(1)} : il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer sur ${r.n} invités.`)
-          : `${quoi.charAt(0).toUpperCase() + quoi.slice(1)} : ${t} personnes servies pour ${r.n} invités, ${-ecart} de trop. Retirez-en pour pouvoir envoyer votre demande.`;
+          : `${quoi.charAt(0).toUpperCase() + quoi.slice(1)} : ${t} personnes servies pour ${r.n} invités, ${-ecart} de trop. Retires-en pour pouvoir envoyer ta demande.`;
     };
     compteur("compteur-portions", "plat");
     compteur("compteur-desserts", "dessert");
     const fautes = reglesPlats();
     {
       const z = $("compteur-portions"), ecart = r.n - totalPortions();
-      if (fautes.length) { z.className = "compteur-portions ko"; z.textContent = fautes.join(" ") + " Ajustez pour pouvoir envoyer votre demande."; }
+      if (fautes.length) { z.className = "compteur-portions ko"; z.textContent = fautes.join(" ") + " Ajuste pour pouvoir envoyer ta demande."; }
       else if (ecart > 0 && totalPortions() > 0) {
         const ouvrables = CONFIG.menu.find(c => c.id === "plat").choix.filter(x => !(etat.portions[x.id] > 0) && !platLibre(x) && peutOuvrir(x) && ecart >= minPlat(x));
-        if (!ouvrables.length) z.textContent = `Il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer : ajoutez-${ecart > 1 ? "les" : "la"} à un plat déjà choisi, ou au plat végétarien.`;
+        if (!ouvrables.length) z.textContent = `Il reste ${ecart} personne${ecart > 1 ? "s" : ""} à placer : ajoute-${ecart > 1 ? "les" : "la"} à un plat déjà choisi, ou au plat végétarien.`;
       }
     }
     const tp = totalPortions(), td = totalQte("dessert");
@@ -1372,7 +1411,7 @@
     $("envoi-bloque").classList.toggle("cache", platsOk);
     if (!platsOk) $("envoi-bloque").innerHTML = fautes.length && tp === r.n && td === r.n ? `Avant d’envoyer : ${fautes[0]} <button type="button" id="voir-plats">Ajuster</button>` : `Avant d’envoyer : ${tp !== r.n ? `les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""}` : `les desserts sont prévus pour ${td} personne${td > 1 ? "s" : ""}`} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster</button>`;
     $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
-    $("menu-total").innerHTML = `<span>Votre menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
+    $("menu-total").innerHTML = `<span>Ton menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
     $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
       const bv = choixMenu("bienvenue") && choixMenu("bienvenue").inclus, cf = CONFIG.cafe.inclus;
       if (bv && cf) return "Le cocktail de bienvenue et le café ou thé avec le dessert sont compris dans le menu.";
@@ -1428,11 +1467,11 @@
     const alerte = $("date-alerte");
     let msg = "";
     if (r.date) {
-      if (r.date < CONFIG.saisonDebut || r.date > CONFIG.saisonFin) msg = "Cette date est en dehors de la saison des Festas. Envoyez quand même votre demande : nous regarderons ce qui est possible.";
+      if (r.date < CONFIG.saisonDebut || r.date > CONFIG.saisonFin) msg = "Cette date est en dehors de la saison des Festas. Envoie quand même ta demande : nous regarderons ce qui est possible.";
     }
     alerte.textContent = msg;
     alerte.classList.toggle("cache", !msg);
-    const eb = CONFIG.earlyBirdRemise > 0 && CONFIG.earlyBirdJours > 0 ? ` Réservez au moins ${CONFIG.earlyBirdJours} jours avant : −${CONFIG.earlyBirdRemise} % sur le menu.` : "";
+    const eb = CONFIG.earlyBirdRemise > 0 && CONFIG.earlyBirdJours > 0 ? ` Réserve au moins ${CONFIG.earlyBirdJours} jours avant : −${CONFIG.earlyBirdRemise} % sur le menu.` : "";
     $("date-aide").textContent = (r.date ? `${dateLisible(r.date).replace(/^./, c => c.toUpperCase())}.` : `Saison des Festas : du ${dateCourte(CONFIG.saisonDebut)} au ${dateCourte(CONFIG.saisonFin)}.`) + eb;
 
     // Boissons
@@ -1466,8 +1505,8 @@
     if (bc) {
       const ecart = r.total - bc.total;
       $("budget-ecart").textContent = ecart > 0
-        ? `Votre budget : ${chf(bc.total)}, soit ${chf(ecart)} de moins que l’estimation. Envoyez votre demande : nous vous proposerons des ajustements.`
-        : `Votre budget de ${chf(bc.total)} couvre l’estimation.`;
+        ? `Ton budget : ${chf(bc.total)}, soit ${chf(ecart)} de moins que l’estimation. Envoie ta demande : nous te proposerons des ajustements.`
+        : `Ton budget de ${chf(bc.total)} couvre l’estimation.`;
     }
     $("envoyer-wa").textContent = bc && r.total > bc.total ? "Demander une proposition par WhatsApp" : "Envoyer ma demande par WhatsApp";
     $("envoyer-mail").textContent = bc && r.total > bc.total ? "Demander une proposition par e-mail" : "Envoyer ma demande par e-mail";
@@ -1488,7 +1527,7 @@
     document.querySelectorAll("#choix-production label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
     const ja = joursAvant(r.date);
     const tropTard = nbH > 0 && modeProduction() === "bossanova" && ja !== null && ja < CONFIG.production.delaiJours;
-    $("production-alerte").textContent = tropTard ? `Votre soirée est dans ${ja} jours : le délai de ${CONFIG.production.delaiJours} jours pour réaliser les trophées est dépassé. Contactez-nous, ou apportez vos propres trophées.` : "";
+    $("production-alerte").textContent = tropTard ? `Ta soirée est dans ${ja} jours : le délai de ${CONFIG.production.delaiJours} jours pour réaliser les trophées est dépassé. Contacte-nous, ou apporte tes propres trophées.` : "";
     $("production-alerte").classList.toggle("cache", !tropTard);
 
     afficherProgramme(r);
@@ -1720,7 +1759,7 @@
   }
   function majRetour(r, finMin) {
     const sous = $("retour-sous"), note = $("retour-note");
-    if (!r.date) { retour.cle = null; retour.etat = "vide"; sous.textContent = ""; $("retour-liste").innerHTML = ""; note.textContent = "Choisissez une date : les prochains trains et bus depuis la gare de Vevey s’afficheront ici."; return; }
+    if (!r.date) { retour.cle = null; retour.etat = "vide"; sous.textContent = ""; $("retour-liste").innerHTML = ""; note.textContent = "Choisis une date : les prochains trains et bus depuis la gare de Vevey s’afficheront ici."; return; }
     const depMin = finMin + CONFIG.retour.marge;
     const date = depMin >= 1440 ? decalerDate(r.date, 1) : r.date;
     const temps = hhmm(depMin);
@@ -1750,12 +1789,12 @@
     z.innerHTML = "";
     if (retour.etat === "charge") { note.textContent = "Recherche des horaires…"; return; }
     if (retour.etat === "erreur") {
-      note.innerHTML = `Le service des horaires ne répond pas pour le moment. <button type="button" class="lien" id="retour-reessayer">Réessayer</button> ou consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`;
+      note.innerHTML = `Le service des horaires ne répond pas pour le moment. <button type="button" class="lien" id="retour-reessayer">Réessayer</button> ou consulte <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a>.`;
       $("retour-reessayer").addEventListener("click", () => { retour.cle = null; retour.etat = "vide"; maj(); });
       return;
     }
     const avec = retour.resultats.filter(x => x.liste.length);
-    if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consultez <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
+    if (!avec.length) { note.innerHTML = `Aucun horaire publié pour cette date pour le moment (le nouvel horaire paraît avant décembre). Consulte <a href="https://www.sbb.ch/fr" target="_blank" rel="noopener">sbb.ch</a> plus tard.`; return; }
     let groupe = null;
     retour.resultats.forEach(d => {
       if (d.groupe && d.groupe !== groupe) {
@@ -1813,7 +1852,7 @@
       liste.appendChild(li);
     });
     const al = $("prog-alerte");
-    al.textContent = prog.deborde ? `Le programme dépasse l'heure de fin d'environ ${prog.deborde} minutes. Retirez une animation, ou ajoutez une prolongation jusqu'à 00h30.` : "";
+    al.textContent = prog.deborde ? `Le programme dépasse l'heure de fin d'environ ${prog.deborde} minutes. Retire une animation, ou ajoute une prolongation jusqu'à 00h30.` : "";
     al.classList.toggle("cache", !prog.deborde);
     majRetour(r, prog.sequence[prog.sequence.length - 1].h);
     const txt = texteProgramme(r, prog);
@@ -1903,13 +1942,13 @@
   }
   function verifierRappel(e) {
     const tel = $("rappel-tel").value.replace(/[^\d+]/g, "");
-    if (tel.length < 9) { e.preventDefault(); $("rappel-erreur").textContent = "Indiquez votre numéro de téléphone."; return; }
+    if (tel.length < 9) { e.preventDefault(); $("rappel-erreur").textContent = "Indique ton numéro de téléphone."; return; }
     $("rappel-erreur").textContent = "";
   }
 
   function verifierAvantEnvoi(e) {
     const manque = [];
-    if (!$("nom").value.trim()) manque.push("votre nom");
+    if (!$("nom").value.trim()) manque.push("ton nom");
     if (!$("email").value.trim() && !$("tel").value.trim()) manque.push("un e-mail ou un téléphone");
     if (!$("date").value) manque.push("la date souhaitée");
     if (manque.length) {
@@ -1945,7 +1984,7 @@
     $("adultes").max = CONFIG.maxPersonnes; $("enfants").max = CONFIG.maxPersonnes - 1;
     if (Number($("adultes").value) > CONFIG.maxPersonnes) $("adultes").value = CONFIG.maxPersonnes;
     document.querySelectorAll(".max-pers").forEach(x => { x.textContent = CONFIG.maxPersonnes; });
-    if ($("sous-groupe").textContent.includes("accueille")) $("sous-groupe").textContent = `Le Bossa Nova accueille de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris, rien que pour vous.`;
+    if ($("sous-groupe").textContent.includes("accueille")) $("sous-groupe").textContent = `Le Bossa Nova accueille de 12 à ${CONFIG.maxPersonnes} personnes, enfants compris, rien que pour ton groupe.`;
     CONFIG.enfantsAge = rg.enfantsAge != null ? (Number(rg.enfantsAge) || 12) : 12;
     CONFIG.enfantsRemise = rg.enfantsRemise != null ? (Number(rg.enfantsRemise) || 0) : 50;
     $("lab-enfants").textContent = `Enfants de moins de ${CONFIG.enfantsAge} ans`;
@@ -2018,11 +2057,11 @@
     b.classList.toggle("expiree", !!expiree);
     b.innerHTML = "";
     const t = document.createElement("strong");
-    t.textContent = `Offre personnalisée pour ${o.client || "vous"}`;
+    t.textContent = `Offre personnalisée pour ${o.client || "toi"}`;
     const d = document.createElement("div");
     d.textContent = expiree
-      ? `Cette offre (n° ${o.code}) a expiré le ${dateCourte(o.validite)}. Envoyez-nous votre demande : nous la renouvellerons volontiers.`
-      : `Offre n° ${o.code}${o.validite ? ", valable jusqu’au " + dateCourte(o.validite) : ""}. Les prix ci-dessous tiennent compte des conditions convenues avec vous.`;
+      ? `Cette offre (n° ${o.code}) a expiré le ${dateCourte(o.validite)}. Envoie-nous ta demande : nous la renouvellerons volontiers.`
+      : `Offre n° ${o.code}${o.validite ? ", valable jusqu’au " + dateCourte(o.validite) : ""}. Les prix ci-dessous tiennent compte des conditions convenues avec toi.`;
     b.append(t, d);
     if (o.note) { const n = document.createElement("div"); n.className = "note-offre"; n.textContent = o.note; b.appendChild(n); }
   }
@@ -2089,20 +2128,47 @@
 })();
 </script>
 <script>
-// ===================== Pas à pas : 5 étapes =====================
+// ===================== Pas à pas : 5 étapes, une question par écran =====================
 (function () {
   "use strict";
   const $ = id => document.getElementById(id);
-  const NOMS = ["Votre groupe", "Le repas", "Les boissons", "La soirée", "Votre demande"];
+  const NOMS = ["Ton groupe", "Le repas", "Les boissons", "La soirée", "Ta demande"];
   const N = NOMS.length;
-  let etape = 1, atteinte = 1;
+  const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+  // Chaque écran : son étape, sa question et une phrase d'aide
+  const ECRANS = [
+    { id: "1-qui", e: 1, q: "Pour qui organises-tu cette Festa ?", s: "Une équipe, un club ou des proches : on adapte la soirée à ton groupe." },
+    { id: "1-combien", e: 1, q: "Vous serez combien ?", s: "" },
+    { id: "1-date", e: 1, q: "C’est pour quand ?", s: "Choisis la date souhaitée : on te confirme la disponibilité." },
+    { id: "2-bienvenue", e: 2, q: "On trinque avec quoi en arrivant ?", s: "La boisson d’accueil est offerte." },
+    { id: "2-entree", e: 2, q: "Une petite entrée pour commencer ?", s: "À partager, pour tout le groupe." },
+    { id: "2-plat", e: 2, q: "Et en plat principal ?", s: "Indique pour combien de personnes tu prends chaque plat. Photos d’illustration." },
+    { id: "2-dessert", e: 2, q: "On garde de la place pour le dessert ?", s: "Café ou thé compris. Indique pour combien de personnes tu prends chaque dessert." },
+    { id: "3-vins", e: 3, q: "Un peu de vin sur les tables ?", s: "" },
+    { id: "3-eaux", e: 3, q: "Et pour les eaux et les softs ?", s: "Par adulte, à volonté pendant le repas." },
+    { id: "3-digestifs", e: 3, q: "Un digestif pour finir en beauté ?", s: "Facultatif : des bouteilles posées sur la table, à prix avantageux." },
+    { id: "3-bulles", e: 3, q: "On lève son verre ?", s: "Facultatif : une coupe pour trinquer au bon moment." },
+    { id: "3-bar", e: 3, q: "Les boissons du bar, qui les paie ?", s: "Un cocktail ou une bière en plus : à toi de choisir qui règle." },
+    { id: "4-honneurs", e: 4, q: "Quelqu’un à mettre à l’honneur ?", s: "" },
+    { id: "4-options", e: 4, q: "Un petit plus pour la soirée ?", s: "Pour que la fête te ressemble, jusqu’à la musique." },
+    { id: "4-programme", e: 4, q: "Voici le programme de ta soirée", s: "Choisis le bon moment pour chaque animation, puis envoie-le à tes invités." },
+    { id: "5-coord", e: 5, q: "Dernière étape : comment te recontacter ?", s: "Ta demande est sans engagement : on te répond avec une proposition." }
+  ];
+  let ecran = "1-qui", atteinte = 1;
+  const def = id => ECRANS.find(x => x.id === id);
+  // Un écran existe s'il a au moins un élément qui n'est pas masqué (plat désactivé, afterwork…)
+  const dispo = x => [...document.querySelectorAll(`[data-ecran="${x.id}"]`)].some(el => !el.closest(".cache"));
+  const ecransEtape = n => ECRANS.filter(x => x.e === n && dispo(x));
+  const liste = () => ECRANS.filter(dispo);
+  const etape = () => (def(ecran) || ECRANS[0]).e;
 
-  // Ce qui empêche de passer à l'étape suivante (message, ou "" si tout va bien)
-  function probleme(n) {
-    if (n === 1 && !$("date").value) return { msg: "Choisissez la date souhaitée pour continuer.", el: $("date") };
-    const cko = ["compteur-portions", "compteur-desserts"].map($).find(x => x && x.classList.contains("ko"));
-    if (n === 2 && !$("carte-menu").classList.contains("cache") && cko)
-      return { msg: cko.textContent.replace(/ pour pouvoir envoyer votre demande\.$/, " pour continuer."), el: cko };
+  // Ce qui empêche de quitter un écran en avançant
+  function probleme(id) {
+    if (id === "1-date" && !$("date").value) return { msg: "Choisis la date souhaitée pour continuer.", el: $("date") };
+    const cpt = id === "2-plat" ? $("compteur-portions") : id === "2-dessert" ? $("compteur-desserts") : null;
+    if (cpt && !$("carte-menu").classList.contains("cache") && cpt.classList.contains("ko"))
+      return { msg: cpt.textContent.replace(/ (pour pouvoir envoyer votre demande|pour pouvoir envoyer ta demande)\.$/, " pour continuer."), el: cpt };
     return null;
   }
   function signaler(p) {
@@ -2111,53 +2177,113 @@
     p.el.classList.remove("flash"); void p.el.offsetWidth; p.el.classList.add("flash");
     if (p.el.focus && p.el.tagName === "INPUT") p.el.focus({ preventScroll: true });
   }
-  function afficher(n, histo) {
-    etape = n; atteinte = Math.max(atteinte, n);
-    document.querySelectorAll("[data-etape]").forEach(c => c.classList.toggle("hors-etape", Number(c.dataset.etape) !== n));
+  function confirmer(txt) {
+    const c = $("q-confirm");
+    c.textContent = txt || "";
+    c.classList.remove("pop"); void c.offsetWidth; if (txt) c.classList.add("pop");
+  }
+  function afficher(id, histo) {
+    const tous = liste();
+    if (!tous.some(x => x.id === id)) id = (tous.find(x => x.e === (def(id) || {}).e) || tous[0] || ECRANS[0]).id;
+    const d = def(id), n = d.e;
+    if (id !== ecran) confirmer("");
+    ecran = id; atteinte = Math.max(atteinte, n);
+    document.body.classList.add("ecrans");
+    // Cartes de l'étape : seulement celles qui portent cet écran (ou qui en contiennent un élément)
+    document.querySelectorAll("[data-etape]").forEach(c => {
+      let vis = Number(c.dataset.etape) === n;
+      if (vis && (c.dataset.ecran || c.querySelector("[data-ecran]"))) vis = c.dataset.ecran === id || !!c.querySelector(`[data-ecran="${id}"]`);
+      c.classList.toggle("hors-etape", !vis);
+    });
+    document.querySelectorAll("[data-ecran]").forEach(el => { if (!el.hasAttribute("data-etape")) el.classList.toggle("hors-ecran", el.dataset.ecran !== id); });
     document.body.classList.toggle("etape-finale", n === N);
+    const ici = ecransEtape(n), pos = ici.findIndex(x => x.id === id);
     $("etape-num").textContent = `Étape ${n} sur ${N}`;
     $("etape-nom").textContent = NOMS[n - 1];
+    $("q-num").textContent = ici.length > 1 ? `Question ${pos + 1} sur ${ici.length}` : NOMS[n - 1];
+    $("q-titre").textContent = d.q;
+    $("q-sous").textContent = d.s;
+    let pts = $("q-points");
+    if (!pts) { pts = document.createElement("div"); pts.className = "q-points"; pts.id = "q-points"; $("q-num").after(pts); }
+    pts.innerHTML = ici.length > 1 ? ici.map((x, i) => `<i class="${i < pos ? "fait" : i === pos ? "actif" : ""}"></i>`).join("") : "";
     document.querySelectorAll("#etapes-points li").forEach((li, i) => {
       li.classList.toggle("active", i + 1 === n);
       li.classList.toggle("faite", i + 1 < n || i + 1 <= atteinte && i + 1 !== n);
       li.classList.toggle("bloquee", i + 1 > atteinte);
       li.querySelector("button").setAttribute("aria-current", i + 1 === n ? "step" : "false");
     });
-    $("nav-etapes").classList.toggle("premiere", n === 1);
-    $("nav-etapes").classList.toggle("derniere", n === N);
-    $("nav-suivant").textContent = n >= N - 1 ? "Voir le récapitulatif" : `Suivant : ${NOMS[n].toLowerCase()}`;
-    $("barre-suivant").textContent = n === N - 1 ? "Récapitulatif" : "Suivant";
+    const k = tous.findIndex(x => x.id === id), suivant = tous[k + 1];
+    $("nav-etapes").classList.toggle("premiere", k === 0);
+    $("nav-etapes").classList.toggle("derniere", !suivant);
+    $("nav-suivant").textContent = !suivant ? "" : suivant.e === n ? "Suivant" : suivant.e === N ? "Voir le récapitulatif" : `Suivant : ${NOMS[suivant.e - 1].toLowerCase()}`;
+    $("barre-suivant").textContent = suivant && suivant.e === N && n !== N ? "Récapitulatif" : "Suivant";
     $("nav-erreur").textContent = "";
-    if (histo) try { history.pushState({ etape: n }, ""); } catch (e) {}
+    if (histo) try { history.pushState({ ecran: id }, ""); } catch (e) {}
     $("etapes").scrollIntoView({ behavior: "auto", block: "start" });
   }
-  // Aller vers l'étape n : en avançant, chaque étape traversée doit être complète
-  function aller(n, histo = true) {
-    n = Math.max(1, Math.min(N, n));
-    if (n > etape) for (let k = etape; k < n; k++) { const p = probleme(k); if (p) { if (k !== etape) afficher(k, histo); signaler(p); return; } }
-    afficher(n, histo);
+  // Aller vers un écran : en avançant, chaque écran traversé doit être en ordre
+  function aller(id, histo = true) {
+    const tous = liste(), de = tous.findIndex(x => x.id === ecran), a = tous.findIndex(x => x.id === id);
+    if (a < 0) return;
+    if (a > de) for (let k = Math.max(0, de); k < a; k++) { const p = probleme(tous[k].id); if (p) { if (tous[k].id !== ecran) afficher(tous[k].id, histo); signaler(p); return; } }
+    afficher(id, histo);
   }
-  window.EtapesFesta = { aller, etape: () => etape };
+  const decaler = d => { const tous = liste(), k = tous.findIndex(x => x.id === ecran), x = tous[Math.max(0, Math.min(tous.length - 1, k + d))]; if (x) aller(x.id); };
+  window.EtapesFesta = { aller: n => { const x = ecransEtape(n)[0]; if (x) aller(x.id); }, etape };
 
-  $("nav-suivant").addEventListener("click", () => aller(etape + 1));
-  $("barre-suivant").addEventListener("click", () => aller(etape + 1));
-  $("nav-retour").addEventListener("click", () => aller(etape - 1));
+  $("nav-suivant").addEventListener("click", () => decaler(1));
+  $("barre-suivant").addEventListener("click", () => decaler(1));
+  $("nav-retour").addEventListener("click", () => decaler(-1));
   $("etapes-points").addEventListener("click", e => {
     const b = e.target.closest("button[data-aller]"); if (!b) return;
-    const n = Number(b.dataset.aller); if (n <= atteinte || n === etape + 1) aller(n);
+    const n = Number(b.dataset.aller), x = ecransEtape(n)[0];
+    if (x && (n <= atteinte || n === etape() + 1)) aller(x.id);
   });
   // Le message d'erreur disparaît dès que le problème est réglé
-  document.addEventListener("input", () => { if ($("nav-erreur").textContent && !probleme(etape)) $("nav-erreur").textContent = ""; });
-  document.addEventListener("change", () => { if ($("nav-erreur").textContent && !probleme(etape)) $("nav-erreur").textContent = ""; });
-  // Envoi bloqué ou "Ajuster les plats" : on revient d'abord à l'étape du repas
+  const effacer = () => { if ($("nav-erreur").textContent && !probleme(ecran)) $("nav-erreur").textContent = ""; };
+  document.addEventListener("input", effacer);
+  document.addEventListener("change", effacer);
+  // Envoi bloqué ou « Ajuster » : on revient à l'écran des plats ou des desserts
   document.addEventListener("click", e => {
     const t = e.target.closest && e.target.closest("#voir-plats, #envoyer-wa.bloque, #envoyer-mail.bloque, #rappel-ouvrir.bloque");
-    if (t && etape !== 2) afficher(2, true);
+    if (!t) return;
+    const okPlats = $("compteur-portions").classList.contains("ok");
+    afficher(okPlats ? "2-dessert" : "2-plat", true);
   }, true);
-  // Bouton retour du téléphone : étape précédente plutôt que quitter la page
-  window.addEventListener("popstate", e => { const n = e.state && e.state.etape; afficher(n || 1, false); });
-  try { history.replaceState({ etape: 1 }, ""); } catch (e) {}
-  afficher(1, false);
+
+  // ---------- Petites confirmations, après un vrai choix ----------
+  const nomDe = el => { const l = el.closest("label, .plat"); const n = l && (l.querySelector(".n") || l.querySelector("strong")); return n ? n.textContent.replace(/\s*(végétarien|porc|proposé pour toi|proposé pour vous)\s*/g, " ").trim() : ""; };
+  const dateLisible = iso => { const [a, m, j] = iso.split("-").map(Number); const jr = JOURS[new Date(Date.UTC(a, m - 1, j)).getUTCDay()]; return `${jr} ${j} ${MOIS[m - 1]}`; };
+  const plusTard = f => setTimeout(f, 0);
+  document.addEventListener("change", e => {
+    const t = e.target; if (!t || !t.name && !t.id) return;
+    if (t.name === "profil") confirmer({ entreprise: "Super, une soirée d’équipe !", club: "Génial, place à l’esprit de club !", amis: "Parfait, on prépare une vraie fête entre proches !" }[t.value]);
+    else if (t.id === "date" && t.value) confirmer(`Le ${dateLisible(t.value)}, c’est noté !`);
+    else if (t.name === "menu-bienvenue") confirmer(`Très bon choix : ${nomDe(t)} pour accueillir tes invités !`);
+    else if (t.name === "menu-entree") confirmer(t.value === "aucune" ? "Sans entrée : on passe directement aux choses sérieuses !" : `${nomDe(t)} pour commencer, ça s’annonce bien !`);
+    else if (t.name === "vins") confirmer({ oui: "Des vins vaudois sur les tables, santé !", apporte: "Ton vin, on le servira avec plaisir.", non: "C’est noté : pas de vin sur les tables." }[t.value]);
+    else if (t.name === "forfait") confirmer(`${nomDe(t)} : c’est noté.`);
+    else if (t.name === "boissons") confirmer("C’est noté, merci !");
+    else if (t.closest("#digestifs")) confirmer("Bonne idée, c’est noté !");
+    else if (t.closest("#bulles")) confirmer("On trinquera ensemble !");
+    else if (t.closest("#honneurs")) confirmer("Bel hommage en perspective !");
+    else if (t.closest("#options")) confirmer("C’est noté !");
+  });
+  // Nombre d'invités, plats et desserts : la confirmation suit les compteurs
+  const suivreGroupe = () => plusTard(() => { if (ecran === "1-combien") { const n = Number($("personnes").value) || 0; confirmer(`${n} personnes : ça va être une belle Festa !`); } });
+  ["adultes", "enfants"].forEach(id => $(id).addEventListener("input", suivreGroupe));
+  document.addEventListener("click", e => {
+    if (!e.target.closest || !e.target.closest(".plat .qte")) return;
+    plusTard(() => {
+      if (ecran === "2-plat") confirmer($("compteur-portions").classList.contains("ok") ? "Parfait, chacun a son plat !" : "");
+      if (ecran === "2-dessert") confirmer($("compteur-desserts") && $("compteur-desserts").classList.contains("ok") ? "Super, chacun a son dessert !" : "");
+    });
+  }, true);
+
+  // Bouton retour du téléphone : écran précédent plutôt que quitter la page
+  window.addEventListener("popstate", e => { const id = e.state && (e.state.ecran || (e.state.etape && (ecransEtape(e.state.etape)[0] || {}).id)); afficher(id || ECRANS[0].id, false); });
+  try { history.replaceState({ ecran: ECRANS[0].id }, ""); } catch (e) {}
+  afficher(ECRANS[0].id, false);
   window.scrollTo(0, 0);
 })();
 </script>
