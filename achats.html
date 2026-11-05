@@ -269,7 +269,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=39"></script>
+<script src="catalogue.js?v=40"></script>
 <script>
 (function () {
   "use strict";
@@ -374,7 +374,7 @@
     "bienvenue.caipi": { cachaca: 400, "citron-vert": 8, sucre: 160, glace: 2000 },
     "bienvenue.quentao": { cachaca: 300, sucre: 150, gingembre: 60, cannelle: 3, girofle: 8, orange: 1 },
     "bienvenue.vinho-quente": { gamay: 1000, sucre: 120, cannelle: 2, girofle: 6, orange: 1, pomme: 1 },
-    "bienvenue.eaux": { "eau-minerale": 2000 },
+    "bienvenue.eaux": { "eau-minerale": 750 },
     "bienvenue.chasselas": { chasselas: 800 },
     "bienvenue.quentao-sa": { "jus-pomme": 1000, gingembre: 60, cannelle: 2, girofle: 6, orange: 1 },
     "entree.petiscos": { "pao-queijo": 24, coxinha: 16, empada: 8, "citron-vert": 2, "sauce-pimentee": 100 },
@@ -478,6 +478,7 @@
       Object.entries(r).forEach(([i, q]) => { out[i] = (out[i] || 0) + (Number(q) || 0) * facteur; });
     };
     if (s.bienvenue) ajouter("bienvenue." + s.bienvenue, n / 8, nomPlat("bienvenue", s.bienvenue));
+    if (s.bienvenue && s.bienvenue !== "eaux" && n) ajouter("bienvenue.eaux", n / 8, "Eaux minérales de l’accueil");
     if (s.entree && s.entree !== "aucune") {
       const sp = s.entreeSansPorc && s.entreeSansPorc !== s.entree ? Math.min(n, s.sansPorc || 0) : 0;
       if (n - sp > 0) ajouter("entree." + s.entree, (n - sp) / 8, nomPlat("entree", s.entree));

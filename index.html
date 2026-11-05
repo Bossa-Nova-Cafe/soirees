@@ -633,7 +633,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=39"></script>
+<script src="catalogue.js?v=40"></script>
 <script>
 (function () {
   "use strict";
@@ -953,6 +953,11 @@
         }
         bloc.querySelector(".plats").appendChild(el);
       });
+      if (c.id === "bienvenue") {
+        const ne = document.createElement("div"); ne.className = "note-cafe"; ne.dataset.ecran = "2-bienvenue";
+        ne.innerHTML = `<span aria-hidden="true">💧</span><div><strong>Eaux minérales plates et gazeuses</strong>toujours proposées à l’accueil, en plus de la boisson choisie, pour ceux qui ne boivent pas d’alcool.</div>`;
+        zone.appendChild(ne);
+      }
       if (c.id === "dessert" && CONFIG.cafe.inclus) {
         const nc = document.createElement("div"); nc.className = "note-cafe"; nc.dataset.ecran = "2-dessert";
         nc.innerHTML = `<span aria-hidden="true">☕</span><div><strong>Café ou thé offert</strong>à chaque invité, en fin de repas, avec ou sans dessert.</div>`;
@@ -1937,7 +1942,7 @@
     l.push(`• Moment : ${ty.nom} (${ty.quand.split(",")[0]})`);
     if (r.moment !== "afterwork") {
       l.push(`• Menu à la brésilienne, en moyenne CHF ${prixMenu()} par personne :`);
-      ["bienvenue", "entree"].forEach(id => { const p = choixMenu(id); if (p.prix || id === "bienvenue") l.push(`   – ${CONFIG.menu.find(c => c.id === id).titre} : ${p.nom}`); });
+      ["bienvenue", "entree"].forEach(id => { const p = choixMenu(id); if (p.prix || id === "bienvenue") l.push(`   – ${CONFIG.menu.find(c => c.id === id).titre} : ${p.nom}${id === "bienvenue" ? " (et eaux minérales plates et gazeuses)" : ""}`); });
       l.push(`   – Plats principaux à partager (${totalPortions()} personnes servies) :`);
       platsListe().forEach(p => l.push(`        ${p.q} × ${p.nom}`));
       l.push(totalQte("dessert") ? `   – Desserts (${totalQte("dessert")} personnes sur ${r.n}), café ou thé pour tous :` : "   – Sans dessert, café ou thé pour tous");

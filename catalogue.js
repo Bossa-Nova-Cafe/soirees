@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 34,
+    version: 35,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -39,7 +39,7 @@
         { id: "vinho-quente", nom: "Vinho quente au Gamay vaudois", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 8, inclus: true, actif: true },
         { id: "chasselas", nom: "Verre de Chasselas vaudois", ds: "L'apéritif de chez nous, servi frais", prix: 8, inclus: true, actif: true },
         { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 6, inclus: true, actif: true },
-        { id: "eaux", nom: "Eaux minérales", ds: "Plate ou gazeuse, bien fraîche, pour ceux qui préfèrent sans alcool", prix: 3, inclus: true, actif: true },
+        { id: "eaux", nom: "Eaux minérales", ds: "Plate ou gazeuse, bien fraîche, pour ceux qui préfèrent sans alcool", prix: 3, inclus: true, actif: false },
         { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: false },
         { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: false }
       ],
@@ -280,6 +280,8 @@
     if (vAvant < 33) c.menu.bienvenue = c.menu.bienvenue.map(x => x.id === "quentao" ? Object.assign({}, x, { actif: false }) : x);
     // Version 34 : eaux minérales parmi les boissons d'accueil
     if (vAvant < 34 && !c.menu.bienvenue.some(x => x.id === "eaux")) c.menu.bienvenue.push(copie(DEFAUT.menu.bienvenue.find(x => x.id === "eaux")));
+    // Version 35 : les eaux minérales ne sont plus un choix d'accueil, elles accompagnent toujours la boisson choisie
+    if (vAvant < 35) c.menu.bienvenue = c.menu.bienvenue.map(x => x.id === "eaux" ? Object.assign({}, x, { actif: false }) : x);
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
