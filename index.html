@@ -457,7 +457,7 @@
         <label><input type="radio" name="vins" value="oui" checked>
           <span><strong>Oui, des vins vaudois sur les tables</strong><small>Facturés à la bouteille de 70 cl. Nous calculons le nombre de bouteilles selon tes invités ; tu peux l’ajuster.</small></span></label>
         <label><input type="radio" name="vins" value="apporte">
-          <span><strong>Tu apportes ton propre vin</strong><small id="bouchon-detail">Nous le servons à table. Droit de bouchon : CHF 10 par bouteille consommée.</small></span></label>
+          <span><strong>Tu apportes ton propre vin</strong><small id="bouchon-detail">Nous le servons à table. Droit de bouchon : CHF 10 par bouteille ouverte. Tu ne paies que les bouteilles ouvertes.</small></span></label>
         <label><input type="radio" name="vins" value="non">
           <span><strong>Pas de vin sur les tables</strong><small>Les invités pourront en commander au bar.</small></span></label>
       </div>
@@ -650,7 +650,7 @@
     enfantsAge: 12,                   // enfants de moins de 12 ans
     enfantsRemise: 50,                // remise en % sur le menu pour les enfants
     forfaitEnfant: 8,                 // eaux minérales et jus, obligatoire par enfant
-    droitBouchon: 10,                 // vin apporté par le client, par bouteille consommée
+    droitBouchon: 10,                 // vin apporté par le client, par bouteille ouverte
     earlyBirdJours: 30,               // early bird : réservation au moins 30 jours avant
     earlyBirdRemise: 5,               // early bird : remise en % sur le menu
     minimumPrivatisation: 700,       // CHF, soirées privatisées
@@ -1275,7 +1275,7 @@
     if (etat.vinApporte && etat.bouteillesApportees) {
       const nb = etat.bouteillesApportees, pb = CONFIG.droitBouchon;
       boissons += nb * pb;
-      lignes.push({ lib: `Droit de bouchon, ton vin · ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb}`, mt: nb * pb });
+      lignes.push({ lib: `Droit de bouchon, ton vin · estimé à ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb} (seules les bouteilles ouvertes sont facturées)`, mt: nb * pb });
     }
     // Boissons par personne : le forfait choisi pour les adultes, eaux minérales et jus pour les enfants
     const kB = Math.min(nbEnfants(), n), aB = n - kB;
@@ -1472,11 +1472,11 @@
     $("bloc-vins").classList.toggle("cache", !avecVins);
     $("bloc-apporte").classList.toggle("cache", !etat.vinApporte);
     if (document.activeElement !== $("apporte-nb")) $("apporte-nb").value = etat.bouteillesApportees;
-    const txtBouchon = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} par bouteille consommée` : "offert";
+    const txtBouchon = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} par bouteille ouverte. Tu ne paies que les bouteilles ouvertes : celles qui restent fermées repartent avec toi, sans frais` : "offert";
     $("bouchon-detail").textContent = `Nous le servons à table. Droit de bouchon : ${txtBouchon}.`;
     $("apporte-prix").textContent = CONFIG.droitBouchon ? `CHF ${CONFIG.droitBouchon} la bouteille` : "Offert";
     const ad = Math.max(1, nbAdultes());
-    $("apporte-detail").textContent = `Pour ${ad} adulte${ad > 1 ? "s" : ""}, environ ${(etat.bouteillesApportees * 7 / ad).toFixed(1).replace(".", ",")} dl par personne`;
+    $("apporte-detail").textContent = `Pour ${ad} adulte${ad > 1 ? "s" : ""}, environ ${(etat.bouteillesApportees * 7 / ad).toFixed(1).replace(".", ",")} dl par personne. C’est une estimation : seules les bouteilles ouvertes le soir même sont facturées.`;
     CONFIG.vins.forEach(v => { const q = $("vin-" + v.id); if (document.activeElement !== q) q.value = etat.bouteilles[v.id] || 0; });
     if (CONFIG.bulles.length) {
       CONFIG.bulles.forEach(d => { const q = $("bulle-" + d.id); if (q && document.activeElement !== q) q.value = etat.bulles[d.id] || 0; });
@@ -1946,7 +1946,7 @@
     r.lignes.slice(1).filter(x => ![...platsListe(), ...listeQte("dessert")].some(p => x.lib.startsWith(p.nom + " · ") || x.lib.startsWith(p.nom + " et café · "))).forEach(x => l.push(`• ${x.lib}${x.mt === null ? " : sur devis" : (x.mt ? " : " + (x.mt < 0 ? "−" + chf(-x.mt) : chf(x.mt)) : "")}`));
     l.push(`• Ambiance musicale : ${etat.options.ambiance || "Bossa nova et MPB"}`);
     if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
-    if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille consommée" : "offert"})`);
+    if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille ouverte, les bouteilles restées fermées ne sont pas facturées" : "offert"})`);
     else if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
     l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}${nbEnfants() ? " pour les adultes ; eaux minérales et jus pour les enfants" : ""}`);
     l.push(`• Boissons commandées en plus au bar : ${texteBoissons()}`);
