@@ -216,8 +216,9 @@
   .plat .qte .reste-btn.cache { display: none; }
   .compteur-portions.attente { color: #6b4e00; background: #fff6d6; border: 2px solid #e8b400; border-radius: 10px; padding: 10px 14px; text-align: left; font-size: 14px; margin: 4px 0 14px; }
   .compteur-portions.attente::before { content: "👉 "; }
-  .regle-plats { font-size: 13px; color: var(--gris); margin: -4px 0 10px; }
-  .plat.ferme { opacity: .5; }
+  .regle-plats { font-size: 14px; font-weight: 600; color: var(--vert); background: #f2f8f4; border-radius: 10px; padding: 8px 12px; margin: -4px 0 12px; }
+  .raison-ferme { font-size: 13px; color: #7a5a00; background: #fff6d6; border-radius: 8px; padding: 6px 10px; margin-top: 8px; }
+  .plat.ferme .vignette, .plat.ferme .tete-plat, .plat.ferme .ds, .plat.ferme .ligne-qte { opacity: .5; }
   .plat .vg.porc { color: #7a4a2a; border-color: #b98a6a; }
   .note-cafe { display: flex; gap: 12px; align-items: center; background: #f2f8f4; border: 1.5px solid var(--vert); border-radius: 12px; padding: 10px 14px; margin: 0 0 12px; font-size: 14px; color: var(--vert); }
   .note-cafe span { font-size: 26px; line-height: 1; }
@@ -906,9 +907,10 @@
         el.className = "plat";
         el.dataset.cours = c.id; el.dataset.id = p.id;
         el.innerHTML = QTE.includes(c.id)
-          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes :<div class="ligne-qte"><button type="button" class="pm moins" aria-label="Une personne de moins">−</button><input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0" inputmode="numeric"><button type="button" class="pm plus" aria-label="Une personne de plus">+</button><button type="button" class="reste-btn cache"></button></div></div></div>`
+          ? `<div style="flex:1;min-width:0"><div class="tete-plat"><div class="n"></div><div class="px"></div></div><div class="ds"></div><div class="qte">Pour combien de personnes :<div class="ligne-qte"><button type="button" class="pm moins" aria-label="Une personne de moins">−</button><input type="number" min="0" max="${CONFIG.maxPersonnes}" value="0" inputmode="numeric"><button type="button" class="pm plus" aria-label="Une personne de plus">+</button><button type="button" class="reste-btn cache"></button></div><div class="raison-ferme cache"></div></div></div>`
           : `<div style="flex:1;min-width:0"><div class="tete-plat"><input type="radio" name="menu-${c.id}" value="${p.id}"><div class="n"></div><div class="px"></div></div><div class="ds"></div></div>`;
         el.querySelector(".n").textContent = p.nom;
+        if (c.id === "plat" && !platLibre(p) && Number(CONFIG.platsMin) > 1) el.querySelector(".qte").firstChild.textContent = `Pour combien de personnes (minimum ${CONFIG.platsMin}) :`;
         if (p.photo) {
           const v = document.createElement("button");
           v.type = "button"; v.className = "vignette"; v.setAttribute("aria-label", "Agrandir la photo : " + p.nom);
@@ -1420,6 +1422,14 @@
         // Un plat pas encore choisi ne peut s'ouvrir que s'il reste assez de personnes et de place parmi les plats au choix
         const ferme = !!pl && q === 0 && (!peutOuvrir(pl) || resteP < minPlat(pl));
         el.classList.toggle("ferme", ferme && resteP > 0);
+        const rf = el.querySelector(".raison-ferme");
+        if (rf) {
+          const montrer = ferme && resteP > 0;
+          rf.classList.toggle("cache", !montrer);
+          if (montrer) rf.textContent = !peutOuvrir(pl)
+            ? `Tu as déjà ${CONFIG.platsMax} plats. Retire-en un pour choisir celui-ci.`
+            : `Minimum ${minPlat(pl)} personnes par plat, et il n’en reste que ${resteP} à placer. Retire des personnes d’un autre plat pour choisir celui-ci.`;
+        }
         el.querySelector(".moins").disabled = q <= 0;
         el.querySelector(".plus").disabled = resteP <= 0 || ferme;
         const rb = el.querySelector(".reste-btn");
