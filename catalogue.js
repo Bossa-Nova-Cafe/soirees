@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 24,
+    version: 25,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -64,11 +64,11 @@
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
       ],
       dessert: [
-        { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 9, actif: true },
-        { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 9, actif: true },
-        { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 9, actif: true },
-        { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 9, actif: true },
-        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 7, actif: true },
+        { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 5.5, actif: true },
+        { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 5.5, actif: true },
+        { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 5.5, actif: true },
+        { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 5.5, actif: true },
+        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 5.5, actif: true },
         { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: false },
         { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: false },
         { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false },
@@ -248,6 +248,9 @@
     if (vAvant < 24) [["entree", "caldinho"], ["entree", "massas"], ["entree", "pinsas"], ["plat", "feijoada"]].forEach(([k, id]) => {
       c.menu[k] = c.menu[k].map(x => x.id === id && x.porc === undefined ? Object.assign({}, x, { porc: true }) : x);
     });
+    // Version 25 : tous les desserts à CHF 5.50 (sauf prix changé dans l'admin)
+    if (vAvant < 25) { const ANCIENS = { "tiramisu-classico": 9, "tiramisu-mango": 9, "tartufo-pistache": 9, "tartufo-nocciola": 9, "pudim": 7 };
+      c.menu.dessert = c.menu.dessert.map(x => ANCIENS[x.id] !== undefined && Number(x.prix) === ANCIENS[x.id] ? Object.assign({}, x, { prix: 5.5 }) : x); }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
