@@ -955,7 +955,7 @@
       });
       if (c.id === "dessert" && CONFIG.cafe.inclus) {
         const nc = document.createElement("div"); nc.className = "note-cafe"; nc.dataset.ecran = "2-dessert";
-        nc.innerHTML = `<span aria-hidden="true">☕</span><div><strong>Café ou thé offert</strong>à chaque invité, servi avec le dessert.</div>`;
+        nc.innerHTML = `<span aria-hidden="true">☕</span><div><strong>Café ou thé offert</strong>à chaque invité, en fin de repas, avec ou sans dessert.</div>`;
         zone.appendChild(nc);
       }
       zone.appendChild(bloc);
@@ -1250,7 +1250,7 @@
       lignes.push({ lib: `Bienvenue et entrée · ${n} × CHF ${pa}`, mt: pa * n });
       platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
       listeQte("dessert").forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
-      if (CONFIG.cafe.inclus && listeQte("dessert").length) lignes.push({ lib: `Café ou thé avec le dessert · ${n} pers. (offert)`, mt: 0 });
+      if (CONFIG.cafe.inclus) lignes.push({ lib: `Café ou thé en fin de repas · ${n} pers. (offert)`, mt: 0 });
       // Enfants de moins de 12 ans : remise sur le menu, calculée sur le prix moyen par personne
       const k = Math.min(nbEnfants(), n);
       if (k && CONFIG.enfantsRemise > 0 && n) {
@@ -1297,7 +1297,7 @@
 
     const avertissements = [];
     if (!t.prix && totalPortions() !== n) avertissements.push(`Tu as prévu ${totalPortions()} personne${totalPortions() > 1 ? "s" : ""} servie${totalPortions() > 1 ? "s" : ""} en plats principaux pour ${n} invités. Ajuste les nombres pour que chacun ait sa part.`);
-    if (!t.prix && totalQte("dessert") !== n) avertissements.push(`Tu as prévu ${totalQte("dessert")} dessert${totalQte("dessert") > 1 ? "s" : ""} pour ${n} invités. Ajuste les nombres pour que chacun ait le sien.`);
+    if (!t.prix && totalQte("dessert") > n) avertissements.push(`Tu as prévu ${totalQte("dessert")} desserts pour ${n} invités. Retires-en ${totalQte("dessert") - n}.`);
     let options = 0, surDevis = [];
     CONFIG.options.forEach(o => {
       const v = etat.options[o.id];
@@ -1432,6 +1432,16 @@
     };
     compteur("compteur-portions", "plat");
     compteur("compteur-desserts", "dessert");
+    {
+      // Le dessert est facultatif : 0 à n desserts
+      const z = $("compteur-desserts"), t = totalQte("dessert");
+      if (z && t < r.n) {
+        z.className = "compteur-portions ok";
+        z.textContent = t === 0
+          ? "Pas de dessert ? Aucun souci, c’est facultatif. Le café ou thé reste offert à tout le monde."
+          : `${t} dessert${t > 1 ? "s" : ""} pour ${r.n} invités : les autres prendront simplement le café ou thé offert.`;
+      }
+    }
     const fautes = reglesPlats();
     {
       const z = $("compteur-portions"), ecart = r.n - totalPortions();
@@ -1443,10 +1453,10 @@
     }
     const tp = totalPortions(), td = totalQte("dessert");
     // Envoi bloqué tant que les plats principaux ne correspondent pas au nombre d'invités ou aux règles des plats
-    const platsOk = r.moment === "afterwork" || (tp === r.n && td === r.n && !fautes.length);
+    const platsOk = r.moment === "afterwork" || (tp === r.n && td <= r.n && !fautes.length);
     ["envoyer-wa", "envoyer-mail", "rappel-ouvrir"].forEach(id => { $(id).classList.toggle("bloque", !platsOk); $(id).setAttribute("aria-disabled", String(!platsOk)); });
     $("envoi-bloque").classList.toggle("cache", platsOk);
-    if (!platsOk) $("envoi-bloque").innerHTML = fautes.length && tp === r.n && td === r.n ? `Avant d’envoyer : ${fautes[0]} <button type="button" id="voir-plats">Ajuster</button>` : `Avant d’envoyer : ${tp !== r.n ? `les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""}` : `les desserts sont prévus pour ${td} personne${td > 1 ? "s" : ""}`} au lieu de ${r.n}. <button type="button" id="voir-plats">Ajuster</button>`;
+    if (!platsOk) $("envoi-bloque").innerHTML = fautes.length && tp === r.n && td <= r.n ? `Avant d’envoyer : ${fautes[0]} <button type="button" id="voir-plats">Ajuster</button>` : `Avant d’envoyer : ${tp !== r.n ? `les plats principaux sont prévus pour ${tp} personne${tp > 1 ? "s" : ""}` : `les desserts sont prévus pour ${td} personnes`}, pour ${r.n} invités. <button type="button" id="voir-plats">Ajuster</button>`;
     $("carte-menu").classList.toggle("cache", r.moment === "afterwork");
     $("menu-total").innerHTML = `<span>Ton menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
     $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
@@ -1930,7 +1940,7 @@
       ["bienvenue", "entree"].forEach(id => { const p = choixMenu(id); if (p.prix || id === "bienvenue") l.push(`   – ${CONFIG.menu.find(c => c.id === id).titre} : ${p.nom}`); });
       l.push(`   – Plats principaux à partager (${totalPortions()} personnes servies) :`);
       platsListe().forEach(p => l.push(`        ${p.q} × ${p.nom}`));
-      l.push(`   – Desserts (${totalQte("dessert")} personnes), café ou thé :`);
+      l.push(totalQte("dessert") ? `   – Desserts (${totalQte("dessert")} personnes sur ${r.n}), café ou thé pour tous :` : "   – Sans dessert, café ou thé pour tous");
       listeQte("dessert").forEach(p => l.push(`        ${p.q} × ${p.nom}`));
     }
     r.lignes.slice(1).filter(x => ![...platsListe(), ...listeQte("dessert")].some(p => x.lib.startsWith(p.nom + " · ") || x.lib.startsWith(p.nom + " et café · "))).forEach(x => l.push(`• ${x.lib}${x.mt === null ? " : sur devis" : (x.mt ? " : " + (x.mt < 0 ? "−" + chf(-x.mt) : chf(x.mt)) : "")}`));
@@ -2186,7 +2196,7 @@
     { id: "2-bienvenue", e: 2, q: "On trinque avec quoi en arrivant ?", s: "La boisson d’accueil est offerte." },
     { id: "2-entree", e: 2, q: "Une petite entrée pour commencer ?", s: "À partager, pour tout le groupe." },
     { id: "2-plat", e: 2, q: "Et en plat principal ?", s: "Indique pour combien de personnes tu prends chaque plat. Photos d’illustration." },
-    { id: "2-dessert", e: 2, q: "On garde de la place pour le dessert ?", s: "Et le café ou thé est offert à tout le monde. Indique pour combien de personnes tu prends chaque dessert." },
+    { id: "2-dessert", e: 2, q: "On garde de la place pour le dessert ?", s: "C’est facultatif, et le café ou thé est offert à tout le monde. Indique pour combien de personnes tu prends chaque dessert, ou passe directement." },
     { id: "3-vins", e: 3, q: "Un peu de vin sur les tables ?", s: "" },
     { id: "3-eaux", e: 3, q: "Et pour les eaux et les softs ?", s: "Par adulte, à volonté pendant le repas." },
     { id: "3-digestifs", e: 3, q: "Un digestif pour finir en beauté ?", s: "Facultatif : des bouteilles posées sur la table, à prix avantageux." },
@@ -2319,7 +2329,7 @@
     if (!e.target.closest || !e.target.closest(".plat .qte")) return;
     plusTard(() => {
       if (ecran === "2-plat") confirmer($("compteur-portions").classList.contains("ok") ? "Parfait, chacun a son plat !" : "");
-      if (ecran === "2-dessert") confirmer($("compteur-desserts") && $("compteur-desserts").classList.contains("ok") ? "Super, chacun a son dessert !" : "");
+      if (ecran === "2-dessert") confirmer($("compteur-desserts") && / servies? sur /.test($("compteur-desserts").textContent) ? "Super, chacun a son dessert !" : "");
     });
   }, true);
 
