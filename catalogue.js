@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 35,
+    version: 36,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -48,10 +48,10 @@
         { id: "caldinho", nom: "Caldinho de feijão", ds: "Petite soupe de haricots noirs en tasse, lardons et coriandre", prix: 7, photo: "photos/caldinho.jpg", porc: true, actif: true },
         { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10, photo: "photos/salpicao.jpg", actif: true },
         { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true, actif: true },
-        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true, actif: true },
+        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true, photo: "photos/pinsas.jpg", actif: true },
         { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, photo: "photos/veloute.jpg", vg: true, actif: true },
-        { id: "salade-melee", nom: "Salade mêlée", ds: "Salades de saison, carottes, tomates et concombre, vinaigrette maison", prix: 7, vg: true, actif: true },
-        { id: "caprese", nom: "Salade tomates mozzarella", ds: "Tomates, mozzarella, basilic frais, huile d’olive et balsamique", prix: 8, vg: true, actif: true },
+        { id: "salade-melee", nom: "Salade mêlée", ds: "Salades de saison, carottes, tomates et concombre, vinaigrette maison", prix: 7, vg: true, photo: "photos/salade-melee.jpg", actif: true },
+        { id: "caprese", nom: "Salade tomates mozzarella", ds: "Tomates, mozzarella, basilic frais, huile d’olive et balsamique", prix: 8, vg: true, photo: "photos/caprese.jpg", actif: true },
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: false },
         { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: false }
       ],
@@ -282,6 +282,9 @@
     if (vAvant < 34 && !c.menu.bienvenue.some(x => x.id === "eaux")) c.menu.bienvenue.push(copie(DEFAUT.menu.bienvenue.find(x => x.id === "eaux")));
     // Version 35 : les eaux minérales ne sont plus un choix d'accueil, elles accompagnent toujours la boisson choisie
     if (vAvant < 35) c.menu.bienvenue = c.menu.bienvenue.map(x => x.id === "eaux" ? Object.assign({}, x, { actif: false }) : x);
+    // Version 36 : photos des pinsas et des deux salades
+    if (vAvant < 36) { const PH = { pinsas: "photos/pinsas.jpg", "salade-melee": "photos/salade-melee.jpg", caprese: "photos/caprese.jpg" };
+      c.menu.entree = c.menu.entree.map(x => PH[x.id] && !x.photo ? Object.assign({}, x, { photo: PH[x.id] }) : x); }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
