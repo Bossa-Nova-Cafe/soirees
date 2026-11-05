@@ -323,6 +323,13 @@
     .etapes-points button { font-size: 11px; }
   }
 
+  /* Pas de montant avant le choix des plats */
+  .budget-attente { display: none; font-size: 14px; color: var(--gris); background: #f2f8f4; border-radius: 10px; padding: 12px 14px; margin-top: 10px; line-height: 1.45; }
+  body.sans-budget .budget-attente { display: block; }
+  body.sans-budget #recap-lignes, body.sans-budget aside.recap .total, body.sans-budget #parpers, body.sans-budget aside.recap .acompte, body.sans-budget .recap-toggle { display: none !important; }
+  body.sans-budget .barre-mobile .t { font-size: 20px; }
+  body.sans-budget .barre-mobile .barre-somme .fl { display: none; }
+  body.sans-budget .barre-mobile .barre-somme { pointer-events: none; }
   /* Budget replié pendant la composition */
   .recap-toggle { display: none; width: auto; margin: 10px 0 0; padding: 6px 14px; font-size: 13px; font-weight: 600; background: transparent; color: var(--vert); border: 1.5px solid var(--vert); border-radius: 999px; cursor: pointer; }
   body:not(.etape-finale) .recap-toggle { display: inline-block; }
@@ -578,6 +585,7 @@
       <p class="sous" id="recap-titre"></p>
       <div class="impression-seule" id="recap-client"></div>
       <div class="impression-seule" id="recap-sansporc" style="font-size:13px"></div>
+      <div class="budget-attente" id="budget-attente">Ton budget apparaît dès que tu as choisi tes plats.</div>
       <div id="recap-lignes"></div>
       <div class="total"><span class="lib">Total estimé</span><span class="mt" id="total">CHF 0</span></div>
       <div class="parpers" id="parpers"></div>
@@ -1564,6 +1572,10 @@
     $("envoyer-mail").textContent = bc && r.total > bc.total ? "Demander une proposition par e-mail" : "Envoyer ma demande par e-mail";
     $("barre-total").textContent = chf(r.total);
     $("barre-pp").textContent = `${chf(r.total / r.n)} / pers. · ${CONFIG.types.find(x => x.id === etat.type).nom}`;
+    // Pas de montant tant que les plats principaux ne sont pas choisis
+    const attente = r.moment !== "afterwork" && totalPortions() === 0;
+    document.body.classList.toggle("sans-budget", attente);
+    if (attente) { $("barre-total").textContent = "Ton budget"; $("barre-pp").textContent = "dès que tu as choisi tes plats"; }
 
     // Trophées : production et délai
     const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
