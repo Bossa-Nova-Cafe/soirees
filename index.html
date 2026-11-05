@@ -219,6 +219,9 @@
   .regle-plats { font-size: 13px; color: var(--gris); margin: -4px 0 10px; }
   .plat.ferme { opacity: .5; }
   .plat .vg.porc { color: #7a4a2a; border-color: #b98a6a; }
+  .note-cafe { display: flex; gap: 12px; align-items: center; background: #f2f8f4; border: 1.5px solid var(--vert); border-radius: 12px; padding: 10px 14px; margin: 0 0 12px; font-size: 14px; color: var(--vert); }
+  .note-cafe span { font-size: 26px; line-height: 1; }
+  .note-cafe strong { display: block; font-size: 15px; }
   .note-porc .alt-porc { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
   .note-porc .alt-porc button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--vert); background: #fff; color: var(--vert); cursor: pointer; }
   .note-porc .alt-porc button.choisie { background: var(--vert); color: #fff; }
@@ -412,7 +415,7 @@
 
     <div class="carte pas-imprime" id="carte-menu" data-etape="2">
       <h2>Ton menu</h2>
-      <p class="sous">Compose le menu de ton groupe. Le café ou thé est compris. Le prix se calcule selon tes choix. Photos d’illustration.</p>
+      <p class="sous">Compose le menu de ton groupe. Le café ou thé est offert à chaque invité. Le prix se calcule selon tes choix. Photos d’illustration.</p>
       <div class="alerte" data-ecran="2-plat" style="margin:0 0 16px;background:#f4f9f5;border-left-color:var(--vert)"><strong>Servi à la brésilienne.</strong> Les bandejas, de grands plats généreux, sont posées au centre de la table et chacun se sert : plus convivial et plus intime qu'un restaurant classique. Choisis tes plats principaux et pour combien de personnes chacun, selon les goûts de tes invités. Riz, feijão, farofa, couve, vinagrete et patates douces rôties arrivent en bols sur toutes les tables : une table pleine, colorée et généreuse, une expérience différente de ce qu'on trouve habituellement en Suisse.</div>
       <div id="menu"></div>
       <div class="compteur-portions" id="compteur-portions" data-ecran="2-plat"></div>
@@ -710,7 +713,7 @@
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22 },
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, vg: true }
       ]},
-      { id: "dessert", titre: "Dessert, café ou thé compris", choix: [
+      { id: "dessert", titre: "Dessert, café ou thé offert", choix: [
         { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 9 },
         { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 9 },
         { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 9 },
@@ -950,6 +953,11 @@
         }
         bloc.querySelector(".plats").appendChild(el);
       });
+      if (c.id === "dessert" && CONFIG.cafe.inclus) {
+        const nc = document.createElement("div"); nc.className = "note-cafe"; nc.dataset.ecran = "2-dessert";
+        nc.innerHTML = `<span aria-hidden="true">☕</span><div><strong>Café ou thé offert</strong>à chaque invité, servi avec le dessert.</div>`;
+        zone.appendChild(nc);
+      }
       zone.appendChild(bloc);
       if (c.id === "entree") { const np = document.createElement("div"); np.className = "note-porc cache"; np.id = "note-porc"; np.dataset.ecran = "2-entree"; np.addEventListener("click", e => { const b = e.target.closest("[data-alt]"); if (!b) return; etat.entreeSansPorc = etat.entreeSansPorc === b.dataset.alt ? "" : b.dataset.alt; maj(); }); zone.appendChild(np); }
       if (c.id === "plat") zone.appendChild($("compteur-portions"));
@@ -1241,7 +1249,8 @@
       base = pa * n + totalPlats();
       lignes.push({ lib: `Bienvenue et entrée · ${n} × CHF ${pa}`, mt: pa * n });
       platsListe().forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
-      listeQte("dessert").forEach(p => lignes.push({ lib: `${p.nom}${CONFIG.cafe.inclus ? " et café" : ""} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
+      listeQte("dessert").forEach(p => lignes.push({ lib: `${p.nom} · ${p.q} pers. × ${chf(p.prix)}`, mt: p.q * p.prix }));
+      if (CONFIG.cafe.inclus && listeQte("dessert").length) lignes.push({ lib: `Café ou thé avec le dessert · ${n} pers. (offert)`, mt: 0 });
       // Enfants de moins de 12 ans : remise sur le menu, calculée sur le prix moyen par personne
       const k = Math.min(nbEnfants(), n);
       if (k && CONFIG.enfantsRemise > 0 && n) {
@@ -1442,9 +1451,9 @@
     $("menu-total").innerHTML = `<span>Ton menu, en moyenne par personne</span><span class="mt">${chf(prixMenu())}</span>`;
     $("boissons-incluses").textContent = r.moment === "afterwork" ? "Une caipirinha ou une boisson sans alcool par personne est incluse dans l'afterwork." : (() => {
       const bv = choixMenu("bienvenue") && choixMenu("bienvenue").inclus, cf = CONFIG.cafe.inclus;
-      if (bv && cf) return "Le cocktail de bienvenue et le café ou thé avec le dessert sont compris dans le menu.";
+      if (bv && cf) return "Le cocktail de bienvenue est compris dans le menu, et le café ou thé avec le dessert est offert.";
       if (bv) return `Le cocktail de bienvenue est compris dans le menu. Café ou thé avec le dessert : ${chf(CONFIG.cafe.prix)} par personne.`;
-      if (cf) return "Le café ou thé avec le dessert est compris dans le menu.";
+      if (cf) return "Le café ou thé avec le dessert est offert.";
       return `Café ou thé avec le dessert : ${chf(CONFIG.cafe.prix)} par personne.`;
     })();
     document.querySelectorAll("#forfaits label").forEach(l => l.classList.toggle("choisie", l.querySelector("input").checked));
@@ -2031,7 +2040,7 @@
     });
     CONFIG.menu.forEach(c => c.choix.forEach(x => { const src = (cat.menu[c.id] || []).find(y => y.id === x.id); if (src && src.photo) x.photo = String(src.photo); }));
     CONFIG.cafe = { nom: cat.cafe.nom || "Café, espresso ou thé", inclus: !!cat.cafe.inclus, prix: Number(cat.cafe.prix) || 0 };
-    CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
+    CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé offert" : "Dessert";
     CONFIG.bols = (cat.bols || []).filter(Boolean);
     CONFIG.accompagnements = CONFIG.bols.length
       ? CONFIG.bols.map((b, i) => i ? b.charAt(0).toLowerCase() + b.slice(1) : b).join(", ") + ", en bols sur les tables"
@@ -2078,7 +2087,7 @@
     if (off.prolongation) { CONFIG.prolongationParHeure = 0; CONFIG.options.find(x => x.id === "prolongation").prixParHeure = 0; }
     if (o.minimum !== "" && o.minimum != null) CONFIG.minimumPrivatisation = Number(o.minimum) || 0;
     if (o.acompte !== "" && o.acompte != null) CONFIG.acompteTaux = (Number(o.acompte) || 0) / 100;
-    CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé compris" : "Dessert";
+    CONFIG.menu.find(c => c.id === "dessert").titre = CONFIG.cafe.inclus ? "Dessert, café ou thé offert" : "Dessert";
   }
   function preremplirOffre(o) {
     if (o.personnes) { const v = Math.max(12, Math.min(CONFIG.maxPersonnes, Number(o.personnes))); $("adultes").value = v; $("personnes").value = v; }
@@ -2177,7 +2186,7 @@
     { id: "2-bienvenue", e: 2, q: "On trinque avec quoi en arrivant ?", s: "La boisson d’accueil est offerte." },
     { id: "2-entree", e: 2, q: "Une petite entrée pour commencer ?", s: "À partager, pour tout le groupe." },
     { id: "2-plat", e: 2, q: "Et en plat principal ?", s: "Indique pour combien de personnes tu prends chaque plat. Photos d’illustration." },
-    { id: "2-dessert", e: 2, q: "On garde de la place pour le dessert ?", s: "Café ou thé compris. Indique pour combien de personnes tu prends chaque dessert." },
+    { id: "2-dessert", e: 2, q: "On garde de la place pour le dessert ?", s: "Et le café ou thé est offert à tout le monde. Indique pour combien de personnes tu prends chaque dessert." },
     { id: "3-vins", e: 3, q: "Un peu de vin sur les tables ?", s: "" },
     { id: "3-eaux", e: 3, q: "Et pour les eaux et les softs ?", s: "Par adulte, à volonté pendant le repas." },
     { id: "3-digestifs", e: 3, q: "Un digestif pour finir en beauté ?", s: "Facultatif : des bouteilles posées sur la table, à prix avantageux." },
