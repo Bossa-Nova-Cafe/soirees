@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 36,
+    version: 37,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -34,10 +34,10 @@
     },
     menu: {
       bienvenue: [
-        { id: "caipi", nom: "Caipirinha", ds: "Le cocktail national du Brésil : citron vert, sucre et cachaça, sur glace pilée", prix: 8, inclus: true, photo: "photos/caipirinha.jpg", actif: true },
+        { id: "caipi", nom: "Caipirinha", ds: "Le cocktail national du Brésil : citron vert, sucre et cachaça, sur glace pilée", prix: 8, inclus: true, photo: "photos/caipirinha-2.jpg", actif: true },
         { id: "quentao", nom: "Quentão", ds: "La boisson chaude des fêtes brésiliennes : cachaça, gingembre, cannelle et orange", prix: 8, inclus: true, actif: false },
-        { id: "vinho-quente", nom: "Vinho quente au Gamay vaudois", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 8, inclus: true, actif: true },
-        { id: "chasselas", nom: "Verre de Chasselas vaudois", ds: "L'apéritif de chez nous, servi frais", prix: 8, inclus: true, actif: true },
+        { id: "vinho-quente", nom: "Vinho quente au Gamay vaudois", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 8, inclus: true, photo: "photos/vin-chaud.jpg", actif: true },
+        { id: "chasselas", nom: "Verre de Chasselas vaudois", ds: "L'apéritif de chez nous, servi frais", prix: 8, inclus: true, photo: "photos/chasselas.jpg", actif: true },
         { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 6, inclus: true, actif: true },
         { id: "eaux", nom: "Eaux minérales", ds: "Plate ou gazeuse, bien fraîche, pour ceux qui préfèrent sans alcool", prix: 3, inclus: true, actif: false },
         { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: false },
@@ -285,6 +285,9 @@
     // Version 36 : photos des pinsas et des deux salades
     if (vAvant < 36) { const PH = { pinsas: "photos/pinsas.jpg", "salade-melee": "photos/salade-melee.jpg", caprese: "photos/caprese.jpg" };
       c.menu.entree = c.menu.entree.map(x => PH[x.id] && !x.photo ? Object.assign({}, x, { photo: PH[x.id] }) : x); }
+    // Version 37 : photos du vin chaud et du chasselas, nouvelle photo de la caipirinha (sans cacahuètes)
+    if (vAvant < 37) { const PH = { "vinho-quente": "photos/vin-chaud.jpg", chasselas: "photos/chasselas.jpg" };
+      c.menu.bienvenue = c.menu.bienvenue.map(x => x.id === "caipi" && (!x.photo || x.photo === "photos/caipirinha.jpg") ? Object.assign({}, x, { photo: "photos/caipirinha-2.jpg" }) : PH[x.id] && !x.photo ? Object.assign({}, x, { photo: PH[x.id] }) : x); }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
