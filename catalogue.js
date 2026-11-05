@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 25,
+    version: 26,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -54,14 +54,14 @@
       ],
       plat: [
         { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24, photo: "photos/feijoada.jpg", porc: true, actif: true },
-        { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22, photo: "photos/escondidinho.jpg", actif: true },
-        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 24, photo: "photos/rumsteck.jpg", actif: true },
-        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25, photo: "photos/bananier.jpg", actif: true },
-        { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24, photo: "photos/arroz-mar.jpg", actif: true },
+        { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22, photo: "photos/escondidinho.jpg", actif: false },
+        { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 24, photo: "photos/rumsteck.jpg", actif: false },
+        { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25, photo: "photos/bananier.jpg", actif: false },
+        { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24, photo: "photos/arroz-mar.jpg", actif: false },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
         { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
-        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
+        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: false }
       ],
       dessert: [
         { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 5.5, actif: true },
@@ -251,6 +251,8 @@
     // Version 25 : tous les desserts à CHF 5.50 (sauf prix changé dans l'admin)
     if (vAvant < 25) { const ANCIENS = { "tiramisu-classico": 9, "tiramisu-mango": 9, "tartufo-pistache": 9, "tartufo-nocciola": 9, "pudim": 7 };
       c.menu.dessert = c.menu.dessert.map(x => ANCIENS[x.id] !== undefined && Number(x.prix) === ANCIENS[x.id] ? Object.assign({}, x, { prix: 5.5 }) : x); }
+    // Version 26 : première saison, plats limités à feijoada, carne maluca et frango (réactivables dans l'admin)
+    if (vAvant < 26) c.menu.plat = c.menu.plat.map(x => ["escondidinho", "boeuf", "bananier", "arroz-mar", "escondidinho-vg"].includes(x.id) ? Object.assign({}, x, { actif: false }) : x);
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
