@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 27,
+    version: 28,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -61,6 +61,7 @@
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
         { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
         { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
+        { id: "peixe", nom: "Peixe ao forno com molho de coco", ds: "Filet de colin cuit au four sur poivrons, oignons et tomates, sauce au lait de coco et citron vert", prix: 22, actif: true },
         { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
       ],
       dessert: [
@@ -255,6 +256,11 @@
     if (vAvant < 26) c.menu.plat = c.menu.plat.map(x => ["escondidinho", "boeuf", "bananier", "arroz-mar", "escondidinho-vg"].includes(x.id) ? Object.assign({}, x, { actif: false }) : x);
     // Version 27 : l'escondidinho de legumes reste proposé (plat végétarien)
     if (vAvant < 27) c.menu.plat = c.menu.plat.map(x => x.id === "escondidinho-vg" ? Object.assign({}, x, { actif: true }) : x);
+    // Version 28 : nouveau plat « Peixe ao forno com molho de coco », après la carne maluca
+    if (vAvant < 28 && !c.menu.plat.some(x => x.id === "peixe")) {
+      const i = c.menu.plat.findIndex(x => x.id === "maluca");
+      c.menu.plat.splice(i >= 0 ? i + 1 : c.menu.plat.length, 0, copie(DEFAUT.menu.plat.find(x => x.id === "peixe")));
+    }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
