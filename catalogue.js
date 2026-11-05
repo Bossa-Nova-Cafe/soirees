@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 41,
+    version: 42,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -65,7 +65,7 @@
         { id: "frango", nom: "Poulet rôti au citron vert (frango assado)", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
         { id: "maluca", nom: "Bœuf effiloché aux poivrons (carne maluca)", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "peixe", nom: "Poisson au four au lait de coco (peixe ao forno)", ds: "Filet de colin cuit au four sur poivrons, oignons et tomates, sauce au lait de coco et citron vert", prix: 22, photo: "photos/peixe.jpg", actif: true },
-        { id: "escondidinho-vg", nom: "Gratin de lentilles et légumes sous purée de patate douce (empadão)", ds: "Lentilles mijotées aux champignons, carottes et tomates, sous une purée de patate douce gratinée au fromage", prix: 20, vg: true, actif: true }
+        { id: "escondidinho-vg", nom: "Gratin de lentilles et légumes sous purée de patate douce (empadão)", ds: "Lentilles mijotées aux champignons, carottes et tomates, sous une purée de patate douce gratinée au fromage", prix: 20, photo: "photos/empadao.jpg", vg: true, actif: true }
       ],
       dessert: [
         { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 5.5, actif: true },
@@ -302,6 +302,8 @@
       if (n.photo === "photos/escondidinho-vg.jpg") delete n.photo;
       return n;
     });
+    // Version 42 : photo de l'empadão de lentilles
+    if (vAvant < 42) c.menu.plat = c.menu.plat.map(x => x.id === "escondidinho-vg" && !x.photo ? Object.assign({}, x, { photo: "photos/empadao.jpg" }) : x);
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
