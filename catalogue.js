@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 30,
+    version: 31,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -49,6 +49,8 @@
         { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true, actif: true },
         { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true, actif: true },
         { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, photo: "photos/veloute.jpg", vg: true, actif: true },
+        { id: "salade-melee", nom: "Salade mêlée", ds: "Salades de saison, carottes, tomates et concombre, vinaigrette maison", prix: 7, vg: true, actif: true },
+        { id: "caprese", nom: "Salade tomates mozzarella", ds: "Tomates, mozzarella, basilic frais, huile d’olive et balsamique", prix: 8, vg: true, actif: true },
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: false },
         { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: false }
       ],
@@ -265,6 +267,12 @@
     if (vAvant < 29) c.menu.plat = c.menu.plat.map(x => x.id === "peixe" && !x.photo ? Object.assign({}, x, { photo: "photos/peixe.jpg" }) : x);
     // Version 30 : feijoada à CHF 19 (sauf prix changé dans l'admin)
     if (vAvant < 30) c.menu.plat = c.menu.plat.map(x => x.id === "feijoada" && Number(x.prix) === 24 ? Object.assign({}, x, { prix: 19 }) : x);
+    // Version 31 : deux salades en entrée, après le velouté
+    if (vAvant < 31) ["salade-melee", "caprese"].forEach((id, n) => {
+      if (c.menu.entree.some(x => x.id === id)) return;
+      const i = c.menu.entree.findIndex(x => x.id === "veloute");
+      c.menu.entree.splice(i >= 0 ? i + 1 + n : c.menu.entree.length, 0, copie(DEFAUT.menu.entree.find(x => x.id === id)));
+    });
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];

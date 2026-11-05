@@ -269,7 +269,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=35"></script>
+<script src="catalogue.js?v=36"></script>
 <script>
 (function () {
   "use strict";
@@ -303,6 +303,8 @@
     ["poivrons", "Poivrons", "pce", "Fruits et légumes", 0.80, "estim"],
     ["courgettes", "Courgettes", "pce", "Fruits et légumes", 0.70, "estim"],
     ["carottes", "Carottes", "g", "Fruits et légumes", 1.80, "estim"],
+    ["salade-mix", "Salades mêlées (mesclun, laitue)", "g", "Fruits et légumes", 10.00, "estim"],
+    ["concombre", "Concombres", "pce", "Fruits et légumes", 0.90, "estim"],
     ["pomme", "Pommes", "pce", "Fruits et légumes", 0.45, "estim"],
     ["orange", "Oranges", "pce", "Fruits et légumes", 0.50, "estim"],
     ["citron-vert", "Citrons verts", "pce", "Fruits et légumes", 0.30, "estim"],
@@ -315,6 +317,7 @@
     ["beurre", "Beurre", "g", "Produits frais", 12.94, "aligro"],
     ["fromage-rape", "Fromage râpé", "g", "Produits frais", 12.43, "aligro"],
     ["oeufs", "Œufs", "pce", "Produits frais", 0.35, "estim"],
+    ["mozzarella", "Mozzarella (boules de 125 g)", "g", "Produits frais", 9.00, "estim", null, [125, "boules de 125 g"]],
     ["mayonnaise", "Mayonnaise", "g", "Produits frais", 3.71, "aligro"],
     ["manioc", "Manioc (surgelé)", "g", "Surgelés", 4.50, "estim"],
     ["wedges", "Wedges de patate douce Kadi", "g", "Surgelés", 8.42, "aligro"],
@@ -329,6 +332,8 @@
     ["huile", "Huile de colza", "ml", "Alimentation", 3.46, "aligro"],
     ["huile-olive", "Huile d’olive", "ml", "Alimentation", 8.45, "aligro"],
     ["vinaigre", "Vinaigre", "ml", "Alimentation", 2.00, "estim"],
+    ["moutarde", "Moutarde", "g", "Alimentation", 5.00, "estim"],
+    ["balsamique", "Vinaigre balsamique", "ml", "Alimentation", 6.00, "estim"],
     ["bouillon", "Bouillon (légumes ou poisson)", "ml", "Alimentation", 1.50, "estim"],
     ["sauce-pimentee", "Sauce pimentée douce", "ml", "Alimentation", 12.00, "estim"],
     ["raisins-secs", "Raisins secs", "g", "Alimentation", 8.00, "estim"],
@@ -375,6 +380,8 @@
     "entree.salpicao": { poulet: 650, carottes: 200, pomme: 1, "petits-pois": 100, "raisins-secs": 60, mayonnaise: 200, citron: 0.5, "batata-palha": 120 },
     "entree.massas": { massas: 4, herbes: 0.25 },
     "entree.pinsas": { pinsa: 3 },
+    "entree.salade-melee": { "salade-mix": 400, carottes: 250, tomates: 400, concombre: 1, "huile-olive": 60, vinaigre: 30, moutarde: 10 },
+    "entree.caprese": { tomates: 1200, mozzarella: 750, herbes: 1, "huile-olive": 60, balsamique: 30 },
     "entree.veloute": { courge: 1400, "lait-coco": 400, bouillon: 600, oignons: 1, gingembre: 20, "graines-courge": 50 },
     "plat.feijoada": { "haricots-noirs": 600, "lard-sale": 400, "saucisse-fumee": 500, "echine-fumee": 500, "pieds-porc": 2, oignons: 2, ail: 6, laurier: 3, orange: 2 },
     "plat.escondidinho": { manioc: 1600, "boeuf-ragout": 1200, "tomates-concassees": 400, oignons: 2, ail: 4, "fromage-rape": 300, beurre: 80, lait: 200, herbes: 0.5 },
