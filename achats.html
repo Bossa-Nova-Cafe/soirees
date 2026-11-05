@@ -269,7 +269,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=45"></script>
+<script src="catalogue.js?v=46"></script>
 <script>
 (function () {
   "use strict";
@@ -303,6 +303,8 @@
     ["poivrons", "Poivrons", "pce", "Fruits et légumes", 0.80, "estim"],
     ["courgettes", "Courgettes", "pce", "Fruits et légumes", 0.70, "estim"],
     ["carottes", "Carottes", "g", "Fruits et légumes", 1.80, "estim"],
+    ["champignons", "Champignons de Paris", "g", "Fruits et légumes", 8.00, "estim"],
+    ["patate-douce", "Patates douces", "g", "Fruits et légumes", 3.50, "estim"],
     ["salade-mix", "Salades mêlées (mesclun, laitue)", "g", "Fruits et légumes", 10.00, "estim"],
     ["concombre", "Concombres", "pce", "Fruits et légumes", 0.90, "estim"],
     ["pomme", "Pommes", "pce", "Fruits et légumes", 0.45, "estim"],
@@ -342,6 +344,7 @@
     ["cacahuetes", "Cacahuètes grillées salées", "g", "Alimentation", 8.00, "estim"],
     ["graines-courge", "Graines de courge", "g", "Alimentation", 20.00, "estim"],
     ["laurier", "Laurier", "pce", "Alimentation", 0.05, "estim", "feuilles"],
+    ["lentilles", "Lentilles sèches", "g", "Alimentation", 4.00, "estim"],
     ["cannelle", "Cannelle", "pce", "Alimentation", 0.30, "estim", "bâtons"],
     ["girofle", "Clous de girofle", "pce", "Alimentation", 0.02, "estim", "clous"],
     ["paprika", "Paprika", "g", "Alimentation", 30.00, "estim"],
@@ -394,7 +397,7 @@
     "plat.frango": { poulet: 1600, "citron-vert": 4, ail: 8, huile: 60, paprika: 7, herbes: 1 },
     "plat.peixe": { "poisson-blanc": 1200, oignons: 2, poivrons: 2, tomates: 400, "lait-coco": 400, "citron-vert": 3, ail: 3, huile: 30, herbes: 1 },
     "plat.maluca": { "boeuf-ragout": 1400, poivrons: 3, oignons: 3, "tomates-concassees": 400, ail: 4, huile: 30, herbes: 0.5 },
-    "plat.escondidinho-vg": { manioc: 1600, courge: 600, courgettes: 2, poivrons: 2, "oignons-rouges": 2, "fromage-rape": 350, beurre: 80, lait: 200, huile: 30 },
+    "plat.escondidinho-vg": { lentilles: 300, oignons: 1, ail: 3, laurier: 1, carottes: 130, chasselas: 200, champignons: 400, "tomates-concassees": 470, "patate-douce": 1100, beurre: 20, "fromage-rape": 120, "huile-olive": 30 },
     "dessert.tiramisu-classico": { "tiramisu-classico": 8 },
     "dessert.tiramisu-mango": { "tiramisu-mango": 8 },
     "dessert.tartufo-pistache": { "tartufo-pistache": 8 },
@@ -449,6 +452,9 @@
     // Caldinho : feijão de corda au lieu des haricots noirs, si la recette enregistrée n'a pas été modifiée
     const cd = c.recettes["entree.caldinho"];
     if (cd && cd["haricots-noirs"] === 250 && !cd["feijao-corda"]) { const r = Object.assign({ "feijao-corda": 250 }, cd); delete r["haricots-noirs"]; c.recettes["entree.caldinho"] = r; }
+    // Plat végétarien : empadão de lentilles au lieu de l'escondidinho de manioc, si la recette enregistrée n'a pas été modifiée
+    const vg = c.recettes["plat.escondidinho-vg"];
+    if (vg && vg.manioc === 1600 && !vg.lentilles) c.recettes["plat.escondidinho-vg"] = copie(RECETTES_DEFAUT["plat.escondidinho-vg"]);
     if (Array.isArray(d.soirees)) c.soirees = d.soirees;
     return c;
   }

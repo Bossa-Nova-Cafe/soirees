@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 40,
+    version: 41,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -65,7 +65,7 @@
         { id: "frango", nom: "Poulet rôti au citron vert (frango assado)", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
         { id: "maluca", nom: "Bœuf effiloché aux poivrons (carne maluca)", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
         { id: "peixe", nom: "Poisson au four au lait de coco (peixe ao forno)", ds: "Filet de colin cuit au four sur poivrons, oignons et tomates, sauce au lait de coco et citron vert", prix: 22, photo: "photos/peixe.jpg", actif: true },
-        { id: "escondidinho-vg", nom: "Gratin de légumes sous purée de manioc (escondidinho)", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
+        { id: "escondidinho-vg", nom: "Gratin de lentilles et légumes sous purée de patate douce (empadão)", ds: "Lentilles mijotées aux champignons, carottes et tomates, sous une purée de patate douce gratinée au fromage", prix: 20, vg: true, actif: true }
       ],
       dessert: [
         { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 5.5, actif: true },
@@ -295,6 +295,13 @@
     // Version 40 : nom français d'abord, nom brésilien entre parenthèses (sauf nom changé dans l'admin)
     if (vAvant < 40) { const NOMS = {"vinho-quente": ["Vinho quente au Gamay vaudois", "Vin chaud au Gamay vaudois (vinho quente)"], "quentao-sa": ["Quentão sans alcool", "Jus de pomme chaud aux épices (quentão sans alcool)"], "petiscos": ["Petiscos do Bossa", "Bouchées brésiliennes à partager (petiscos)"], "caldinho": ["Caldinho de feijão de corda", "Soupe de haricots à œil noir (caldinho)"], "salpicao": ["Salpicão de Natal", "Salade de Noël au poulet (salpicão)"], "massas": ["Massas da Cantina Bixiga", "Gratin de pâtes de São Paulo (massas)"], "pinsas": ["Pinsas da Cantina São Paulo", "Pinsas romaines en carrés apéro (Cantina São Paulo)"], "veloute": ["Creme de abóbora com coco", "Velouté de courge au lait de coco (creme de abóbora)"], "feijoada": ["Feijoada complète", "Ragoût de haricots noirs aux viandes (feijoada complète)"], "frango": ["Frango assado", "Poulet rôti au citron vert (frango assado)"], "maluca": ["Carne maluca", "Bœuf effiloché aux poivrons (carne maluca)"], "peixe": ["Peixe ao forno com molho de coco", "Poisson au four au lait de coco (peixe ao forno)"], "escondidinho-vg": ["Escondidinho de legumes", "Gratin de légumes sous purée de manioc (escondidinho)"], "pudim": ["Pudim de leite", "Flan brésilien au caramel (pudim de leite)"]};
       Object.keys(c.menu).forEach(k => { c.menu[k] = c.menu[k].map(x => NOMS[x.id] && x.nom === NOMS[x.id][0] ? Object.assign({}, x, { nom: NOMS[x.id][1] }) : x); }); }
+    // Version 41 : plat végétarien remplacé par l'empadão de lentilles et légumes (prix et statut gardés)
+    if (vAvant < 41) c.menu.plat = c.menu.plat.map(x => {
+      if (x.id !== "escondidinho-vg") return x;
+      const d = DEFAUT.menu.plat.find(y => y.id === "escondidinho-vg"), n = Object.assign({}, x, { nom: d.nom, ds: d.ds });
+      if (n.photo === "photos/escondidinho-vg.jpg") delete n.photo;
+      return n;
+    });
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
