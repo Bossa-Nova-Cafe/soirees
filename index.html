@@ -642,7 +642,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=44"></script>
+<script src="catalogue.js?v=45"></script>
 <script>
 (function () {
   "use strict";
@@ -699,35 +699,35 @@
       { id: "bienvenue", titre: "Bienvenue, comprise", choix: [
         { id: "caipi", nom: "Caipirinha", ds: "Le cocktail national du Brésil : citron vert, sucre et cachaça, sur glace pilée", prix: 0 },
         { id: "quentao", nom: "Quentão", ds: "La boisson chaude des fêtes brésiliennes : cachaça, gingembre, cannelle et orange", prix: 0 },
-        { id: "vinho-quente", nom: "Vinho quente au Gamay vaudois", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 0 },
+        { id: "vinho-quente", nom: "Vin chaud au Gamay vaudois (vinho quente)", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 0 },
         { id: "chasselas", nom: "Verre de Chasselas vaudois", ds: "L'apéritif de chez nous, servi frais", prix: 0 },
-        { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 0 }
+        { id: "quentao-sa", nom: "Jus de pomme chaud aux épices (quentão sans alcool)", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 0 }
       ]},
       { id: "entree", titre: "Entrée", choix: [
-        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 10 },
-        { id: "caldinho", nom: "Caldinho de feijão de corda", ds: "Petite soupe de feijão de corda (haricots à œil noir) en tasse, lardons et coriandre", prix: 7, porc: true },
-        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10 },
-        { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true },
-        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true },
-        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, vg: true },
+        { id: "petiscos", nom: "Bouchées brésiliennes à partager (petiscos)", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 10 },
+        { id: "caldinho", nom: "Soupe de haricots à œil noir (caldinho)", ds: "Petite soupe de feijão de corda (haricots à œil noir) en tasse, lardons et coriandre", prix: 7, porc: true },
+        { id: "salpicao", nom: "Salade de Noël au poulet (salpicão)", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10 },
+        { id: "massas", nom: "Gratin de pâtes de São Paulo (massas)", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true },
+        { id: "pinsas", nom: "Pinsas romaines en carrés apéro (Cantina São Paulo)", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true },
+        { id: "veloute", nom: "Velouté de courge au lait de coco (creme de abóbora)", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, vg: true },
         { id: "aucune", nom: "Sans entrée", ds: "", prix: 0 }
       ]},
       { id: "plat", titre: "Plat principal", choix: [
-        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24, porc: true },
+        { id: "feijoada", nom: "Ragoût de haricots noirs aux viandes (feijoada complète)", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 24, porc: true },
         { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22 },
         { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 24 },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25 },
         { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24 },
-        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18 },
-        { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22 },
-        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, vg: true }
+        { id: "frango", nom: "Poulet rôti au citron vert (frango assado)", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18 },
+        { id: "maluca", nom: "Bœuf effiloché aux poivrons (carne maluca)", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22 },
+        { id: "escondidinho-vg", nom: "Gratin de légumes sous purée de manioc (escondidinho)", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, vg: true }
       ]},
       { id: "dessert", titre: "Dessert, café ou thé offert", choix: [
         { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 9 },
         { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 9 },
         { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 9 },
         { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 9 },
-        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 7 }
+        { id: "pudim", nom: "Flan brésilien au caramel (pudim de leite)", ds: "Le flan brésilien au caramel", prix: 7 }
       ]}
     ],
     accompagnements: "Riz blanc, feijão, farofa, couve à l’ail, vinagrete, patates douces rôties et molho de pimenta, en bols sur les tables",

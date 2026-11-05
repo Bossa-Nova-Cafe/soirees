@@ -269,7 +269,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=44"></script>
+<script src="catalogue.js?v=45"></script>
 <script>
 (function () {
   "use strict";
@@ -524,7 +524,10 @@
     const t = norm(texte);
     if (!t) return null;
     const liste = plats(k);
-    return (liste.find(x => norm(x.nom) === t) || liste.find(x => t.startsWith(norm(x.nom)) || norm(x.nom).startsWith(t)) || {}).id || null;
+    const ANCIENS = {"vinho-quente": "Vinho quente au Gamay vaudois", "quentao-sa": "Quentão sans alcool", "petiscos": "Petiscos do Bossa", "caldinho": "Caldinho de feijão de corda", "salpicao": "Salpicão de Natal", "massas": "Massas da Cantina Bixiga", "pinsas": "Pinsas da Cantina São Paulo", "veloute": "Creme de abóbora com coco", "feijoada": "Feijoada complète", "frango": "Frango assado", "maluca": "Carne maluca", "peixe": "Peixe ao forno com molho de coco", "escondidinho-vg": "Escondidinho de legumes", "pudim": "Pudim de leite"};
+    const alias = x => { const m = String(x.nom).match(/\(([^)]+)\)\s*$/); return [m ? norm(m[1]) : null, ANCIENS[x.id] ? norm(ANCIENS[x.id]) : null].filter(Boolean); };
+    return (liste.find(x => norm(x.nom) === t) || liste.find(x => t.startsWith(norm(x.nom)) || norm(x.nom).startsWith(t))
+      || liste.find(x => alias(x).some(a => a === t || t.startsWith(a) || a.startsWith(t))) || {}).id || null;
   }
   function lireDate(t) {
     const d = norm(t).match(/(\d{1,2}) ([a-z]+) (\d{4})/);

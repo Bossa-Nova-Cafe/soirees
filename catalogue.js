@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 39,
+    version: 40,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -36,43 +36,43 @@
       bienvenue: [
         { id: "caipi", nom: "Caipirinha", ds: "Le cocktail national du Brésil : citron vert, sucre et cachaça, sur glace pilée", prix: 8, inclus: true, photo: "photos/caipirinha-2.jpg", actif: true },
         { id: "quentao", nom: "Quentão", ds: "La boisson chaude des fêtes brésiliennes : cachaça, gingembre, cannelle et orange", prix: 8, inclus: true, actif: false },
-        { id: "vinho-quente", nom: "Vinho quente au Gamay vaudois", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 8, inclus: true, photo: "photos/vin-chaud.jpg", actif: true },
+        { id: "vinho-quente", nom: "Vin chaud au Gamay vaudois (vinho quente)", ds: "Le vin chaud des fêtes brésiliennes, épicé et fruité, préparé avec un Gamay vaudois", prix: 8, inclus: true, photo: "photos/vin-chaud.jpg", actif: true },
         { id: "chasselas", nom: "Verre de Chasselas vaudois", ds: "L'apéritif de chez nous, servi frais", prix: 8, inclus: true, photo: "photos/chasselas.jpg", actif: true },
-        { id: "quentao-sa", nom: "Quentão sans alcool", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 6, inclus: true, actif: true },
+        { id: "quentao-sa", nom: "Jus de pomme chaud aux épices (quentão sans alcool)", ds: "Jus de pomme chaud au gingembre, à la cannelle et à l'orange", prix: 6, inclus: true, actif: true },
         { id: "eaux", nom: "Eaux minérales", ds: "Plate ou gazeuse, bien fraîche, pour ceux qui préfèrent sans alcool", prix: 3, inclus: true, actif: false },
         { id: "batida", nom: "Batida de coco et chips de manioc", ds: "Cocktail onctueux au lait de coco", prix: 8, inclus: true, actif: false },
         { id: "virgem", nom: "Cocktail sans alcool et cacahuètes grillées", ds: "Fruit de la passion, citron vert et menthe", prix: 6, inclus: true, actif: false }
       ],
       entree: [
-        { id: "petiscos", nom: "Petiscos do Bossa", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 10, photo: "photos/petiscos.jpg", actif: true },
-        { id: "caldinho", nom: "Caldinho de feijão de corda", ds: "Petite soupe de feijão de corda (haricots à œil noir) en tasse, lardons et coriandre", prix: 7, photo: "photos/caldinho-corda.jpg", porc: true, actif: true },
-        { id: "salpicao", nom: "Salpicão de Natal", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10, photo: "photos/salpicao.jpg", actif: true },
-        { id: "massas", nom: "Massas da Cantina Bixiga", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true, actif: true },
-        { id: "pinsas", nom: "Pinsas da Cantina São Paulo", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true, photo: "photos/pinsas.jpg", actif: true },
-        { id: "veloute", nom: "Creme de abóbora com coco", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, photo: "photos/veloute.jpg", vg: true, actif: true },
+        { id: "petiscos", nom: "Bouchées brésiliennes à partager (petiscos)", ds: "Pão de queijo, coxinhas et empadas tout chauds, sur planches à partager", prix: 10, photo: "photos/petiscos.jpg", actif: true },
+        { id: "caldinho", nom: "Soupe de haricots à œil noir (caldinho)", ds: "Petite soupe de feijão de corda (haricots à œil noir) en tasse, lardons et coriandre", prix: 7, photo: "photos/caldinho-corda.jpg", porc: true, actif: true },
+        { id: "salpicao", nom: "Salade de Noël au poulet (salpicão)", ds: "La salade de Noël brésilienne : poulet effiloché, carottes, pomme, raisins secs et batata palha", prix: 10, photo: "photos/salpicao.jpg", actif: true },
+        { id: "massas", nom: "Gratin de pâtes de São Paulo (massas)", ds: "Lasagnes à la bolognaise et gnocchi tomate-mozzarella gratinés, à partager — l’héritage italien de São Paulo", prix: 10, porc: true, actif: true },
+        { id: "pinsas", nom: "Pinsas romaines en carrés apéro (Cantina São Paulo)", ds: "Assortiment de pinsas romanas coupées en carrés apéro, à partager : margherita, jambon et salami piquant", prix: 8, porc: true, photo: "photos/pinsas.jpg", actif: true },
+        { id: "veloute", nom: "Velouté de courge au lait de coco (creme de abóbora)", ds: "Velouté de courge au lait de coco, gingembre et graines torréfiées", prix: 8, photo: "photos/veloute.jpg", vg: true, actif: true },
         { id: "salade-melee", nom: "Salade mêlée", ds: "Salades de saison, carottes, tomates et concombre, vinaigrette maison", prix: 7, vg: true, photo: "photos/salade-melee.jpg", actif: true },
         { id: "caprese", nom: "Salade tomates mozzarella", ds: "Tomates, mozzarella, basilic frais, huile d’olive et balsamique", prix: 8, vg: true, photo: "photos/caprese.jpg", actif: true },
         { id: "bouchees", nom: "Assortiment de bouchées bahianaises", ds: "Coxinhas, pastéis et acarajé à partager", prix: 12, actif: false },
         { id: "palmito", nom: "Salade de cœurs de palmier, mangue et crevettes", ds: "Vinaigrette au citron vert et coriandre", prix: 13, actif: false }
       ],
       plat: [
-        { id: "feijoada", nom: "Feijoada complète", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 19, photo: "photos/feijoada.jpg", porc: true, actif: true },
+        { id: "feijoada", nom: "Ragoût de haricots noirs aux viandes (feijoada complète)", ds: "Haricots noirs mijotés aux viandes, chou vert et orange", prix: 19, photo: "photos/feijoada.jpg", porc: true, actif: true },
         { id: "escondidinho", nom: "Escondidinho de carne", ds: "Bœuf effiloché sous une purée de manioc, gratiné au four", prix: 22, photo: "photos/escondidinho.jpg", actif: false },
         { id: "boeuf", nom: "Rumsteck rôti à la brésilienne", ds: "Rôti au four au gros sel, comme au Brésil, et tranché à table", prix: 24, photo: "photos/rumsteck.jpg", actif: false },
         { id: "bananier", nom: "Poisson en feuille de bananier", ds: "Filet de poisson cuit à l'étouffée, lait de coco et herbes fraîches", prix: 25, photo: "photos/bananier.jpg", actif: false },
         { id: "arroz-mar", nom: "Arroz de forno com frutos do mar", ds: "Riz au four aux crevettes, calamars et moules, gratiné", prix: 24, photo: "photos/arroz-mar.jpg", actif: false },
         { id: "costela", nom: "Côtes de bœuf à la brésilienne", ds: "Costela au four, à la brésilienne, cuite lentement jusqu'à être fondante", prix: 29, photo: "photos/cotes-de-boeuf.jpg", actif: false },
-        { id: "frango", nom: "Frango assado", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
-        { id: "maluca", nom: "Carne maluca", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
-        { id: "peixe", nom: "Peixe ao forno com molho de coco", ds: "Filet de colin cuit au four sur poivrons, oignons et tomates, sauce au lait de coco et citron vert", prix: 22, photo: "photos/peixe.jpg", actif: true },
-        { id: "escondidinho-vg", nom: "Escondidinho de legumes", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
+        { id: "frango", nom: "Poulet rôti au citron vert (frango assado)", ds: "Poulet suisse mariné à l'ail, au citron vert et aux herbes, rôti au four", prix: 18, photo: "photos/frango.jpg", actif: true },
+        { id: "maluca", nom: "Bœuf effiloché aux poivrons (carne maluca)", ds: "Effiloché de bœuf mijoté aux poivrons, oignons et tomates", prix: 22, photo: "photos/carne-maluca.jpg", actif: true },
+        { id: "peixe", nom: "Poisson au four au lait de coco (peixe ao forno)", ds: "Filet de colin cuit au four sur poivrons, oignons et tomates, sauce au lait de coco et citron vert", prix: 22, photo: "photos/peixe.jpg", actif: true },
+        { id: "escondidinho-vg", nom: "Gratin de légumes sous purée de manioc (escondidinho)", ds: "Légumes rôtis et fromage sous une purée de manioc, gratinés au four", prix: 20, photo: "photos/escondidinho-vg.jpg", vg: true, actif: true }
       ],
       dessert: [
         { id: "tiramisu-classico", nom: "Tiramisù classico", ds: "Le classique incontournable, l’héritage italien de São Paulo", prix: 5.5, actif: true },
         { id: "tiramisu-mango", nom: "Tiramisù mango", ds: "Le mascarpone italien et la fraîcheur de la mangue", prix: 5.5, actif: true },
         { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 5.5, actif: true },
         { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 5.5, actif: true },
-        { id: "pudim", nom: "Pudim de leite", ds: "Le flan brésilien au caramel", prix: 5.5, actif: true },
+        { id: "pudim", nom: "Flan brésilien au caramel (pudim de leite)", ds: "Le flan brésilien au caramel", prix: 5.5, actif: true },
         { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: false },
         { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: false },
         { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false },
@@ -292,6 +292,9 @@
     if (vAvant < 38) c.menu.entree = c.menu.entree.map(x => x.id === "caldinho" && x.ds === "Petite soupe de haricots noirs en tasse, lardons et coriandre" ? Object.assign({}, x, { nom: x.nom === "Caldinho de feijão" ? "Caldinho de feijão de corda" : x.nom, ds: DEFAUT.menu.entree.find(y => y.id === "caldinho").ds }) : x);
     // Version 39 : photo du caldinho au feijão de corda
     if (vAvant < 39) c.menu.entree = c.menu.entree.map(x => x.id === "caldinho" && (!x.photo || x.photo === "photos/caldinho.jpg") ? Object.assign({}, x, { photo: "photos/caldinho-corda.jpg" }) : x);
+    // Version 40 : nom français d'abord, nom brésilien entre parenthèses (sauf nom changé dans l'admin)
+    if (vAvant < 40) { const NOMS = {"vinho-quente": ["Vinho quente au Gamay vaudois", "Vin chaud au Gamay vaudois (vinho quente)"], "quentao-sa": ["Quentão sans alcool", "Jus de pomme chaud aux épices (quentão sans alcool)"], "petiscos": ["Petiscos do Bossa", "Bouchées brésiliennes à partager (petiscos)"], "caldinho": ["Caldinho de feijão de corda", "Soupe de haricots à œil noir (caldinho)"], "salpicao": ["Salpicão de Natal", "Salade de Noël au poulet (salpicão)"], "massas": ["Massas da Cantina Bixiga", "Gratin de pâtes de São Paulo (massas)"], "pinsas": ["Pinsas da Cantina São Paulo", "Pinsas romaines en carrés apéro (Cantina São Paulo)"], "veloute": ["Creme de abóbora com coco", "Velouté de courge au lait de coco (creme de abóbora)"], "feijoada": ["Feijoada complète", "Ragoût de haricots noirs aux viandes (feijoada complète)"], "frango": ["Frango assado", "Poulet rôti au citron vert (frango assado)"], "maluca": ["Carne maluca", "Bœuf effiloché aux poivrons (carne maluca)"], "peixe": ["Peixe ao forno com molho de coco", "Poisson au four au lait de coco (peixe ao forno)"], "escondidinho-vg": ["Escondidinho de legumes", "Gratin de légumes sous purée de manioc (escondidinho)"], "pudim": ["Pudim de leite", "Flan brésilien au caramel (pudim de leite)"]};
+      Object.keys(c.menu).forEach(k => { c.menu[k] = c.menu[k].map(x => NOMS[x.id] && x.nom === NOMS[x.id][0] ? Object.assign({}, x, { nom: NOMS[x.id][1] }) : x); }); }
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
