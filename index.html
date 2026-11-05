@@ -729,7 +729,7 @@
       { id: "aucun", nom: "À la consommation", ds: "Chacun commande ce qu’il souhaite pendant le repas.", prix: 0 },
       { id: "vin", nom: "Eaux minérales", ds: "Plates et gazeuses, à volonté pendant le repas.", prix: 4 },
       { id: "soft", nom: "Eaux, softs et jus", ds: "À volonté pendant le repas.", prix: 12 },
-      { id: "complet", nom: "Eaux, softs, jus et bière", ds: "À volonté pendant le repas.", prix: 14 }
+      { id: "complet", nom: "Eaux, softs, jus et bière", ds: "Eaux, softs et jus à volonté pendant le repas, et deux bières pression de 3 dl par personne.", prix: 14 }
     ],
     // Vins en bouteilles de 70 cl (prix de vente par bouteille)
     vins: [
@@ -990,7 +990,7 @@
       const el = document.createElement("label");
       el.innerHTML = `<input type="radio" name="forfait" value="${f.id}"><span><strong></strong> <span class="pxf"></span><small></small></span>`;
       el.querySelector("strong").textContent = f.nom;
-      el.querySelector(".pxf").textContent = f.prix ? `· CHF ${f.prix} / adulte` : "";
+      el.querySelector(".pxf").textContent = f.prix ? `· ${chf(f.prix)} / adulte` : "";
       el.querySelector("small").textContent = f.ds;
       const r = el.querySelector("input");
       r.checked = f.id === etat.forfait;
@@ -1279,7 +1279,7 @@
     }
     // Boissons par personne : le forfait choisi pour les adultes, eaux minérales et jus pour les enfants
     const kB = Math.min(nbEnfants(), n), aB = n - kB;
-    if (fo.prix && aB) { boissons += fo.prix * aB; lignes.push({ lib: `${fo.nom} · ${aB} adulte${aB > 1 ? "s" : ""} × CHF ${fo.prix}`, mt: fo.prix * aB }); }
+    if (fo.prix && aB) { boissons += fo.prix * aB; lignes.push({ lib: `${fo.nom}${fo.id === "complet" ? " (2 bières pression de 3 dl par personne)" : ""} · ${aB} adulte${aB > 1 ? "s" : ""} × ${chf(fo.prix)}`, mt: fo.prix * aB }); }
     if (kB && CONFIG.forfaitEnfant != null) { boissons += CONFIG.forfaitEnfant * kB; lignes.push({ lib: `Enfants : eaux minérales et jus · ${kB} × CHF ${CONFIG.forfaitEnfant}`, mt: CONFIG.forfaitEnfant * kB }); }
     CONFIG.bulles.forEach(d => {
       const q = etat.bulles[d.id] || 0;
