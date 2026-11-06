@@ -113,6 +113,8 @@
       delete cat.regles.productionSupplement;
     }
     ["contacts", "saison", "moments", "regles", "forfaits", "honneurs", "cafe"].forEach(k => { if (cat[k]) Object.assign(c[k], cat[k]); });
+    // Dates indisponibles : réservées (tenues à jour par la page Achats) et bloquées à la main (administration)
+    ["datesReservees", "datesBloquees"].forEach(k => { c[k] = Array.isArray(cat[k]) ? cat[k].filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)) : []; });
     // Version 3 : nouveau plat « Côtes de bœuf à la brésilienne », ajouté aux catalogues déjà enregistrés
     const vAvant = Number(cat.version) || 1;
     c.version = DEFAUT.version;
@@ -386,6 +388,14 @@
       localStorage.setItem("bossanova-confra-achats", JSON.stringify(propre));
       return propre;
     },
+    // Page Achats : met à jour les dates déjà réservées, sans toucher au reste du catalogue
+    async majDatesReservees(dates) {
+      const liste = [...new Set(dates)].filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+      const f = await firebase();
+      if (f) { await docRef(f).set({ datesReservees: liste }, { merge: true }); return liste; }
+      const loc = lireLocal() || {}; loc.datesReservees = liste; localStorage.setItem(CLE_LOCALE, JSON.stringify(loc));
+      return liste;
+    },
     completer,
     mode() { return window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.projectId ? "en ligne" : "local"; },
 
@@ -407,7 +417,11 @@
       const propre = completer(cat);
       propre.majLe = new Date().toISOString();
       const f = await firebase();
-      if (f) { await docRef(f).set(propre); return propre; }
+      if (f) {
+        // Les dates réservées sont tenues à jour par la page Achats : on garde celles déjà enregistrées
+        try { const d = await docRef(f).get(); if (d.exists && Array.isArray(d.data().datesReservees)) propre.datesReservees = d.data().datesReservees; } catch (e) { /* on garde celles chargées */ }
+        await docRef(f).set(propre); return propre;
+      }
       localStorage.setItem(CLE_LOCALE, JSON.stringify(propre));
       return propre;
     },

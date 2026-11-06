@@ -269,7 +269,7 @@
 </div>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=47"></script>
+<script src="catalogue.js?v=48"></script>
 <script>
 (function () {
   "use strict";
@@ -458,11 +458,21 @@
     if (Array.isArray(d.soirees)) c.soirees = d.soirees;
     return c;
   }
+  // Les dates des soirées (confirmées ou en option) ne sont plus proposées dans le calculateur
+  let datesSync = null;
+  async function syncDates() {
+    const auj = new Date().toISOString().slice(0, 10);
+    const dates = [...new Set((data.soirees || []).map(x => x.date).filter(d => d && d >= auj))].sort();
+    const cle = dates.join(",");
+    if (cle === datesSync) return;
+    try { await window.Catalogue.majDatesReservees(dates); datesSync = cle; }
+    catch (e) { console.warn("Dates réservées non mises à jour", e); }
+  }
   let tSauve = null;
   function sauverPlusTard() { clearTimeout(tSauve); tSauve = setTimeout(sauver, 700); }
   async function sauver() {
     clearTimeout(tSauve);
-    try { await window.Catalogue.enregistrerAchats(data); message("Enregistré.", "ok", 1500); return true; }
+    try { await window.Catalogue.enregistrerAchats(data); message("Enregistré.", "ok", 1500); syncDates(); return true; }
     catch (e) {
       const refus = e && (e.code === "permission-denied" || /permission/i.test(String(e.message)));
       message(refus
@@ -1054,6 +1064,7 @@
     try {
       const [c, d] = await Promise.all([window.Catalogue.charger(), window.Catalogue.chargerAchats().catch(e => { throw e; })]);
       cat = c; data = completer(d);
+      datesSync = (cat.datesReservees || []).join(","); setTimeout(syncDates, 500);
     } catch (e) {
       cat = cat || await window.Catalogue.charger();
       data = completer(null);

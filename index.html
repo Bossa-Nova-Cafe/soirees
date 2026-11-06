@@ -324,6 +324,8 @@
     .etapes-points button { font-size: 11px; }
   }
 
+  .date-prise { margin-top: 8px; background: #fdecea; color: #8c1d18; border-radius: 8px; padding: 8px 12px; font-size: 13.5px; font-weight: 600; }
+  .dates-prises { margin-top: 8px; font-size: 13px; color: var(--gris); }
   /* Pas de montant avant le choix des plats */
   .budget-attente { display: none; font-size: 14px; color: var(--gris); background: #f2f8f4; border-radius: 10px; padding: 12px 14px; margin-top: 10px; line-height: 1.45; }
   body.sans-budget .budget-attente { display: block; }
@@ -409,6 +411,8 @@
       <div data-ecran="1-date">
       <label class="champ" for="date">Date souhaitée</label>
       <input type="date" id="date">
+      <div class="date-prise cache" id="date-prise" role="alert"></div>
+      <div class="dates-prises cache" id="dates-prises"></div>
       <div class="aide" id="date-aide"></div>
       <div class="alerte cache" id="date-alerte"></div>
       </div>
@@ -642,7 +646,7 @@
 <footer>Bossa Nova Café · Place de la Gare 3 · 1800 Vevey · à une minute du quai</footer>
 
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=47"></script>
+<script src="catalogue.js?v=48"></script>
 <script>
 (function () {
   "use strict";
@@ -2030,9 +2034,10 @@
     if (!$("nom").value.trim()) manque.push("ton nom");
     if (!$("email").value.trim() && !$("tel").value.trim()) manque.push("un e-mail ou un téléphone");
     if (!$("date").value) manque.push("la date souhaitée");
+    else if (window.dateIndisponible($("date").value)) manque.push("une date encore libre (celle choisie est déjà réservée)");
     if (manque.length) {
       e.preventDefault();
-      $("erreur").textContent = "Il manque " + manque.join(", ") + ".";
+      $("erreur").textContent = "Il manque " + manque.join(", ").replace(/\.?$/, ".");
     } else {
       $("erreur").textContent = "";
     }
@@ -2198,11 +2203,27 @@
   maj();
   }
 
+  // Dates déjà réservées ou bloquées : plus proposées
+  window.DATES_PRISES = new Set();
+  window.dateIndisponible = d => !!d && window.DATES_PRISES.has(d);
+  function majDatesPrises() {
+    const d = $("date").value, auj = new Date().toISOString().slice(0, 10);
+    const prise = window.dateIndisponible(d);
+    $("date-prise").classList.toggle("cache", !prise);
+    if (prise) $("date-prise").textContent = "Cette date est déjà réservée. Choisis-en une autre.";
+    const futures = [...window.DATES_PRISES].filter(x => x >= auj && x <= CONFIG.saisonFin).sort();
+    $("dates-prises").classList.toggle("cache", !futures.length);
+    if (futures.length) $("dates-prises").textContent = "Déjà réservées : " + futures.map(x => new Date(x + "T12:00:00").toLocaleDateString("fr-CH", { weekday: "short", day: "numeric", month: "short" })).join(", ").replace(/\.?$/, ".");
+  }
+  $("date").addEventListener("input", majDatesPrises);
+  $("date").addEventListener("change", majDatesPrises);
   window.Catalogue.charger().then(cat => {
+    window.DATES_PRISES = new Set([...(cat.datesReservees || []), ...(cat.datesBloquees || [])]);
     appliquerCatalogue(cat);
     const offre = window.Catalogue.lireOffreDuLien();
     if (offre) appliquerOffre(offre);
     demarrer();
+    majDatesPrises();
   });
 })();
 </script>
@@ -2245,6 +2266,7 @@
   // Ce qui empêche de quitter un écran en avançant
   function probleme(id) {
     if (id === "1-date" && !$("date").value) return { msg: "Choisis la date souhaitée pour continuer.", el: $("date") };
+    if (id === "1-date" && window.dateIndisponible && window.dateIndisponible($("date").value)) return { msg: "Cette date est déjà réservée. Choisis-en une autre.", el: $("date") };
     const cpt = id === "2-plat" ? $("compteur-portions") : id === "2-dessert" ? $("compteur-desserts") : null;
     if (cpt && !$("carte-menu").classList.contains("cache") && cpt.classList.contains("ko"))
       return { msg: cpt.textContent.replace(/ (pour pouvoir envoyer votre demande|pour pouvoir envoyer ta demande)\.$/, " pour continuer."), el: cpt };
