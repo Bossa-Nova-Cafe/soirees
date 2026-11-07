@@ -753,8 +753,8 @@
     forfaits: [
       { id: "aucun", nom: "À la consommation", ds: "Chacun commande ce qu’il souhaite pendant le repas.", prix: 0 },
       { id: "vin", nom: "Eaux minérales plates et gazeuses", ds: "Eau plate et eau gazeuse, à volonté pendant le repas.", prix: 4 },
-      { id: "soft", nom: "Eaux plates et gazeuses, softs et jus", ds: "Eau plate, eau gazeuse, Coca-Cola, Fanta et jus d’orange, à volonté pendant le repas.", prix: 12 },
-      { id: "complet", nom: "Eaux plates et gazeuses, softs, jus et bière", ds: "Eau plate, eau gazeuse, Coca-Cola, Fanta et jus d’orange à volonté pendant le repas, et deux bières pression de 3 dl par personne.", prix: 14 }
+      { id: "soft", nom: "Eaux plates et gazeuses, softs et jus", ds: "Eau plate, eau gazeuse, Coca-Cola, Fanta et jus de pomme, à volonté pendant le repas.", prix: 12 },
+      { id: "complet", nom: "Eaux plates et gazeuses, softs, jus et bière", ds: "Eau plate, eau gazeuse, Coca-Cola, Fanta et jus de pomme à volonté pendant le repas, et deux bières pression de 3 dl par personne.", prix: 14 }
     ],
     // Vins en bouteilles de 70 cl (prix de vente par bouteille)
     vins: [
@@ -1408,10 +1408,10 @@
       ? `Nombre maximum de ${CONFIG.maxPersonnes} personnes atteint.${groupeTrop ? ` Avec ${nbAdultes()} adultes, ${reste} enfant${reste > 1 ? "s" : ""} au maximum.` : ""}`
       : `Places restantes pour les enfants : ${reste - kRep}.`;
     $("groupe-alerte").classList.toggle("plein", plein);
-    $("enfants-aide").textContent = `${CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, ` : ""}eau plate, eau gazeuse, Coca-Cola, Fanta et jus d’orange à CHF ${CONFIG.forfaitEnfant}, sans alcool.`;
+    $("enfants-aide").textContent = `${CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, ` : ""}eau plate, eau gazeuse, Coca-Cola, Fanta et jus de pomme à CHF ${CONFIG.forfaitEnfant}, sans alcool.`;
     const ae = $("aide-forfait-enfant");
     ae.classList.toggle("cache", !kRep);
-    if (kRep) ae.textContent = `Pour ${kRep === 1 ? "l’enfant" : `les ${kRep} enfants`} : eau plate, eau gazeuse, Coca-Cola, Fanta et jus d’orange, CHF ${CONFIG.forfaitEnfant} par enfant, compté automatiquement. Les vins, la bière et le champagne sont prévus pour les adultes seulement.`;
+    if (kRep) ae.textContent = `Pour ${kRep === 1 ? "l’enfant" : `les ${kRep} enfants`} : eau plate, eau gazeuse, Coca-Cola, Fanta et jus de pomme, CHF ${CONFIG.forfaitEnfant} par enfant, compté automatiquement. Les vins, la bière et le champagne sont prévus pour les adultes seulement.`;
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);

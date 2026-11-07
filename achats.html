@@ -388,9 +388,9 @@
     "bienvenue.eaux": { "eau-plate": 400, "eau-gazeuse": 350 },
     // Boissons pendant le repas, pour 8 adultes (ou 8 enfants)
     "forfait.vin": { "eau-plate": 2400, "eau-gazeuse": 1600 },
-    "forfait.soft": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-orange": 800 },
-    "forfait.complet": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-orange": 800, "biere-pression": 4800 },
-    "forfait.enfant": { "eau-plate": 1200, "eau-gazeuse": 400, coca: 800, fanta: 1000, "jus-orange": 1200 },
+    "forfait.soft": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-pomme": 800 },
+    "forfait.complet": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-pomme": 800, "biere-pression": 4800 },
+    "forfait.enfant": { "eau-plate": 1200, "eau-gazeuse": 400, coca: 800, fanta: 1000, "jus-pomme": 1200 },
     "bienvenue.chasselas": { chasselas: 800 },
     "bienvenue.quentao-sa": { "jus-pomme": 1000, gingembre: 60, cannelle: 2, girofle: 6, orange: 1 },
     "entree.petiscos": { "pao-queijo": 24, coxinha: 16, empada: 8, "citron-vert": 2, "sauce-pimentee": 100 },
@@ -468,7 +468,9 @@
     const ea = c.recettes["bienvenue.eaux"];
     if (ea && ea["eau-minerale"] === 750 && Object.keys(ea).length === 1) c.recettes["bienvenue.eaux"] = copie(RECETTES_DEFAUT["bienvenue.eaux"]);
     const fe = c.recettes["forfait.enfant"];
-    if (fe && fe["eau-plate"] === 1200 && fe["jus-orange"] === 1200 && Object.keys(fe).length === 2) c.recettes["forfait.enfant"] = copie(RECETTES_DEFAUT["forfait.enfant"]);
+    if (fe && fe["eau-plate"] === 1200 && fe["jus-pomme"] === undefined && fe["jus-orange"] === 1200 && Object.keys(fe).length === 2) c.recettes["forfait.enfant"] = copie(RECETTES_DEFAUT["forfait.enfant"]);
+    // Jus d'orange pressé trop cher pour les forfaits : remplacé par le jus de pomme
+    ["forfait.soft", "forfait.complet", "forfait.enfant"].forEach(k => { const r = c.recettes[k]; if (r && r["jus-orange"] != null) { r["jus-pomme"] = (r["jus-pomme"] || 0) + r["jus-orange"]; delete r["jus-orange"]; } });
     const vg = c.recettes["plat.escondidinho-vg"];
     if (vg && vg.manioc === 1600 && !vg.lentilles) c.recettes["plat.escondidinho-vg"] = copie(RECETTES_DEFAUT["plat.escondidinho-vg"]);
     if (Array.isArray(d.soirees)) c.soirees = d.soirees;
