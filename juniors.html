@@ -61,6 +61,7 @@
   .hon { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--bord); }
   .hon .t { flex:1; min-width:0; font-size:14.5px; } .hon .t b { color:var(--vert); }
   .hon .detail { color:var(--gris); font-size:12.5px; line-height:1.45; display:block; }
+  .hon .prixhon { display:block; margin-top:4px; font-size:12.5px; font-weight:600; color:var(--violet); }
   .hon .stepper button { width:32px; height:32px; font-size:17px; } .hon .stepper output { font-size:22px; min-width:24px; }
   .resume { position:sticky; top:16px; }
   .ligne { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:6px 0; border-bottom:1px dashed var(--bord); }
@@ -94,7 +95,7 @@
       <ul class="inclus">
         <li>un plat à volonté, posé au centre de la grande tablée ;</li>
         <li>un dessert ;</li>
-        <li>les moments à l'honneur, offerts si tu apportes tes trophées, et l'Amigo Secreto, offert ;</li>
+        <li>les moments à l'honneur et l'Amigo Secreto, offerts (trophées non compris) ;</li>
         <li>les softs en bouteilles d'1,5 litre sur la table, à CHF 7 la bouteille ;</li>
         <li>aucune boisson alcoolisée servie pendant la soirée, accompagnants compris.</li>
       </ul>
@@ -157,7 +158,7 @@
 
     <section class="carte">
       <h2>Moments à l'honneur</h2>
-      <p class="sous" id="sousHon">Mets tes juniors à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
+      <p class="sous" id="sousHon">Mets tes juniors à l'honneur pendant la soirée. Le moment est offert : annonce par notre animateur, diplôme personnalisé aux couleurs du Bossa Nova et photo souvenir. Les trophées ne sont pas compris : tu les apportes, ou nous les réalisons en supplément.</p>
       <div id="honneurs"></div>
       <div id="blocProd" hidden>
         <label class="champ">Trophées et cadeaux</label>
@@ -238,7 +239,7 @@
     HON[choisi("pour")].forEach(h => {
       hon[h.id] = Math.min(hon[h.id] || 0, h.max);
       const d = document.createElement("div"); d.className = "hon";
-      d.innerHTML = `<div class="t"><b>${h.nom}</b><span class="detail">${h.detail}</span></div><div class="stepper"><button type="button" aria-label="Un de moins">−</button><output>${hon[h.id]}</output><button type="button" aria-label="Un de plus">+</button></div>`;
+      d.innerHTML = `<div class="t"><b>${h.nom}</b><span class="detail">${h.detail}</span><span class="prixhon">Moment offert · ${choisi("pour") === "anniversaire" ? "cadeau ou trophée" : "trophée"} réalisé par nous : + ${chf(PRIX_HON[h.id])} par lauréat</span></div><div class="stepper"><button type="button" aria-label="Un de moins">−</button><output>${hon[h.id]}</output><button type="button" aria-label="Un de plus">+</button></div>`;
       const [m, o, p] = d.querySelectorAll("button, output");
       m.addEventListener("click", () => { hon[h.id] = Math.max(0, hon[h.id] - 1); o.textContent = hon[h.id]; calc(); });
       p.addEventListener("click", () => { hon[h.id] = Math.min(h.max, hon[h.id] + 1); o.textContent = hon[h.id]; calc(); });
@@ -250,7 +251,7 @@
     const t = TXT[choisi("pour")];
     $("labJeunes").textContent = t.jeunes; $("labAdultes").textContent = t.adultes; $("sousGroupe").textContent = t.sous;
     const anniv = choisi("pour") === "anniversaire";
-    $("sousHon").textContent = anniv ? "Fête l'enfant et ses amis pendant la soirée. Chaque moment comprend une annonce par notre animateur et une photo souvenir." : "Mets tes juniors à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.";
+    $("sousHon").textContent = anniv ? "Fête l'enfant et ses amis pendant la soirée. Le moment est offert : annonce par notre animateur et photo souvenir. Les cadeaux et trophées ne sont pas compris : tu les apportes, ou nous les préparons en supplément." : "Mets tes juniors à l'honneur pendant la soirée. Le moment est offert : annonce par notre animateur, diplôme personnalisé aux couleurs du Bossa Nova et photo souvenir. Les trophées ne sont pas compris : tu les apportes, ou nous les réalisons en supplément.";
     $("prodClient").textContent = anniv ? "Tu apportes les cadeaux" : "Tu apportes tes trophées";
     Object.keys(hon).forEach(k => delete hon[k]);
     rendreHonneurs();
@@ -320,7 +321,7 @@
   $("moins").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.max(0, bouteilles - 1); calc(); });
   try { const q = new URLSearchParams(location.search).get("pour"); if (q === "anniversaire" || q === "equipe") { document.querySelector(`input[name=pour][value=${q}]`).checked = true; marquer("pour"); } } catch (e) {}
   appliquerPour(); calc();
-  const prendre = cat => { if (cat && cat.honneurs) Object.keys(PRIX_HON).forEach(k => { if (cat.honneurs[k] != null) PRIX_HON[k] = Number(cat.honneurs[k]) || PRIX_HON[k]; }); if (cat && cat.regles && cat.regles.productionDelaiJours) DELAI = cat.regles.productionDelaiJours; calc(); };
+  const prendre = cat => { if (cat && cat.honneurs) Object.keys(PRIX_HON).forEach(k => { if (cat.honneurs[k] != null) PRIX_HON[k] = Number(cat.honneurs[k]) || PRIX_HON[k]; }); if (cat && cat.regles && cat.regles.productionDelaiJours) DELAI = cat.regles.productionDelaiJours; rendreHonneurs(); calc(); };
   if (window.__catJuniors) prendre(window.__catJuniors); document.addEventListener("catalogue", () => prendre(window.__catJuniors));
 })();
 </script>
