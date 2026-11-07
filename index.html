@@ -35,6 +35,11 @@
   .atouts strong { display: block; color: var(--jaune); font-size: 15px; margin-bottom: 3px; }
   .atouts span { font-size: 12.5px; opacity: .9; line-height: 1.45; }
   @media (max-width: 640px) { .atouts { flex-direction: column; gap: 8px; } }
+  .lien-juniors { display:block; max-width:760px; margin:12px auto 0; background:rgba(242,194,48,.12); border:1.5px solid var(--jaune); color:var(--creme); border-radius:14px; padding:11px 16px; text-decoration:none; font-size:14px; line-height:1.45; }
+  .lien-juniors strong { color:var(--jaune); }
+  .lien-juniors:hover { background:rgba(242,194,48,.22); }
+  .encart-juniors { margin-top:12px; background:#fff4d6; border-left:4px solid var(--jaune); border-radius:8px; padding:10px 12px; font-size:13.5px; line-height:1.45; }
+  .encart-juniors a { color:var(--vert); font-weight:600; }
   main { max-width: 980px; margin: 0 auto; padding: 0 16px 40px; display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
   .carte { background: var(--creme); border-radius: 18px; padding: 22px; margin-bottom: 18px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
   .carte h2 { font-family: "Anton", sans-serif; font-weight: 400; color: var(--vert); font-size: 22px; margin: 0 0 4px; text-transform: uppercase; }
@@ -362,6 +367,7 @@
     <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour tes invités : nous nous occupons de tout.</span></div>
     <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
   </div>
+  <a class="lien-juniors pas-imprime" href="juniors.html"><strong>Une équipe juniors ?</strong> Découvre la Soirée Juniors : sans alcool, pinsas ou lasagnes à volonté, CHF 18 par personne →</a>
   <div class="offre-bandeau cache" id="offre-bandeau"></div>
 </header>
 
@@ -393,6 +399,7 @@
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
       </div>
+      <div class="encart-juniors" id="encart-juniors" hidden>Pour une équipe juniors, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html">voir la Soirée Juniors</a>.</div>
       </div>
       <div data-ecran="1-combien">
       <label class="champ" for="adultes">Adultes</label>
@@ -2177,7 +2184,7 @@
   $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
   appliquerProfil();
-  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); }));
+  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); const ej = document.getElementById("encart-juniors"); if (ej) ej.hidden = etat.profil !== "club"; }));
   construireOptions();
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
   $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;
