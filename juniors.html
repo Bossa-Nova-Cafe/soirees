@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soirée Juniors — Bossa Nova Café</title>
+<meta name="description" content="Une soirée sans alcool pour les équipes juniors : pinsas, lasagnes, dessert et softs, dans le Bossa Nova Café privatisé, face à la gare de Vevey.">
+<meta property="og:title" content="Soirée Juniors au Bossa Nova Café, Vevey">
+<meta property="og:description" content="Sans alcool, rien que pour ton équipe : pinsas ou lasagnes à volonté, dessert et softs. CHF 18 par personne.">
+<meta property="og:image" content="https://bossa-nova-cafe.github.io/soirees/photos/pinsas.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Chango&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --vert:#0f3d2e; --vert-clair:#1d5a45; --jaune:#f2c230; --violet:#6b3fa0; --creme:#fbf6e9; --texte:#1d1d1b; --gris:#6b6b66; --bord:#e2dac3; }
+  * { box-sizing: border-box; }
+  [hidden] { display:none !important; }
+  body { margin:0; font-family:"Poppins",system-ui,sans-serif; background:var(--vert); color:var(--texte); }
+  header { text-align:center; padding:30px 16px 18px; color:var(--creme); }
+  header .marque { font-family:"Chango",serif; color:var(--jaune); font-size:15px; letter-spacing:1px; }
+  header h1 { font-family:"Anton",sans-serif; font-weight:400; font-size:40px; margin:6px 0 4px; text-transform:uppercase; letter-spacing:1px; }
+  header p.slogan { font-size:19px; font-weight:600; color:var(--jaune); margin:0 auto 8px; }
+  header p { margin:0 auto; max-width:560px; opacity:.9; font-size:14px; line-height:1.5; }
+  main { max-width:980px; margin:0 auto; padding:0 16px 40px; display:grid; grid-template-columns:1fr 330px; gap:18px; align-items:start; }
+  @media (max-width:820px){ main { grid-template-columns:1fr; } }
+  .carte { background:var(--creme); border-radius:18px; padding:22px; margin-bottom:18px; box-shadow:0 8px 24px rgba(0,0,0,.18); }
+  .carte h2 { font-family:"Anton",sans-serif; font-weight:400; color:var(--vert); font-size:22px; margin:0 0 4px; text-transform:uppercase; }
+  .sous { color:var(--gris); font-size:13px; margin:0 0 14px; line-height:1.45; }
+  label.champ { display:block; font-weight:500; font-size:14px; margin:12px 0 6px; }
+  input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],textarea { width:100%; font:inherit; font-size:15px; padding:10px 12px; border:1.5px solid var(--bord); border-radius:10px; background:#fff; }
+  input:focus,textarea:focus { outline:2px solid var(--jaune); border-color:var(--jaune); }
+  textarea { min-height:70px; resize:vertical; }
+  .rangee { display:flex; gap:12px; } .rangee>div { flex:1; min-width:0; }
+  @media (max-width:520px){ .rangee { flex-direction:column; gap:0; } }
+  .aide { color:var(--gris); font-size:12.5px; margin-top:6px; line-height:1.45; }
+  .alerte { background:#fff4d6; border-left:4px solid var(--jaune); padding:9px 12px; border-radius:8px; font-size:13px; margin-top:10px; }
+  .compteur { display:flex; align-items:center; gap:14px; }
+  .compteur input[type=range] { flex:1; accent-color:var(--vert); }
+  .compteur .valeur { font-family:"Anton",sans-serif; font-size:30px; color:var(--vert); min-width:46px; text-align:right; }
+  .choix { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  @media (max-width:600px){ .choix { grid-template-columns:1fr; } }
+  .choix label { border:2px solid var(--bord); border-radius:14px; padding:12px; cursor:pointer; background:#fff; display:block; }
+  .choix label:hover { border-color:var(--jaune); }
+  .choix input { position:absolute; opacity:0; pointer-events:none; }
+  .choix label.choisi { border-color:var(--vert); box-shadow:inset 0 0 0 1px var(--vert); background:#f4f9f5; }
+  .choix .nom { font-weight:600; color:var(--vert); font-size:14.5px; }
+  .choix .desc { font-size:12.5px; color:#3c3c38; line-height:1.4; margin-top:3px; }
+  .inclus { margin:0; padding-left:18px; font-size:14px; line-height:1.6; }
+  .photo { width:100%; aspect-ratio:3/2; object-fit:cover; border-radius:12px; display:block; margin-bottom:12px; }
+  .softs { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .softs label { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid var(--bord); border-radius:99px; padding:6px 12px; font-size:13.5px; cursor:pointer; }
+  .softs input { accent-color:var(--vert); }
+  .stepper { display:flex; align-items:center; gap:10px; }
+  .stepper button { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--vert); background:#fff; color:var(--vert); font-size:20px; cursor:pointer; }
+  .stepper output { font-family:"Anton",sans-serif; font-size:26px; color:var(--vert); min-width:34px; text-align:center; }
+  .resume { position:sticky; top:16px; }
+  .ligne { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:6px 0; border-bottom:1px dashed var(--bord); }
+  .ligne span:last-child { white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .total { display:flex; justify-content:space-between; align-items:baseline; margin-top:12px; }
+  .total b { font-family:"Anton",sans-serif; font-weight:400; font-size:34px; color:var(--violet); font-variant-numeric:tabular-nums; }
+  .parpers { font-size:12.5px; color:var(--gris); text-align:right; }
+  .bouton { display:block; text-align:center; text-decoration:none; font-weight:600; border-radius:12px; padding:13px; margin-top:10px; font-size:15px; }
+  .wa { background:#25d366; color:#fff; } .mail { background:var(--vert); color:var(--creme); }
+  .bouton.inactif { opacity:.45; pointer-events:none; }
+  .coord { font-size:12.5px; color:var(--gris); margin-top:10px; line-height:1.5; }
+  footer { text-align:center; color:var(--creme); opacity:.75; font-size:12.5px; padding:0 16px 30px; }
+  footer a { color:var(--jaune); }
+  button:focus-visible,a:focus-visible,label:focus-within { outline:3px solid var(--jaune); outline-offset:2px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="marque">BOSSA NOVA CAFÉ · VEVEY</div>
+  <h1>Soirée Juniors</h1>
+  <p class="slogan">Sans alcool. Rien que pour ton équipe.</p>
+  <p>Le Bossa Nova Café, face à la gare de Vevey, ferme ses portes au public et accueille tes juniors pour une fin de saison, une remise de médailles ou un repas d'équipe. Une grande tablée, des plats à volonté au centre et des softs sur la table.</p>
+</header>
+
+<main>
+  <div>
+    <section class="carte">
+      <img class="photo" src="photos/pinsas.jpg" alt="Pinsas romaines coupées en carrés, prêtes à partager">
+      <h2>La formule</h2>
+      <p class="sous">CHF 18 par personne, jeunes et accompagnants. Soirée de 18h00 à 21h30.</p>
+      <ul class="inclus">
+        <li>un plat à volonté, posé au centre de la grande tablée ;</li>
+        <li>un dessert ;</li>
+        <li>les softs en bouteilles d'1,5 litre sur la table, à CHF 7 la bouteille ;</li>
+        <li>aucune boisson alcoolisée servie pendant la soirée, accompagnants compris.</li>
+      </ul>
+    </section>
+
+    <section class="carte">
+      <h2>Ton groupe</h2>
+      <p class="sous">De 12 à 26 personnes, entraîneurs et accompagnants compris.</p>
+      <label class="champ" for="jeunes">Juniors</label>
+      <div class="compteur"><input type="range" id="jeunes" min="1" max="26" value="16"><span class="valeur" id="jeunesV">16</span></div>
+      <label class="champ" for="adultes">Entraîneurs et accompagnants</label>
+      <div class="compteur"><input type="range" id="adultes" min="0" max="12" value="2"><span class="valeur" id="adultesV">2</span></div>
+      <div class="alerte" id="alerteNb" hidden></div>
+      <label class="champ" for="date">Date souhaitée</label>
+      <input type="date" id="date" min="2026-11-16" max="2027-02-28">
+      <p class="aide">Du 16 novembre à fin février, tous les soirs de la semaine.</p>
+    </section>
+
+    <section class="carte">
+      <h2>Le plat</h2>
+      <p class="sous">Servi à volonté au centre de la table.</p>
+      <div class="choix" id="plats">
+        <label class="choisi"><input type="radio" name="plat" value="Pinsas romaines" checked><div class="nom">Pinsas romaines</div><div class="desc">En carrés à partager : margherita, jambon et végétarienne</div></label>
+        <label><input type="radio" name="plat" value="Lasagnes"><div class="nom">Lasagnes</div><div class="desc">Lasagnes à la bolognaise et gratin de pâtes tomate-mozzarella</div></label>
+        <label><input type="radio" name="plat" value="Pinsas et lasagnes"><div class="nom">Les deux</div><div class="desc">Un peu de pinsas, un peu de lasagnes, pour que chacun trouve son bonheur</div></label>
+      </div>
+      <label class="champ" for="vege">Dont végétariens</label>
+      <input type="number" id="vege" min="0" max="26" value="0" inputmode="numeric">
+    </section>
+
+    <section class="carte">
+      <h2>Le dessert</h2>
+      <div class="choix" id="desserts">
+        <label class="choisi"><input type="radio" name="dessert" value="Glace" checked><div class="nom">Glace</div><div class="desc">Tartufo pistache ou noisette-chocolat</div></label>
+        <label><input type="radio" name="dessert" value="Tiramisù"><div class="nom">Tiramisù</div><div class="desc">Classico ou à la mangue</div></label>
+        <label><input type="radio" name="dessert" value="Brigadeiros"><div class="nom">Brigadeiros</div><div class="desc">Les truffes brésiliennes au chocolat</div></label>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2>Les softs</h2>
+      <p class="sous">Bouteilles d'1,5 litre à CHF 7. Compte environ une bouteille pour deux personnes ; on ajuste le soir même selon la soif.</p>
+      <div class="stepper"><button type="button" id="moins" aria-label="Une bouteille de moins">−</button><output id="bout">9</output><button type="button" id="plus" aria-label="Une bouteille de plus">+</button><span class="aide" style="margin:0">bouteilles d'1,5 l</span></div>
+      <div class="softs" id="softs">
+        <label><input type="checkbox" value="Coca-Cola" checked> Coca-Cola</label>
+        <label><input type="checkbox" value="Coca-Cola zéro"> Coca-Cola zéro</label>
+        <label><input type="checkbox" value="Ice Tea" checked> Ice Tea</label>
+        <label><input type="checkbox" value="Jus de pomme" checked> Jus de pomme</label>
+        <label><input type="checkbox" value="Eau gazeuse"> Eau gazeuse</label>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2>Tes coordonnées</h2>
+      <div class="rangee">
+        <div><label class="champ" for="club">Club et équipe</label><input type="text" id="club" placeholder="Ex. FC Vevey-Sports, juniors D"></div>
+        <div><label class="champ" for="nom">Ton nom</label><input type="text" id="nom"></div>
+      </div>
+      <div class="rangee">
+        <div><label class="champ" for="tel">Téléphone</label><input type="tel" id="tel"></div>
+        <div><label class="champ" for="email">E-mail</label><input type="email" id="email"></div>
+      </div>
+      <label class="champ" for="rem">Remarque</label>
+      <textarea id="rem" placeholder="Allergies, remise de médailles, anniversaire d'un joueur…"></textarea>
+    </section>
+  </div>
+
+  <aside class="resume">
+    <section class="carte">
+      <h2>Ton budget</h2>
+      <div class="ligne"><span id="lRepas">Repas</span><span id="vRepas"></span></div>
+      <div class="ligne"><span id="lSofts">Softs</span><span id="vSofts"></span></div>
+      <div class="ligne" id="lgMin" hidden><span>Complément minimum de privatisation</span><span id="vMin"></span></div>
+      <div class="total"><span>Total</span><b id="total"></b></div>
+      <div class="parpers" id="parpers"></div>
+      <p class="aide">Minimum de privatisation : CHF 400. Prix TTC.</p>
+      <a class="bouton wa" id="envWa" target="_blank" rel="noopener">Envoyer ma demande par WhatsApp</a>
+      <a class="bouton mail" id="envMail">Envoyer ma demande par e-mail</a>
+      <p class="coord">Ou directement : WhatsApp +41 76 639 04 95 · evenements@bossanova-cafe.ch<br>Bossa Nova Café, place de la Gare 3, 1800 Vevey</p>
+    </section>
+  </aside>
+</main>
+<footer>Pour les soirées d'adultes, <a href="./">compose ta soirée privée</a>.</footer>
+
+<script>
+(function () {
+  "use strict";
+  const PRIX = 18, BOUTEILLE = 7, MINIMUM = 400, MAX = 26, MIN_GROUPE = 12;
+  const WA = "41766390495", MAIL = "evenements@bossanova-cafe.ch";
+  const $ = id => document.getElementById(id);
+  const chf = n => "CHF " + (Math.round(n * 100) / 100).toFixed(n % 1 ? 2 : 0).replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+  let bouteilles = 9, bouteillesManuel = false;
+
+  function choisi(groupe) { return document.querySelector(`input[name=${groupe}]:checked`).value; }
+  function marquer(id) { document.querySelectorAll(`#${id} label`).forEach(l => l.classList.toggle("choisi", l.querySelector("input").checked)); }
+
+  function calc() {
+    const j = +$("jeunes").value, a = +$("adultes").value, n = j + a;
+    $("jeunesV").textContent = j; $("adultesV").textContent = a;
+    if (!bouteillesManuel) bouteilles = Math.max(1, Math.ceil(n / 2));
+    $("bout").textContent = bouteilles;
+    const repas = n * PRIX, softs = bouteilles * BOUTEILLE, sous = repas + softs;
+    const compl = Math.max(0, MINIMUM - sous), total = sous + compl;
+    $("lRepas").textContent = `Repas · ${n} × ${chf(PRIX)}`;
+    $("vRepas").textContent = chf(repas);
+    $("lSofts").textContent = `Softs · ${bouteilles} × ${chf(BOUTEILLE)}`;
+    $("vSofts").textContent = chf(softs);
+    $("lgMin").hidden = compl === 0; $("vMin").textContent = chf(compl);
+    $("total").textContent = chf(total);
+    $("parpers").textContent = n ? `soit ${chf(total / n)} par personne` : "";
+    const al = $("alerteNb");
+    if (n > MAX) { al.hidden = false; al.textContent = `La salle accueille ${MAX} personnes au maximum. Tu en as indiqué ${n}.`; }
+    else if (n < MIN_GROUPE) { al.hidden = false; al.textContent = `La soirée est prévue dès ${MIN_GROUPE} personnes. En dessous, le minimum de CHF ${MINIMUM} s'applique.`; }
+    else al.hidden = true;
+    const ok = n <= MAX;
+    ["envWa", "envMail"].forEach(id => $(id).classList.toggle("inactif", !ok));
+    const softsChoisis = [...document.querySelectorAll("#softs input:checked")].map(x => x.value).join(", ") || "à définir";
+    const d = $("date").value ? new Date($("date").value + "T12:00").toLocaleDateString("fr-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "à définir";
+    const vege = +$("vege").value || 0;
+    const msg = [
+      "Demande de Soirée Juniors — Bossa Nova Café",
+      "",
+      `Club : ${$("club").value || "-"}`,
+      `Contact : ${$("nom").value || "-"} · ${$("tel").value || "-"} · ${$("email").value || "-"}`,
+      `Date souhaitée : ${d}, 18h00-21h30`,
+      `Groupe : ${j} juniors + ${a} accompagnants = ${n} personnes`,
+      `Plat : ${choisi("plat")}${vege ? ` (dont ${vege} végétariens)` : ""}`,
+      `Dessert : ${choisi("dessert")}`,
+      `Softs : ${bouteilles} bouteilles d'1,5 l (${softsChoisis})`,
+      "",
+      `Repas : ${chf(repas)} · Softs : ${chf(softs)}${compl ? ` · Complément minimum : ${chf(compl)}` : ""}`,
+      `Total estimé : ${chf(total)}`,
+      $("rem").value ? `\nRemarque : ${$("rem").value}` : ""
+    ].join("\n");
+    $("envWa").href = `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
+    $("envMail").href = `mailto:${MAIL}?subject=${encodeURIComponent("Soirée Juniors — " + ($("club").value || $("nom").value || "demande"))}&body=${encodeURIComponent(msg)}`;
+  }
+  ["jeunes", "adultes"].forEach(id => $(id).addEventListener("input", calc));
+  ["date", "vege", "club", "nom", "tel", "email", "rem"].forEach(id => $(id).addEventListener("input", calc));
+  $("softs").addEventListener("change", calc);
+  ["plats", "desserts"].forEach(id => $(id).addEventListener("change", () => { marquer(id); calc(); }));
+  $("plus").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.min(60, bouteilles + 1); calc(); });
+  $("moins").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.max(0, bouteilles - 1); calc(); });
+  calc();
+})();
+</script>
+<script data-goatcounter="https://bossanova.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
