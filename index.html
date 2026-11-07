@@ -183,12 +183,13 @@
   .plat:hover { border-color: var(--jaune); }
   .plat.choisie { border-color: var(--vert); background: #f4f9f5; }
   .plat input { accent-color: var(--vert); margin-top: 3px; flex-shrink: 0; }
+  .plat input[type=radio] { width: 24px; height: 24px; margin-top: 0; }
   .plat .n { font-weight: 600; color: var(--texte); }
-  .vignette { margin: 0; flex: 0 0 76px; width: 76px; height: 76px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; cursor: zoom-in; background: var(--bord); position: relative; }
+  .vignette { margin: 0; flex: 0 0 76px; width: 76px; height: 76px; padding: 0; border: 0; border-radius: 10px; overflow: hidden; cursor: pointer; background: var(--bord); position: relative; }
   .vignette img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s; }
   .vignette:hover img { transform: scale(1.06); }
-  .vignette::after { content: "+"; position: absolute; right: 4px; bottom: 4px; width: 18px; height: 18px; line-height: 17px; text-align: center; border-radius: 50%; background: rgba(15,61,46,.85); color: #fff; font-size: 14px; font-weight: 700; }
-  .vignette:focus-visible { outline: 2px solid var(--jaune); outline-offset: 2px; }
+  .loupe { position: absolute; right: 6px; bottom: 6px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(15,61,46,.88); color: #fff; display: grid; place-items: center; cursor: zoom-in; padding: 0; }
+  .loupe:focus-visible { outline: 2px solid var(--jaune); outline-offset: 2px; }
   dialog#photo-grande { border: 0; padding: 0; border-radius: 16px; max-width: min(92vw, 860px); width: 100%; background: #fff; overflow: hidden; }
   dialog#photo-grande::backdrop { background: rgba(10, 30, 22, .78); }
   dialog#photo-grande img { display: block; width: 100%; max-height: 72vh; object-fit: cover; }
@@ -196,7 +197,7 @@
   dialog#photo-grande .leg div { flex: 1; font-size: 14px; line-height: 1.45; }
   dialog#photo-grande .leg strong { display: block; font-size: 16px; color: var(--vert); }
   .plat.avec-photo { flex-wrap: wrap; align-content: flex-start; }
-  .plat.avec-photo > div:not(.px) { flex: 1 1 0; min-width: 0; }
+  .plat.avec-photo > div:not(.px):not(.vignette) { flex: 1 1 0; min-width: 0; }
   .tete-plat { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; }
   .enfants-ligne { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .enfants-ligne input { width: 90px; }
@@ -927,12 +928,16 @@
         el.querySelector(".n").textContent = p.nom;
         if (c.id === "plat" && !platLibre(p) && Number(CONFIG.platsMin) > 1) el.querySelector(".qte").firstChild.textContent = `Pour combien de personnes (minimum ${CONFIG.platsMin}) :`;
         if (p.photo) {
-          const v = document.createElement("button");
-          v.type = "button"; v.className = "vignette"; v.setAttribute("aria-label", "Agrandir la photo : " + p.nom);
+          // Toucher la photo choisit le plat (comme le reste de la carte) ; la loupe l'agrandit
+          const v = document.createElement("div"); v.className = "vignette";
           const im = document.createElement("img"); im.src = p.photo; im.alt = p.nom; im.loading = "lazy";
           im.addEventListener("error", () => v.remove());
-          v.appendChild(im);
-          v.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); ouvrirPhoto(p); });
+          const loupe = document.createElement("span"); loupe.className = "loupe"; loupe.setAttribute("role", "button"); loupe.tabIndex = 0;
+          loupe.setAttribute("aria-label", "Agrandir la photo : " + p.nom); loupe.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15.5 15.5 21 21M10.5 7.5v6M7.5 10.5h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+          loupe.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); ouvrirPhoto(p); });
+          loupe.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); ouvrirPhoto(p); } });
+          v.append(im, loupe);
+          if (QTE.includes(c.id)) v.addEventListener("click", e => { e.preventDefault(); ouvrirPhoto(p); });
           v.classList.add("large"); el.classList.add("avec-photo"); el.insertBefore(v, el.firstElementChild);
         }
         if (p.vg) el.querySelector(".n").insertAdjacentHTML("beforeend", ' <span class="vg">végétarien</span>');
