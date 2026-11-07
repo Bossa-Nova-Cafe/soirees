@@ -361,7 +361,7 @@
     ["fanta", "Fanta", "ml", "Boissons", 1.60, "estim", null, [1500, "bouteilles de 1,5 l"]],
     ["jus-orange", "Jus d’orange", "ml", "Boissons", 2.00, "estim", null, [1000, "briques de 1 l"]],
     ["biere-pression", "Bière pression (fût)", "ml", "Stock du café", 3.00, "estim"],
-    ["jus-pomme", "Jus de pomme", "ml", "Boissons", 1.80, "estim"],
+    ["jus-pomme", "Jus de pomme", "ml", "Boissons", 1.80, "estim", null, [1000, "bouteilles de 1 l"]],
     ["glace", "Glace pilée", "g", "Boissons", 1.00, "estim"],
     ["pao-queijo", "Pão de queijo", "pce", "Stock du café", 0.35, "estim"],
     ["coxinha", "Coxinhas", "pce", "Stock du café", 0.80, "estim"],
@@ -454,6 +454,8 @@
     const c = { version: 1, ingredients: copie(INGREDIENTS_DEFAUT), recettes: copie(RECETTES_DEFAUT), soirees: [] };
     if (!d) return c;
     if (d.ingredients) Object.entries(d.ingredients).forEach(([id, x]) => { c.ingredients[id] = Object.assign({}, c.ingredients[id] || {}, x); });
+    // Jus de pomme vendu en bouteilles de 1 l (les eaux et softs en 1,5 l)
+    if (c.ingredients["jus-pomme"] && !c.ingredients["jus-pomme"].cond) c.ingredients["jus-pomme"].cond = copie(INGREDIENTS_DEFAUT["jus-pomme"].cond);
     if (d.recettes) Object.entries(d.recettes).forEach(([k, r]) => { c.recettes[k] = r; });
     const pz = c.recettes["entree.pinsas"];
     // Pinsas : 3 par îlot de 8, coupées en 15 carrés apéro (environ 5 à 6 carrés par personne), si la recette n'a pas été modifiée
