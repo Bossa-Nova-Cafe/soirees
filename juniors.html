@@ -61,7 +61,8 @@
   .hon { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--bord); }
   .hon .t { flex:1; min-width:0; font-size:14.5px; } .hon .t b { color:var(--vert); }
   .hon .detail { color:var(--gris); font-size:12.5px; line-height:1.45; display:block; }
-  .hon .prixhon { display:block; margin-top:4px; font-size:12.5px; font-weight:600; color:var(--violet); }
+  .hon .montant { font-weight:600; font-size:13.5px; color:var(--violet); white-space:nowrap; min-width:72px; text-align:right; }
+  @media (max-width:520px){ .hon { flex-wrap:wrap; } .hon .t { flex-basis:100%; } .hon .montant { margin-left:auto; } }
   .hon .stepper button { width:32px; height:32px; font-size:17px; } .hon .stepper output { font-size:22px; min-width:24px; }
   .resume { position:sticky; top:16px; }
   .ligne { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:6px 0; border-bottom:1px dashed var(--bord); }
@@ -239,7 +240,7 @@
     HON[choisi("pour")].forEach(h => {
       hon[h.id] = Math.min(hon[h.id] || 0, h.max);
       const d = document.createElement("div"); d.className = "hon";
-      d.innerHTML = `<div class="t"><b>${h.nom}</b><span class="detail">${h.detail}</span><span class="prixhon">Moment offert · ${choisi("pour") === "anniversaire" ? "cadeau ou trophée" : "trophée"} réalisé par nous : + ${chf(PRIX_HON[h.id])} par lauréat</span></div><div class="stepper"><button type="button" aria-label="Un de moins">−</button><output>${hon[h.id]}</output><button type="button" aria-label="Un de plus">+</button></div>`;
+      d.innerHTML = `<div class="t"><b>${h.nom}</b><span class="detail">${h.detail}</span></div><span class="montant" data-hon="${h.id}"></span><div class="stepper"><button type="button" aria-label="Un de moins">−</button><output>${hon[h.id]}</output><button type="button" aria-label="Un de plus">+</button></div>`;
       const [m, o, p] = d.querySelectorAll("button, output");
       m.addEventListener("click", () => { hon[h.id] = Math.max(0, hon[h.id] - 1); o.textContent = hon[h.id]; calc(); });
       p.addEventListener("click", () => { hon[h.id] = Math.min(h.max, hon[h.id] + 1); o.textContent = hon[h.id]; calc(); });
@@ -267,9 +268,10 @@
     const anniv = choisi("pour") === "anniversaire";
     $("prodDetail").textContent = (anniv ? "Cadeaux brésiliens préparés par nos soins, ou trophées pour rire gravés à leur nom." : "Médailles ou trophées au nom et au logo du club, gravés au nom de chaque lauréat.") + ` À commander au plus tard ${DELAI} jours avant la soirée.`;
     const prixHonList = [...new Set(hc.map(h => PRIX_HON[h.id]))];
-    $("prodPrix").textContent = hc.length ? (prixHonList.length === 1 ? `${chf(prixHonList[0])} / lauréat` : `dès ${chf(Math.min(...prixHonList))} / lauréat`) : "";
+    $("prodPrix").textContent = hc.length ? (prixHonList.length === 1 ? `${chf(prixHonList[0])} / pers.` : `dès ${chf(Math.min(...prixHonList))} / pers.`) : "";
     const prodBN = document.querySelector("input[name=prod]:checked").value === "bossanova";
     const trophees = prodBN ? hc.reduce((t, h) => t + hon[h.id] * PRIX_HON[h.id], 0) : 0;
+    document.querySelectorAll("[data-hon]").forEach(m => { m.textContent = prodBN ? `${chf(PRIX_HON[m.dataset.hon])} / pers.` : "Offert"; });
     $("lgTroph").hidden = trophees === 0; $("vTroph").textContent = chf(trophees);
     const repas = n * PRIX, softs = bouteilles * BOUTEILLE, sous = repas + softs + trophees;
     const compl = Math.max(0, MINIMUM - sous), total = sous + compl;
