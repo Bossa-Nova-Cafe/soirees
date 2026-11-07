@@ -191,6 +191,7 @@
         <label class="champ">Boisson d’accueil<select id="f-bienvenue"></select></label>
         <label class="champ">Entrée<select id="f-entree"></select></label>
         <label class="champ">Entrée des sans porc<select id="f-entree-sp"></select></label>
+        <label class="champ">Boissons du repas<select id="f-forfait"><option value="">Aucune (vin ou boissons à part)</option><option value="vin">Eaux plates et gazeuses</option><option value="soft">Eaux, Coca, Fanta et jus</option><option value="complet">Eaux, Coca, Fanta, jus et 2 bières</option></select></label>
       </div>
       <h3>Plats principaux</h3>
       <div class="qtes" id="f-plats"></div>
@@ -354,6 +355,12 @@
     ["gamay", "Gamay vaudois", "ml", "Boissons", 11.30, "estim", null, [700, "bouteilles de 70 cl"]],
     ["chasselas", "Chasselas vaudois", "ml", "Boissons", 12.80, "estim", null, [700, "bouteilles de 70 cl"]],
     ["eau-minerale", "Eau minérale (plate ou gazeuse)", "ml", "Boissons", 0.60, "estim", null, [1500, "bouteilles de 1,5 l"]],
+    ["eau-plate", "Eau minérale plate", "ml", "Boissons", 0.45, "estim", null, [1500, "bouteilles de 1,5 l"]],
+    ["eau-gazeuse", "Eau minérale gazeuse", "ml", "Boissons", 0.55, "estim", null, [1500, "bouteilles de 1,5 l"]],
+    ["coca", "Coca-Cola", "ml", "Boissons", 1.60, "estim", null, [1500, "bouteilles de 1,5 l"]],
+    ["fanta", "Fanta", "ml", "Boissons", 1.60, "estim", null, [1500, "bouteilles de 1,5 l"]],
+    ["jus-orange", "Jus d’orange", "ml", "Boissons", 2.00, "estim", null, [1000, "briques de 1 l"]],
+    ["biere-pression", "Bière pression (fût)", "ml", "Stock du café", 3.00, "estim"],
     ["jus-pomme", "Jus de pomme", "ml", "Boissons", 1.80, "estim"],
     ["glace", "Glace pilée", "g", "Boissons", 1.00, "estim"],
     ["pao-queijo", "Pão de queijo", "pce", "Stock du café", 0.35, "estim"],
@@ -378,7 +385,12 @@
     "bienvenue.caipi": { cachaca: 400, "citron-vert": 8, sucre: 160, glace: 2000 },
     "bienvenue.quentao": { cachaca: 300, sucre: 150, gingembre: 60, cannelle: 3, girofle: 8, orange: 1 },
     "bienvenue.vinho-quente": { gamay: 1000, sucre: 120, cannelle: 2, girofle: 6, orange: 1, pomme: 1 },
-    "bienvenue.eaux": { "eau-minerale": 750 },
+    "bienvenue.eaux": { "eau-plate": 400, "eau-gazeuse": 350 },
+    // Boissons pendant le repas, pour 8 adultes (ou 8 enfants)
+    "forfait.vin": { "eau-plate": 2400, "eau-gazeuse": 1600 },
+    "forfait.soft": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-orange": 800 },
+    "forfait.complet": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-orange": 800, "biere-pression": 4800 },
+    "forfait.enfant": { "eau-plate": 1200, "jus-orange": 1200 },
     "bienvenue.chasselas": { chasselas: 800 },
     "bienvenue.quentao-sa": { "jus-pomme": 1000, gingembre: 60, cannelle: 2, girofle: 6, orange: 1 },
     "entree.petiscos": { "pao-queijo": 24, coxinha: 16, empada: 8, "citron-vert": 2, "sauce-pimentee": 100 },
@@ -453,6 +465,8 @@
     const cd = c.recettes["entree.caldinho"];
     if (cd && cd["haricots-noirs"] === 250 && !cd["feijao-corda"]) { const r = Object.assign({ "feijao-corda": 250 }, cd); delete r["haricots-noirs"]; c.recettes["entree.caldinho"] = r; }
     // Plat végétarien : empadão de lentilles au lieu de l'escondidinho de manioc, si la recette enregistrée n'a pas été modifiée
+    const ea = c.recettes["bienvenue.eaux"];
+    if (ea && ea["eau-minerale"] === 750 && Object.keys(ea).length === 1) c.recettes["bienvenue.eaux"] = copie(RECETTES_DEFAUT["bienvenue.eaux"]);
     const vg = c.recettes["plat.escondidinho-vg"];
     if (vg && vg.manioc === 1600 && !vg.lentilles) c.recettes["plat.escondidinho-vg"] = copie(RECETTES_DEFAUT["plat.escondidinho-vg"]);
     if (Array.isArray(d.soirees)) c.soirees = d.soirees;
@@ -507,6 +521,11 @@
     Object.entries(s.plats || {}).forEach(([id, q]) => { if (q > 0) ajouter("plat." + id, q / 8, nomPlat("plat", id)); });
     Object.entries(s.desserts || {}).forEach(([id, q]) => { if (q > 0) ajouter("dessert." + id, q / 8, nomPlat("dessert", id)); });
     if (n) { ajouter("bols", n / 8, "Bols d’accompagnement"); ajouter("cafe", n / 8, "Café"); }
+    if (s.forfait && n) {
+      const k = Math.min(Number(s.enfants) || 0, n);
+      if (n - k) ajouter("forfait." + s.forfait, (n - k) / 8, "Boissons du repas");
+      if (k) ajouter("forfait.enfant", k / 8, "Boissons des enfants");
+    }
     return { out, manque };
   }
   function coutDe(out) {
@@ -516,7 +535,7 @@
   }
   // Prix de vente du repas TTC : menu du calculateur (ou prix convenu), remise enfants comprise
   function caTTC(s) {
-    if (Number(s.prixMenuTTC) > 0) return Number(s.prixMenuTTC);
+    if (Number(s.prixMenuTTC) > 0) return Number(s.prixMenuTTC) + caBoissons(s);
     const n = Number(s.n) || 0;
     let t = 0;
     const bv = plat("bienvenue", s.bienvenue); if (bv && !bv.inclus) t += (Number(bv.prix) || 0) * n;
@@ -525,7 +544,13 @@
     Object.entries(s.desserts || {}).forEach(([id, q]) => { const p = plat("dessert", id); if (p) t += (Number(p.prix) || 0) * q; });
     const k = Math.min(Number(s.enfants) || 0, n), rem = (cat && Number(cat.regles.enfantsRemise)) || 0;
     if (k && n && rem) t -= t / n * k * rem / 100;
-    return Math.max(0, t - (Number(s.remiseMenu) || 0));
+    return Math.max(0, t - (Number(s.remiseMenu) || 0)) + caBoissons(s);
+  }
+  // Boissons du repas (forfait par adulte, eaux et jus pour les enfants)
+  function caBoissons(s) {
+    if (!s.forfait || !cat) return 0;
+    const n = Number(s.n) || 0, k = Math.min(Number(s.enfants) || 0, n), F = cat.forfaits || {};
+    return (n - k) * (Number(F[s.forfait]) || 0) + k * (Number(F.enfant) || 0);
   }
   function bilan(s) {
     const b = besoins(s), c = coutDe(b.out);
@@ -630,6 +655,12 @@
       if ((m = l.match(/^Groupe\s*:\s*(.+?)\s*(\((entreprise|club|amis)[^)]*\))?$/i))) { s.client = m[1] === "—" ? "" : m[1]; return; }
       if ((m = l.match(/^Contact\s*:\s*(.+)$/i))) { s.contact = m[1] === "—" ? "" : m[1]; return; }
       if ((m = l.match(/^Nombre de personnes\s*:\s*(\d+)(?:\s*,\s*dont\s*(\d+)\s*enfant)?/i))) { s.n = Number(m[1]); s.enfants = Number(m[2] || 0); return; }
+      // Forfait boissons : « Eaux et softs : … » (message) ou ligne du budget « Eaux … · 18 adultes × CHF 12 »
+      if (/^Eaux et softs\s*:/i.test(l) || (/^Eaux\b/i.test(l) && /·\s*\d+\s*adultes?\s*×/i.test(l))) {
+        const t = l.replace(/^Eaux et softs\s*:/i, "").toLowerCase().split(/pour les adultes|·/)[0];
+        s.forfait = /bi[èe]re/.test(t) ? "complet" : /soft|jus/.test(t) ? "soft" : /eau/.test(t) ? "vin" : s.forfait;
+        return;
+      }
       if ((m = l.match(/^Sans porc\s*:\s*(\d+)/i))) { s.sansPorc = Number(m[1]); const a = l.match(/entr[ée]e à la place\s*:\s*([^)]+)\)/i); if (a) { const id = trouver("entree", a[1]); if (id) s.entreeSansPorc = id; else avert.push("Entrée sans porc non reconnue : « " + a[1] + " »."); } return; }
       if ((m = l.match(/^Offre personnalis[ée]e\s*n°\s*(\S+)/i))) { s.notes = "Offre n° " + m[1] + " : vérifier le prix convenu."; return; }
       if ((m = l.match(/^Bienvenue(?:,\s*comprise)?\s*:\s*(.+)$/i))) {
@@ -716,6 +747,7 @@
     remplirSelect($("f-bienvenue"), "bienvenue", s.bienvenue);
     remplirSelect($("f-entree"), "entree", s.entree, true);
     remplirSelect($("f-entree-sp"), "entree", s.entreeSansPorc || "", true);
+    $("f-forfait").value = s.forfait || "";
     { const o = $("f-entree-sp").querySelector('option[value="aucune"]'); if (o) { o.textContent = "La même (sans porc)"; o.value = ""; } if (!s.entreeSansPorc) $("f-entree-sp").value = ""; }
     $("f-prix").value = s.prixMenuTTC || "";
     $("f-remise").value = s.remiseMenu || "";
@@ -737,6 +769,7 @@
     edition.bienvenue = $("f-bienvenue").value;
     edition.entree = $("f-entree").value;
     edition.entreeSansPorc = $("f-entree-sp").value;
+    edition.forfait = $("f-forfait").value;
     edition.prixMenuTTC = Number($("f-prix").value) > 0 ? Number($("f-prix").value) : null;
     edition.remiseMenu = Math.max(0, Number($("f-remise").value) || 0);
     edition.notes = $("f-notes").value.trim();
@@ -776,7 +809,7 @@
     if (b.manque.length) $("f-apercu").insertAdjacentHTML("beforeend", `<div class="msg avert" style="grid-column:1/-1">Recette à compléter (coût sous-estimé) : ${b.manque.map(esc).join(", ")}.</div>`);
   }
   ["f-date", "f-client", "f-contact", "f-n", "f-enfants", "f-sansporc", "f-statut", "f-bienvenue", "f-entree", "f-entree-sp", "f-prix", "f-remise", "f-notes"].forEach(id => $(id).addEventListener("input", majFormulaire));
-  ["f-statut", "f-bienvenue", "f-entree", "f-entree-sp"].forEach(id => $(id).addEventListener("change", majFormulaire));
+  ["f-statut", "f-bienvenue", "f-entree", "f-entree-sp", "f-forfait"].forEach(id => $(id).addEventListener("change", majFormulaire));
 
   $("lire").addEventListener("click", () => {
     const txt = $("colle").value.trim();
