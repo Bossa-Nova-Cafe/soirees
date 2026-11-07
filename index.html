@@ -674,7 +674,7 @@
     platsMax: 3,                      // plats principaux : nombre de plats au choix (le végétarien en plus)
     enfantsAge: 12,                   // enfants de moins de 12 ans
     enfantsRemise: 50,                // remise en % sur le menu pour les enfants
-    forfaitEnfant: 8,                 // eaux minérales et jus, obligatoire par enfant
+    forfaitEnfant: 8,                 // eaux, Coca-Cola, Fanta et jus, obligatoire par enfant
     droitBouchon: 10,                 // vin apporté par le client, par bouteille ouverte
     earlyBirdJours: 30,               // early bird : réservation au moins 30 jours avant
     earlyBirdRemise: 5,               // early bird : remise en % sur le menu
@@ -1312,10 +1312,10 @@
       boissons += nb * pb;
       lignes.push({ lib: `Droit de bouchon, ton vin · estimé à ${nb} bouteille${nb > 1 ? "s" : ""} × CHF ${pb} (seules les bouteilles ouvertes sont facturées)`, mt: nb * pb });
     }
-    // Boissons par personne : le forfait choisi pour les adultes, eaux minérales et jus pour les enfants
+    // Boissons par personne : le forfait choisi pour les adultes, eaux, Coca-Cola, Fanta et jus pour les enfants
     const kB = Math.min(nbEnfants(), n), aB = n - kB;
     if (fo.prix && aB) { boissons += fo.prix * aB; lignes.push({ lib: `${fo.nom}${fo.id === "complet" ? " (2 bières pression de 3 dl par personne)" : ""} · ${aB} adulte${aB > 1 ? "s" : ""} × ${chf(fo.prix)}`, mt: fo.prix * aB }); }
-    if (kB && CONFIG.forfaitEnfant != null) { boissons += CONFIG.forfaitEnfant * kB; lignes.push({ lib: `Enfants : eaux minérales et jus · ${kB} × CHF ${CONFIG.forfaitEnfant}`, mt: CONFIG.forfaitEnfant * kB }); }
+    if (kB && CONFIG.forfaitEnfant != null) { boissons += CONFIG.forfaitEnfant * kB; lignes.push({ lib: `Enfants : eaux, Coca-Cola, Fanta et jus · ${kB} × CHF ${CONFIG.forfaitEnfant}`, mt: CONFIG.forfaitEnfant * kB }); }
     CONFIG.bulles.forEach(d => {
       const q = etat.bulles[d.id] || 0;
       if (q) { boissons += q * d.prix; lignes.push({ lib: `${d.nom} · ${q} bouteille${q > 1 ? "s" : ""} × CHF ${d.prix}`, mt: q * d.prix }); }
@@ -1408,10 +1408,10 @@
       ? `Nombre maximum de ${CONFIG.maxPersonnes} personnes atteint.${groupeTrop ? ` Avec ${nbAdultes()} adultes, ${reste} enfant${reste > 1 ? "s" : ""} au maximum.` : ""}`
       : `Places restantes pour les enfants : ${reste - kRep}.`;
     $("groupe-alerte").classList.toggle("plein", plein);
-    $("enfants-aide").textContent = `${CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, ` : ""}eaux minérales et jus à CHF ${CONFIG.forfaitEnfant}, sans alcool.`;
+    $("enfants-aide").textContent = `${CONFIG.enfantsRemise ? `Menu à −${CONFIG.enfantsRemise} %, ` : ""}eau plate, eau gazeuse, Coca-Cola, Fanta et jus d’orange à CHF ${CONFIG.forfaitEnfant}, sans alcool.`;
     const ae = $("aide-forfait-enfant");
     ae.classList.toggle("cache", !kRep);
-    if (kRep) ae.textContent = `Pour ${kRep === 1 ? "l’enfant" : `les ${kRep} enfants`} : eaux minérales et jus, CHF ${CONFIG.forfaitEnfant} par enfant, compté automatiquement. Les vins, la bière et le champagne sont prévus pour les adultes seulement.`;
+    if (kRep) ae.textContent = `Pour ${kRep === 1 ? "l’enfant" : `les ${kRep} enfants`} : eau plate, eau gazeuse, Coca-Cola, Fanta et jus d’orange, CHF ${CONFIG.forfaitEnfant} par enfant, compté automatiquement. Les vins, la bière et le champagne sont prévus pour les adultes seulement.`;
 
     document.querySelectorAll("#types .formule").forEach(el => {
       el.classList.toggle("choisie", el.dataset.id === etat.type);
@@ -1995,7 +1995,7 @@
     if (!etat.options.plan) l.push("• Placement : libre, sans noms sur les tables");
     if (etat.vinApporte) l.push(`• Vins : nous apportons notre vin (droit de bouchon ${CONFIG.droitBouchon ? "CHF " + CONFIG.droitBouchon + " par bouteille ouverte, les bouteilles restées fermées ne sont pas facturées" : "offert"})`);
     else if (!etat.avecVins) l.push("• Vins : pas de vin sur les tables");
-    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}${nbEnfants() ? " pour les adultes ; eaux minérales et jus pour les enfants" : ""}`);
+    l.push(`• Eaux et softs : ${CONFIG.forfaits.find(x => x.id === etat.forfait).nom.toLowerCase()}${nbEnfants() ? " pour les adultes ; eaux, Coca-Cola, Fanta et jus pour les enfants" : ""}`);
     l.push(`• Boissons commandées en plus au bar : ${texteBoissons()}`);
     const nbH = CONFIG.honneurs.reduce((a, h) => a + (etat.honneurs[h.id] || 0), 0);
     if (nbH) l.push(`• Trophées et cadeaux : ${modeProduction() === "bossanova" ? "réalisés par le Bossa Nova" : "apportés par nos soins"}`);

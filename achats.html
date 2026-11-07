@@ -390,7 +390,7 @@
     "forfait.vin": { "eau-plate": 2400, "eau-gazeuse": 1600 },
     "forfait.soft": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-orange": 800 },
     "forfait.complet": { "eau-plate": 1600, "eau-gazeuse": 1200, coca: 1200, fanta: 800, "jus-orange": 800, "biere-pression": 4800 },
-    "forfait.enfant": { "eau-plate": 1200, "jus-orange": 1200 },
+    "forfait.enfant": { "eau-plate": 1200, "eau-gazeuse": 400, coca: 800, fanta: 1000, "jus-orange": 1200 },
     "bienvenue.chasselas": { chasselas: 800 },
     "bienvenue.quentao-sa": { "jus-pomme": 1000, gingembre: 60, cannelle: 2, girofle: 6, orange: 1 },
     "entree.petiscos": { "pao-queijo": 24, coxinha: 16, empada: 8, "citron-vert": 2, "sauce-pimentee": 100 },
@@ -467,6 +467,8 @@
     // Plat végétarien : empadão de lentilles au lieu de l'escondidinho de manioc, si la recette enregistrée n'a pas été modifiée
     const ea = c.recettes["bienvenue.eaux"];
     if (ea && ea["eau-minerale"] === 750 && Object.keys(ea).length === 1) c.recettes["bienvenue.eaux"] = copie(RECETTES_DEFAUT["bienvenue.eaux"]);
+    const fe = c.recettes["forfait.enfant"];
+    if (fe && fe["eau-plate"] === 1200 && fe["jus-orange"] === 1200 && Object.keys(fe).length === 2) c.recettes["forfait.enfant"] = copie(RECETTES_DEFAUT["forfait.enfant"]);
     const vg = c.recettes["plat.escondidinho-vg"];
     if (vg && vg.manioc === 1600 && !vg.lentilles) c.recettes["plat.escondidinho-vg"] = copie(RECETTES_DEFAUT["plat.escondidinho-vg"]);
     if (Array.isArray(d.soirees)) c.soirees = d.soirees;
