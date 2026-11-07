@@ -85,13 +85,16 @@
   .option.desactivee { opacity: .45; }
 
   .choix-boissons label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1.5px solid var(--bord); border-radius: 12px; margin-bottom: 8px; cursor: pointer; background: #fff; font-size: 14px; line-height: 1.45; }
-  .profils { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
-  .profils label { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 10px 8px; border: 1.5px solid var(--bord); border-radius: 12px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; }
-  .profils label small { font-weight: 400; font-size: 12px; color: var(--gris); }
+  .profils { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 4px; }
+  @media (max-width: 760px) { .profils { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .profils label, .profils a.profil-jeunes { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 10px 8px; border: 1.5px solid var(--bord); border-radius: 12px; background: #fff; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .profils a.profil-jeunes { text-decoration: none; color: inherit; border-style: dashed; border-color: var(--jaune); background: #fffaf0; }
+  .profils a.profil-jeunes:hover { background: #fff4d6; }
+  .profils label small, .profils a.profil-jeunes small { font-weight: 400; font-size: 12px; color: var(--gris); }
   .profils input { position: absolute; opacity: 0; pointer-events: none; }
   .profils label.choisie { border-color: var(--vert); background: #f4f9f5; box-shadow: inset 0 0 0 1px var(--vert); }
   .profils label:has(input:focus-visible) { outline: 2px solid var(--jaune); outline-offset: 2px; }
-  @media (max-width: 520px) { .profils { grid-template-columns: 1fr; } .profils label { flex-direction: row; justify-content: space-between; } }
+  @media (max-width: 520px) { .profils { grid-template-columns: 1fr; } .profils label, .profils a.profil-jeunes { flex-direction: row; justify-content: space-between; } }
   .choix-boissons label.choisie { border-color: var(--vert); background: #f4f9f5; }
   .choix-boissons input { accent-color: var(--vert); margin-top: 3px; }
   .choix-boissons small { color: var(--gris); display: block; font-size: 12.5px; }
@@ -367,7 +370,7 @@
     <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour tes invités : nous nous occupons de tout.</span></div>
     <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
   </div>
-  <a class="lien-juniors pas-imprime" href="juniors.html"><strong>Une équipe juniors ?</strong> Découvre la Soirée Juniors : sans alcool, pinsas ou lasagnes à volonté, CHF 18 par personne →</a>
+  <a class="lien-juniors pas-imprime" href="juniors.html"><strong>Une fête pour des jeunes ?</strong> Équipe juniors ou anniversaire : découvre la Soirée Juniors, sans alcool, pinsas ou lasagnes à volonté, CHF 18 par personne →</a>
   <div class="offre-bandeau cache" id="offre-bandeau"></div>
 </header>
 
@@ -398,8 +401,9 @@
         <label class="choisie"><input type="radio" name="profil" value="entreprise" checked>Une entreprise<small>collègues, équipe</small></label>
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
+        <a class="profil-jeunes" href="juniors.html">Des jeunes<small>équipe juniors, anniversaire · sans alcool →</small></a>
       </div>
-      <div class="encart-juniors" id="encart-juniors" hidden>Pour une équipe juniors, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html">voir la Soirée Juniors</a>.</div>
+      <div class="encart-juniors" id="encart-juniors" hidden></div>
       </div>
       <div data-ecran="1-combien">
       <label class="champ" for="adultes">Adultes</label>
@@ -2184,7 +2188,7 @@
   $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
   appliquerProfil();
-  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); const ej = document.getElementById("encart-juniors"); if (ej) ej.hidden = etat.profil !== "club"; }));
+  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); const ej = document.getElementById("encart-juniors"); if (ej) { ej.hidden = !["club", "amis"].includes(etat.profil); ej.innerHTML = etat.profil === "club" ? 'Pour une équipe juniors, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html?pour=equipe">voir la Soirée Juniors</a>.' : 'Pour l’anniversaire d’un enfant ou d’un ado, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html?pour=anniversaire">voir la Soirée Juniors</a>.'; } }));
   construireOptions();
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
   $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;

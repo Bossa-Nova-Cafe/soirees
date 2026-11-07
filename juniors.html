@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Soirée Juniors — Bossa Nova Café</title>
-<meta name="description" content="Une soirée sans alcool pour les équipes juniors : pinsas, lasagnes, dessert et softs, dans le Bossa Nova Café privatisé, face à la gare de Vevey.">
+<meta name="description" content="Une soirée sans alcool pour une équipe juniors ou un anniversaire : pinsas, lasagnes, dessert et softs, dans le Bossa Nova Café privatisé, face à la gare de Vevey.">
 <meta property="og:title" content="Soirée Juniors au Bossa Nova Café, Vevey">
-<meta property="og:description" content="Sans alcool, rien que pour ton équipe : pinsas ou lasagnes à volonté, dessert et softs. CHF 18 par personne.">
+<meta property="og:description" content="Équipe juniors ou anniversaire, sans alcool : pinsas ou lasagnes à volonté, dessert et softs. CHF 18 par personne.">
 <meta property="og:image" content="https://bossa-nova-cafe.github.io/soirees/photos/pinsas.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Chango&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -38,6 +38,7 @@
   .compteur .valeur { font-family:"Anton",sans-serif; font-size:30px; color:var(--vert); min-width:46px; text-align:right; }
   .choix { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   @media (max-width:600px){ .choix { grid-template-columns:1fr; } }
+  .choix.choix-2 { grid-template-columns:repeat(2,1fr); } @media (max-width:600px){ .choix.choix-2 { grid-template-columns:1fr; } }
   .choix label { border:2px solid var(--bord); border-radius:14px; padding:12px; cursor:pointer; background:#fff; display:block; }
   .choix label:hover { border-color:var(--jaune); }
   .choix input { position:absolute; opacity:0; pointer-events:none; }
@@ -71,8 +72,8 @@
 <header>
   <div class="marque">BOSSA NOVA CAFÉ · VEVEY</div>
   <h1>Soirée Juniors</h1>
-  <p class="slogan">Sans alcool. Rien que pour ton équipe.</p>
-  <p>Le Bossa Nova Café, face à la gare de Vevey, ferme ses portes au public et accueille tes juniors pour une fin de saison, une remise de médailles ou un repas d'équipe. Une grande tablée, des plats à volonté au centre et des softs sur la table.</p>
+  <p class="slogan">Sans alcool. Rien que pour tes jeunes.</p>
+  <p>Le Bossa Nova Café, face à la gare de Vevey, ferme ses portes au public et accueille une équipe juniors pour une fin de saison ou une remise de médailles, ou fête l'anniversaire d'un enfant ou d'un ado. Une grande tablée, des plats à volonté au centre et des softs sur la table.</p>
 </header>
 
 <main>
@@ -90,11 +91,19 @@
     </section>
 
     <section class="carte">
+      <h2>C'est pour</h2>
+      <div class="choix choix-2" id="pour">
+        <label class="choisi"><input type="radio" name="pour" value="equipe" checked><div class="nom">Une équipe juniors</div><div class="desc">Fin de saison, remise de médailles, repas d'équipe</div></label>
+        <label><input type="radio" name="pour" value="anniversaire"><div class="nom">Un anniversaire</div><div class="desc">Enfant ou ado, avec ses amis et la famille</div></label>
+      </div>
+    </section>
+
+    <section class="carte">
       <h2>Ton groupe</h2>
-      <p class="sous">De 12 à 26 personnes, entraîneurs et accompagnants compris.</p>
-      <label class="champ" for="jeunes">Juniors</label>
+      <p class="sous" id="sousGroupe">De 12 à 26 personnes, entraîneurs et accompagnants compris.</p>
+      <label class="champ" for="jeunes" id="labJeunes">Juniors</label>
       <div class="compteur"><input type="range" id="jeunes" min="1" max="26" value="16"><span class="valeur" id="jeunesV">16</span></div>
-      <label class="champ" for="adultes">Entraîneurs et accompagnants</label>
+      <label class="champ" for="adultes" id="labAdultes">Entraîneurs et accompagnants</label>
       <div class="compteur"><input type="range" id="adultes" min="0" max="12" value="2"><span class="valeur" id="adultesV">2</span></div>
       <div class="alerte" id="alerteNb" hidden></div>
       <label class="champ" for="date">Date souhaitée</label>
@@ -139,7 +148,7 @@
     <section class="carte">
       <h2>Tes coordonnées</h2>
       <div class="rangee">
-        <div><label class="champ" for="club">Club et équipe</label><input type="text" id="club" placeholder="Ex. FC Vevey-Sports, juniors D"></div>
+        <div><label class="champ" for="club" id="labClub">Club et équipe</label><input type="text" id="club" placeholder="Ex. FC Vevey-Sports, juniors D"></div>
         <div><label class="champ" for="nom">Ton nom</label><input type="text" id="nom"></div>
       </div>
       <div class="rangee">
@@ -180,6 +189,15 @@
   function choisi(groupe) { return document.querySelector(`input[name=${groupe}]:checked`).value; }
   function marquer(id) { document.querySelectorAll(`#${id} label`).forEach(l => l.classList.toggle("choisi", l.querySelector("input").checked)); }
 
+  const TXT = {
+    equipe: { jeunes: "Juniors", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, remise de médailles, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club" },
+    anniversaire: { jeunes: "Enfants et ados invités", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté" }
+  };
+  function appliquerPour() {
+    const t = TXT[choisi("pour")];
+    $("labJeunes").textContent = t.jeunes; $("labAdultes").textContent = t.adultes; $("sousGroupe").textContent = t.sous;
+    $("labClub").textContent = t.club; $("club").placeholder = t.ph; $("rem").placeholder = t.rem;
+  }
   function calc() {
     const j = +$("jeunes").value, a = +$("adultes").value, n = j + a;
     $("jeunesV").textContent = j; $("adultesV").textContent = a;
@@ -206,10 +224,11 @@
     const msg = [
       "Demande de Soirée Juniors — Bossa Nova Café",
       "",
-      `Club : ${$("club").value || "-"}`,
+      `Type : ${TXT[choisi("pour")].type}`,
+      `${TXT[choisi("pour")].lClub} : ${$("club").value || "-"}`,
       `Contact : ${$("nom").value || "-"} · ${$("tel").value || "-"} · ${$("email").value || "-"}`,
       `Date souhaitée : ${d}, 18h00-21h30`,
-      `Groupe : ${j} juniors + ${a} accompagnants = ${n} personnes`,
+      `Groupe : ${j} ${choisi("pour") === "anniversaire" ? "jeunes" : "juniors"} + ${a} accompagnants = ${n} personnes`,
       `Plat : ${choisi("plat")}${vege ? ` (dont ${vege} végétariens)` : ""}`,
       `Dessert : ${choisi("dessert")}`,
       `Softs : ${bouteilles} bouteilles d'1,5 l (${softsChoisis})`,
@@ -219,15 +238,17 @@
       $("rem").value ? `\nRemarque : ${$("rem").value}` : ""
     ].join("\n");
     $("envWa").href = `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
-    $("envMail").href = `mailto:${MAIL}?subject=${encodeURIComponent("Soirée Juniors — " + ($("club").value || $("nom").value || "demande"))}&body=${encodeURIComponent(msg)}`;
+    $("envMail").href = `mailto:${MAIL}?subject=${encodeURIComponent((choisi("pour") === "anniversaire" ? "Anniversaire — " : "Soirée Juniors — ") + ($("club").value || $("nom").value || "demande"))}&body=${encodeURIComponent(msg)}`;
   }
   ["jeunes", "adultes"].forEach(id => $(id).addEventListener("input", calc));
   ["date", "vege", "club", "nom", "tel", "email", "rem"].forEach(id => $(id).addEventListener("input", calc));
   $("softs").addEventListener("change", calc);
+  $("pour").addEventListener("change", () => { marquer("pour"); appliquerPour(); calc(); });
   ["plats", "desserts"].forEach(id => $(id).addEventListener("change", () => { marquer(id); calc(); }));
   $("plus").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.min(60, bouteilles + 1); calc(); });
   $("moins").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.max(0, bouteilles - 1); calc(); });
-  calc();
+  try { const q = new URLSearchParams(location.search).get("pour"); if (q === "anniversaire" || q === "equipe") { document.querySelector(`input[name=pour][value=${q}]`).checked = true; marquer("pour"); } } catch (e) {}
+  appliquerPour(); calc();
 })();
 </script>
 <script data-goatcounter="https://bossanova.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
