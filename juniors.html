@@ -58,6 +58,10 @@
   .anim .detail { color:var(--gris); font-size:12.5px; line-height:1.45; }
   .anim .detail a { color:var(--vert); font-weight:600; }
   .anim .offert { margin-left:auto; font-weight:600; font-size:13px; color:var(--violet); white-space:nowrap; }
+  .hon { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--bord); }
+  .hon .t { flex:1; min-width:0; font-size:14.5px; } .hon .t b { color:var(--vert); }
+  .hon .detail { color:var(--gris); font-size:12.5px; line-height:1.45; display:block; }
+  .hon .stepper button { width:32px; height:32px; font-size:17px; } .hon .stepper output { font-size:22px; min-width:24px; }
   .resume { position:sticky; top:16px; }
   .ligne { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:6px 0; border-bottom:1px dashed var(--bord); }
   .ligne span:last-child { white-space:nowrap; font-variant-numeric:tabular-nums; }
@@ -90,7 +94,7 @@
       <ul class="inclus">
         <li>un plat à volonté, posé au centre de la grande tablée ;</li>
         <li>un dessert ;</li>
-        <li>la remise des médailles ou des prix et l'Amigo Secreto, offerts ;</li>
+        <li>les moments à l'honneur, offerts si tu apportes tes trophées, et l'Amigo Secreto, offert ;</li>
         <li>les softs en bouteilles d'1,5 litre sur la table, à CHF 7 la bouteille ;</li>
         <li>aucune boisson alcoolisée servie pendant la soirée, accompagnants compris.</li>
       </ul>
@@ -152,11 +156,19 @@
     </section>
 
     <section class="carte">
-      <h2>Les animations</h2>
-      <p class="sous">Offertes, et intégrées au déroulé de la soirée.</p>
-      <label class="anim"><input type="checkbox" id="prem" checked><span><b id="premTitre">Remise des médailles et des prix</b><br><span class="detail" id="premDetail">Meilleur buteur, progression de l'année, prix du fair-play… Apporte tes médailles ou trophées : nous organisons le moment avec l'annonce, la musique et la photo de groupe.</span></span><span class="offert">Offert</span></label>
-      <label class="anim"><input type="checkbox" id="amigo" checked><span><b>Amigo Secreto, l'ami secret brésilien</b><br><span class="detail">Une tradition des fêtes au Brésil. Quelques jours avant, chacun tire au sort la personne à qui il offrira un petit cadeau, sans le dire à personne. Le soir même, chacun fait deviner son ami secret avec trois indices, puis lui offre son cadeau. Le tirage se fait en ligne avec <a href="amigo-secreto/" target="_blank" rel="noopener">notre application gratuite</a>, et nous animons le jeu.</span></span><span class="offert">Offert</span></label>
-      <p class="aide">Tu préfères que nous fournissions les médailles ou les trophées ? Indique-le dans la remarque, nous te ferons une offre.</p>
+      <h2>Moments à l'honneur</h2>
+      <p class="sous" id="sousHon">Mets tes juniors à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.</p>
+      <div id="honneurs"></div>
+      <div id="blocProd" hidden>
+        <label class="champ">Trophées et cadeaux</label>
+        <label class="anim"><input type="radio" name="prod" value="client" checked><span><b id="prodClient">Tu apportes tes trophées</b><br><span class="detail">Nous les remettons au bon moment, avec l'annonce, le diplôme et la photo souvenir. Aucun frais.</span></span><span class="offert">Offert</span></label>
+        <label class="anim"><input type="radio" name="prod" value="bossanova"><span><b>Le Bossa Nova les réalise</b><br><span class="detail" id="prodDetail"></span></span><span class="offert" id="prodPrix"></span></label>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2>Amigo Secreto</h2>
+      <label class="anim"><input type="checkbox" id="amigo" checked><span><b>L'ami secret brésilien</b><br><span class="detail">Une tradition des fêtes au Brésil. Quelques jours avant, chacun tire au sort la personne à qui il offrira un petit cadeau, sans le dire à personne. Le soir même, chacun fait deviner son ami secret avec trois indices, puis lui offre son cadeau. Le tirage se fait en ligne avec <a href="amigo-secreto/" target="_blank" rel="noopener">notre application gratuite</a>, et nous animons le jeu.</span></span><span class="offert">Offert</span></label>
     </section>
 
     <section class="carte">
@@ -179,6 +191,7 @@
       <h2>Ton budget</h2>
       <div class="ligne"><span id="lRepas">Repas</span><span id="vRepas"></span></div>
       <div class="ligne"><span id="lSofts">Softs</span><span id="vSofts"></span></div>
+      <div class="ligne" id="lgTroph" hidden><span>Trophées réalisés par le Bossa Nova</span><span id="vTroph"></span></div>
       <div class="ligne" id="lgMin" hidden><span>Complément minimum de privatisation</span><span id="vMin"></span></div>
       <div class="total"><span>Total</span><b id="total"></b></div>
       <div class="parpers" id="parpers"></div>
@@ -204,13 +217,43 @@
   function marquer(id) { document.querySelectorAll(`#${id} label`).forEach(l => l.classList.toggle("choisi", l.querySelector("input").checked)); }
 
   const TXT = {
-    equipe: { jeunes: "Juniors (16 ans au plus)", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club", premT: "Remise des médailles et des prix", premD: "Meilleur buteur, progression de l'année, prix du fair-play… Apporte tes médailles ou trophées : nous organisons le moment avec l'annonce, la musique et la photo de groupe." },
-    anniversaire: { jeunes: "Enfants et ados invités (16 ans au plus)", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté", premT: "Le moment de l'enfant fêté", premD: "Annonce, musique et photo de groupe pour le gâteau et les cadeaux. Tu peux aussi apporter un petit prix ou une médaille souvenir pour chaque invité : nous l'intégrons à la fête." }
+    equipe: { jeunes: "Juniors (16 ans au plus)", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club" },
+    anniversaire: { jeunes: "Enfants et ados invités (16 ans au plus)", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté" }
   };
+  const HON = {
+    equipe: [
+      { id: "trofeu", nom: "Trophées de la saison", detail: "Meilleur joueur, meilleur buteur, prix du fair-play… Jusqu'à trois lauréats, annoncés comme une vraie remise de prix.", max: 3 },
+      { id: "revelacao", nom: "Révélation de la saison", detail: "Le junior qui a le plus progressé ou qui s'est fait remarquer cette saison.", max: 2 },
+      { id: "boaviagem", nom: "Merci coach", detail: "Pour un entraîneur qui s'en va ou un bénévole à remercier. En plus : une carte signée par toute l'équipe et un grand brigadeiro à son nom.", max: 2 }
+    ],
+    anniversaire: [
+      { id: "anos", nom: "Joyeux anniversaire", detail: "L'enfant fêté : une bougie sur le dessert, la chanson d'anniversaire brésilienne et une photo souvenir.", max: 2 },
+      { id: "trofeu", nom: "Trophées pour rire", detail: "Le plus drôle, le meilleur danseur… Jusqu'à trois prix humoristiques que tu inventes avec nous.", max: 3 }
+    ]
+  };
+  let PRIX_HON = { trofeu: 35, revelacao: 35, anos: 30, boaviagem: 50 }, DELAI = 15;
+  const hon = {};
+  function rendreHonneurs() {
+    const z = $("honneurs"); z.innerHTML = "";
+    HON[choisi("pour")].forEach(h => {
+      hon[h.id] = Math.min(hon[h.id] || 0, h.max);
+      const d = document.createElement("div"); d.className = "hon";
+      d.innerHTML = `<div class="t"><b>${h.nom}</b><span class="detail">${h.detail}</span></div><div class="stepper"><button type="button" aria-label="Un de moins">−</button><output>${hon[h.id]}</output><button type="button" aria-label="Un de plus">+</button></div>`;
+      const [m, o, p] = d.querySelectorAll("button, output");
+      m.addEventListener("click", () => { hon[h.id] = Math.max(0, hon[h.id] - 1); o.textContent = hon[h.id]; calc(); });
+      p.addEventListener("click", () => { hon[h.id] = Math.min(h.max, hon[h.id] + 1); o.textContent = hon[h.id]; calc(); });
+      z.appendChild(d);
+    });
+  }
+  function honChoisis() { return HON[choisi("pour")].filter(h => hon[h.id] > 0); }
   function appliquerPour() {
     const t = TXT[choisi("pour")];
     $("labJeunes").textContent = t.jeunes; $("labAdultes").textContent = t.adultes; $("sousGroupe").textContent = t.sous;
-    $("premTitre").textContent = t.premT; $("premDetail").textContent = t.premD;
+    const anniv = choisi("pour") === "anniversaire";
+    $("sousHon").textContent = anniv ? "Fête l'enfant et ses amis pendant la soirée. Chaque moment comprend une annonce par notre animateur et une photo souvenir." : "Mets tes juniors à l'honneur pendant la soirée. Chaque moment comprend une annonce par notre animateur, un diplôme personnalisé aux couleurs du Bossa Nova et une photo souvenir.";
+    $("prodClient").textContent = anniv ? "Tu apportes les cadeaux" : "Tu apportes tes trophées";
+    Object.keys(hon).forEach(k => delete hon[k]);
+    rendreHonneurs();
     $("labClub").textContent = t.club; $("club").placeholder = t.ph; $("rem").placeholder = t.rem;
   }
   function calc() {
@@ -218,7 +261,16 @@
     $("jeunesV").textContent = j; $("adultesV").textContent = a;
     if (!bouteillesManuel) bouteilles = Math.max(1, Math.ceil(n / 2));
     $("bout").textContent = bouteilles;
-    const repas = n * PRIX, softs = bouteilles * BOUTEILLE, sous = repas + softs;
+    const hc = honChoisis(), nbHon = hc.reduce((t, h) => t + hon[h.id], 0);
+    $("blocProd").hidden = nbHon === 0;
+    const anniv = choisi("pour") === "anniversaire";
+    $("prodDetail").textContent = (anniv ? "Cadeaux brésiliens préparés par nos soins, ou trophées pour rire gravés à leur nom." : "Médailles ou trophées au nom et au logo du club, gravés au nom de chaque lauréat.") + ` À commander au plus tard ${DELAI} jours avant la soirée.`;
+    const prixHonList = [...new Set(hc.map(h => PRIX_HON[h.id]))];
+    $("prodPrix").textContent = hc.length ? (prixHonList.length === 1 ? `${chf(prixHonList[0])} / lauréat` : `dès ${chf(Math.min(...prixHonList))} / lauréat`) : "";
+    const prodBN = document.querySelector("input[name=prod]:checked").value === "bossanova";
+    const trophees = prodBN ? hc.reduce((t, h) => t + hon[h.id] * PRIX_HON[h.id], 0) : 0;
+    $("lgTroph").hidden = trophees === 0; $("vTroph").textContent = chf(trophees);
+    const repas = n * PRIX, softs = bouteilles * BOUTEILLE, sous = repas + softs + trophees;
     const compl = Math.max(0, MINIMUM - sous), total = sous + compl;
     $("lRepas").textContent = `Repas · ${n} × ${chf(PRIX)}`;
     $("vRepas").textContent = chf(repas);
@@ -247,9 +299,10 @@
       `Plat : ${choisi("plat")}${vege ? ` (dont ${vege} végétariens)` : ""}`,
       `Dessert : ${choisi("dessert")}`,
       `Softs : ${bouteilles} bouteilles d'1,5 l (${softsChoisis})`,
-      `Animations : ${[$("prem").checked ? TXT[choisi("pour")].premT : "", $("amigo").checked ? "Amigo Secreto" : ""].filter(Boolean).join(", ") || "aucune"}`,
+      `Moments à l'honneur : ${hc.length ? hc.map(h => `${h.nom} (${hon[h.id]})`).join(", ") + (prodBN ? " · trophées réalisés par le Bossa Nova" : " · trophées apportés par le client") : "aucun"}`,
+      `Amigo Secreto : ${$("amigo").checked ? "oui" : "non"}`,
       "",
-      `Repas : ${chf(repas)} · Softs : ${chf(softs)}${compl ? ` · Complément minimum : ${chf(compl)}` : ""}`,
+      `Repas : ${chf(repas)} · Softs : ${chf(softs)}${trophees ? ` · Trophées : ${chf(trophees)}` : ""}${compl ? ` · Complément minimum : ${chf(compl)}` : ""}`,
       `Total estimé : ${chf(total)}`,
       $("rem").value ? `\nRemarque : ${$("rem").value}` : ""
     ].join("\n");
@@ -259,14 +312,22 @@
   ["jeunes", "adultes"].forEach(id => $(id).addEventListener("input", calc));
   ["date", "vege", "club", "nom", "tel", "email", "rem"].forEach(id => $(id).addEventListener("input", calc));
   $("softs").addEventListener("change", calc);
-  ["prem", "amigo"].forEach(id => $(id).addEventListener("change", calc));
+  $("amigo").addEventListener("change", calc);
+  document.querySelectorAll("input[name=prod]").forEach(x => x.addEventListener("change", calc));
   $("pour").addEventListener("change", () => { marquer("pour"); appliquerPour(); calc(); });
   ["plats", "desserts"].forEach(id => $(id).addEventListener("change", () => { marquer(id); calc(); }));
   $("plus").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.min(60, bouteilles + 1); calc(); });
   $("moins").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.max(0, bouteilles - 1); calc(); });
   try { const q = new URLSearchParams(location.search).get("pour"); if (q === "anniversaire" || q === "equipe") { document.querySelector(`input[name=pour][value=${q}]`).checked = true; marquer("pour"); } } catch (e) {}
   appliquerPour(); calc();
+  const prendre = cat => { if (cat && cat.honneurs) Object.keys(PRIX_HON).forEach(k => { if (cat.honneurs[k] != null) PRIX_HON[k] = Number(cat.honneurs[k]) || PRIX_HON[k]; }); if (cat && cat.regles && cat.regles.productionDelaiJours) DELAI = cat.regles.productionDelaiJours; calc(); };
+  if (window.__catJuniors) prendre(window.__catJuniors); document.addEventListener("catalogue", () => prendre(window.__catJuniors));
 })();
+</script>
+<script src="firebase-config.js"></script>
+<script src="catalogue.js?v=48"></script>
+<script>
+  try { window.Catalogue && window.Catalogue.charger().then(cat => { window.__catJuniors = cat; document.dispatchEvent(new Event("catalogue")); }).catch(() => {}); } catch (e) {}
 </script>
 <script data-goatcounter="https://bossanova.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
