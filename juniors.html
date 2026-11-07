@@ -6,7 +6,7 @@
 <title>Soirée Juniors — Bossa Nova Café</title>
 <meta name="description" content="Une soirée sans alcool pour une équipe juniors ou un anniversaire : pinsas, lasagnes, dessert et softs, dans le Bossa Nova Café privatisé, face à la gare de Vevey.">
 <meta property="og:title" content="Soirée Juniors au Bossa Nova Café, Vevey">
-<meta property="og:description" content="Équipe juniors ou anniversaire, sans alcool : pinsas ou lasagnes à volonté, dessert et softs. CHF 18 par personne.">
+<meta property="og:description" content="Équipe juniors ou anniversaire, jusqu'à 16 ans, sans alcool : pinsas ou lasagnes à volonté, dessert et softs. CHF 18 par personne.">
 <meta property="og:image" content="https://bossa-nova-cafe.github.io/soirees/photos/pinsas.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Chango&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -73,7 +73,7 @@
   <div class="marque">BOSSA NOVA CAFÉ · VEVEY</div>
   <h1>Soirée Juniors</h1>
   <p class="slogan">Sans alcool. Rien que pour tes jeunes.</p>
-  <p>Le Bossa Nova Café, face à la gare de Vevey, ferme ses portes au public et accueille une équipe juniors pour une fin de saison ou une remise de médailles, ou fête l'anniversaire d'un enfant ou d'un ado. Une grande tablée, des plats à volonté au centre et des softs sur la table.</p>
+  <p>Le Bossa Nova Café, face à la gare de Vevey, ferme ses portes au public et accueille une équipe juniors pour une fin de saison ou une remise de médailles, ou fête l'anniversaire d'un enfant ou d'un ado, jusqu'à 16 ans. Une grande tablée, des plats à volonté au centre et des softs sur la table.</p>
 </header>
 
 <main>
@@ -81,7 +81,7 @@
     <section class="carte">
       <img class="photo" src="photos/pinsas.jpg" alt="Pinsas romaines coupées en carrés, prêtes à partager">
       <h2>La formule</h2>
-      <p class="sous">CHF 18 par personne, jeunes et accompagnants. Soirée de 18h00 à 21h30.</p>
+      <p class="sous">Pour les jeunes jusqu'à 16 ans. CHF 18 par personne, jeunes et accompagnants. Soirée de 18h00 à 21h30.</p>
       <ul class="inclus">
         <li>un plat à volonté, posé au centre de la grande tablée ;</li>
         <li>un dessert ;</li>
@@ -93,8 +93,8 @@
     <section class="carte">
       <h2>C'est pour</h2>
       <div class="choix choix-2" id="pour">
-        <label class="choisi"><input type="radio" name="pour" value="equipe" checked><div class="nom">Une équipe juniors</div><div class="desc">Fin de saison, remise de médailles, repas d'équipe</div></label>
-        <label><input type="radio" name="pour" value="anniversaire"><div class="nom">Un anniversaire</div><div class="desc">Enfant ou ado, avec ses amis et la famille</div></label>
+        <label class="choisi"><input type="radio" name="pour" value="equipe" checked><div class="nom">Une équipe juniors</div><div class="desc">Jusqu'à 16 ans : fin de saison, remise de médailles, repas d'équipe</div></label>
+        <label><input type="radio" name="pour" value="anniversaire"><div class="nom">Un anniversaire</div><div class="desc">Enfant ou ado jusqu'à 16 ans, avec ses amis et la famille</div></label>
       </div>
     </section>
 
@@ -190,8 +190,8 @@
   function marquer(id) { document.querySelectorAll(`#${id} label`).forEach(l => l.classList.toggle("choisi", l.querySelector("input").checked)); }
 
   const TXT = {
-    equipe: { jeunes: "Juniors", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, remise de médailles, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club" },
-    anniversaire: { jeunes: "Enfants et ados invités", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté" }
+    equipe: { jeunes: "Juniors (16 ans au plus)", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, remise de médailles, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club" },
+    anniversaire: { jeunes: "Enfants et ados invités (16 ans au plus)", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté" }
   };
   function appliquerPour() {
     const t = TXT[choisi("pour")];

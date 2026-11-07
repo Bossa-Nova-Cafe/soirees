@@ -370,7 +370,7 @@
     <div><strong>Clé en main</strong><span>Repas, boissons, animations, programme pour tes invités : nous nous occupons de tout.</span></div>
     <div><strong>Personnalisable</strong><span>Du menu aux moments à l'honneur, jusqu'à l'ambiance musicale.</span></div>
   </div>
-  <a class="lien-juniors pas-imprime" href="juniors.html"><strong>Une fête pour des jeunes ?</strong> Équipe juniors ou anniversaire : découvre la Soirée Juniors, sans alcool, pinsas ou lasagnes à volonté, CHF 18 par personne →</a>
+  <a class="lien-juniors pas-imprime" href="juniors.html"><strong>Une fête pour des jeunes ?</strong> Équipe juniors ou anniversaire, jusqu'à 16 ans : découvre la Soirée Juniors, sans alcool, pinsas ou lasagnes à volonté, CHF 18 par personne →</a>
   <div class="offre-bandeau cache" id="offre-bandeau"></div>
 </header>
 
@@ -401,7 +401,7 @@
         <label class="choisie"><input type="radio" name="profil" value="entreprise" checked>Une entreprise<small>collègues, équipe</small></label>
         <label><input type="radio" name="profil" value="club">Un club ou une association<small>sport, culture, société</small></label>
         <label><input type="radio" name="profil" value="amis">Des amis ou une famille<small>anniversaire, retrouvailles</small></label>
-        <a class="profil-jeunes" href="juniors.html">Des jeunes<small>équipe juniors, anniversaire · sans alcool →</small></a>
+        <a class="profil-jeunes" href="juniors.html">Des jeunes<small>jusqu'à 16 ans : juniors, anniversaire →</small></a>
       </div>
       <div class="encart-juniors" id="encart-juniors" hidden></div>
       </div>
@@ -2188,7 +2188,7 @@
   $("enfants").addEventListener("change", () => { $("enfants").value = nbEnfants(); synchroGroupe("enfants"); });
   construireHonneurs();
   appliquerProfil();
-  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); const ej = document.getElementById("encart-juniors"); if (ej) { ej.hidden = !["club", "amis"].includes(etat.profil); ej.innerHTML = etat.profil === "club" ? 'Pour une équipe juniors, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html?pour=equipe">voir la Soirée Juniors</a>.' : 'Pour l’anniversaire d’un enfant ou d’un ado, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html?pour=anniversaire">voir la Soirée Juniors</a>.'; } }));
+  document.querySelectorAll("input[name=profil]").forEach(x => x.addEventListener("change", () => { etat.profil = x.value; appliquerProfil(); maj(); const ej = document.getElementById("encart-juniors"); if (ej) { ej.hidden = !["club", "amis"].includes(etat.profil); ej.innerHTML = etat.profil === "club" ? 'Pour une équipe juniors (jusqu’à 16 ans), nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html?pour=equipe">voir la Soirée Juniors</a>.' : 'Pour l’anniversaire d’un enfant ou d’un ado jusqu’à 16 ans, nous avons une formule dédiée, sans alcool, à CHF 18 par personne : <a href="juniors.html?pour=anniversaire">voir la Soirée Juniors</a>.'; } }));
   construireOptions();
   $("date").min = offre && offre.date && offre.date < CONFIG.saisonDebut ? offre.date : CONFIG.saisonDebut;
   $("date").max = offre && offre.date && offre.date > CONFIG.saisonFin ? offre.date : CONFIG.saisonFin;
