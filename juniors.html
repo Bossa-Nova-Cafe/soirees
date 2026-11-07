@@ -53,6 +53,11 @@
   .stepper { display:flex; align-items:center; gap:10px; }
   .stepper button { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--vert); background:#fff; color:var(--vert); font-size:20px; cursor:pointer; }
   .stepper output { font-family:"Anton",sans-serif; font-size:26px; color:var(--vert); min-width:34px; text-align:center; }
+  .anim { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--bord); font-size:14.5px; cursor:pointer; }
+  .anim input { width:20px; height:20px; accent-color:var(--vert); margin-top:2px; flex-shrink:0; }
+  .anim .detail { color:var(--gris); font-size:12.5px; line-height:1.45; }
+  .anim .detail a { color:var(--vert); font-weight:600; }
+  .anim .offert { margin-left:auto; font-weight:600; font-size:13px; color:var(--violet); white-space:nowrap; }
   .resume { position:sticky; top:16px; }
   .ligne { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:6px 0; border-bottom:1px dashed var(--bord); }
   .ligne span:last-child { white-space:nowrap; font-variant-numeric:tabular-nums; }
@@ -85,6 +90,7 @@
       <ul class="inclus">
         <li>un plat à volonté, posé au centre de la grande tablée ;</li>
         <li>un dessert ;</li>
+        <li>la remise des médailles ou des prix et l'Amigo Secreto, offerts ;</li>
         <li>les softs en bouteilles d'1,5 litre sur la table, à CHF 7 la bouteille ;</li>
         <li>aucune boisson alcoolisée servie pendant la soirée, accompagnants compris.</li>
       </ul>
@@ -146,6 +152,14 @@
     </section>
 
     <section class="carte">
+      <h2>Les animations</h2>
+      <p class="sous">Offertes, et intégrées au déroulé de la soirée.</p>
+      <label class="anim"><input type="checkbox" id="prem" checked><span><b id="premTitre">Remise des médailles et des prix</b><br><span class="detail" id="premDetail">Meilleur buteur, progression de l'année, prix du fair-play… Apporte tes médailles ou trophées : nous organisons le moment avec l'annonce, la musique et la photo de groupe.</span></span><span class="offert">Offert</span></label>
+      <label class="anim"><input type="checkbox" id="amigo" checked><span><b>Amigo Secreto, l'ami secret brésilien</b><br><span class="detail">Une tradition des fêtes au Brésil. Quelques jours avant, chacun tire au sort la personne à qui il offrira un petit cadeau, sans le dire à personne. Le soir même, chacun fait deviner son ami secret avec trois indices, puis lui offre son cadeau. Le tirage se fait en ligne avec <a href="amigo-secreto/" target="_blank" rel="noopener">notre application gratuite</a>, et nous animons le jeu.</span></span><span class="offert">Offert</span></label>
+      <p class="aide">Tu préfères que nous fournissions les médailles ou les trophées ? Indique-le dans la remarque, nous te ferons une offre.</p>
+    </section>
+
+    <section class="carte">
       <h2>Tes coordonnées</h2>
       <div class="rangee">
         <div><label class="champ" for="club" id="labClub">Club et équipe</label><input type="text" id="club" placeholder="Ex. FC Vevey-Sports, juniors D"></div>
@@ -190,12 +204,13 @@
   function marquer(id) { document.querySelectorAll(`#${id} label`).forEach(l => l.classList.toggle("choisi", l.querySelector("input").checked)); }
 
   const TXT = {
-    equipe: { jeunes: "Juniors (16 ans au plus)", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, remise de médailles, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club" },
-    anniversaire: { jeunes: "Enfants et ados invités (16 ans au plus)", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté" }
+    equipe: { jeunes: "Juniors (16 ans au plus)", adultes: "Entraîneurs et accompagnants", sous: "De 12 à 26 personnes, entraîneurs et accompagnants compris.", club: "Club et équipe", ph: "Ex. FC Vevey-Sports, juniors D", rem: "Allergies, anniversaire d'un joueur…", type: "Équipe juniors", lClub: "Club", premT: "Remise des médailles et des prix", premD: "Meilleur buteur, progression de l'année, prix du fair-play… Apporte tes médailles ou trophées : nous organisons le moment avec l'annonce, la musique et la photo de groupe." },
+    anniversaire: { jeunes: "Enfants et ados invités (16 ans au plus)", adultes: "Parents et accompagnants", sous: "De 12 à 26 personnes, parents et accompagnants compris.", club: "Prénom et âge de l'enfant fêté", ph: "Ex. Léa, 12 ans", rem: "Allergies, gâteau, surprise, musique préférée…", type: "Anniversaire", lClub: "Enfant fêté", premT: "Le moment de l'enfant fêté", premD: "Annonce, musique et photo de groupe pour le gâteau et les cadeaux. Tu peux aussi apporter un petit prix ou une médaille souvenir pour chaque invité : nous l'intégrons à la fête." }
   };
   function appliquerPour() {
     const t = TXT[choisi("pour")];
     $("labJeunes").textContent = t.jeunes; $("labAdultes").textContent = t.adultes; $("sousGroupe").textContent = t.sous;
+    $("premTitre").textContent = t.premT; $("premDetail").textContent = t.premD;
     $("labClub").textContent = t.club; $("club").placeholder = t.ph; $("rem").placeholder = t.rem;
   }
   function calc() {
@@ -232,6 +247,7 @@
       `Plat : ${choisi("plat")}${vege ? ` (dont ${vege} végétariens)` : ""}`,
       `Dessert : ${choisi("dessert")}`,
       `Softs : ${bouteilles} bouteilles d'1,5 l (${softsChoisis})`,
+      `Animations : ${[$("prem").checked ? TXT[choisi("pour")].premT : "", $("amigo").checked ? "Amigo Secreto" : ""].filter(Boolean).join(", ") || "aucune"}`,
       "",
       `Repas : ${chf(repas)} · Softs : ${chf(softs)}${compl ? ` · Complément minimum : ${chf(compl)}` : ""}`,
       `Total estimé : ${chf(total)}`,
@@ -243,6 +259,7 @@
   ["jeunes", "adultes"].forEach(id => $(id).addEventListener("input", calc));
   ["date", "vege", "club", "nom", "tel", "email", "rem"].forEach(id => $(id).addEventListener("input", calc));
   $("softs").addEventListener("change", calc);
+  ["prem", "amigo"].forEach(id => $(id).addEventListener("change", calc));
   $("pour").addEventListener("change", () => { marquer("pour"); appliquerPour(); calc(); });
   ["plats", "desserts"].forEach(id => $(id).addEventListener("change", () => { marquer(id); calc(); }));
   $("plus").addEventListener("click", () => { bouteillesManuel = true; bouteilles = Math.min(60, bouteilles + 1); calc(); });
