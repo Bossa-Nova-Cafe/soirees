@@ -242,7 +242,7 @@
   }
   function nouvelle() {
     return {
-      date: aujourdhui(), service: memo.get("service", "Service"), serveur: memo.get("serveur", ""),
+      date: aujourdhui(), service: memo.get("service", "Service"), serveur: "",
       fond: FOND, billetsTotal: 0, monnaie: 0, ventesEspeces: 0, achats: [],
       pourboiresCash: 0, pourboiresLsp: 0, pourboiresRemis: 0, motif: "", observation: "",
       suivi: "", observationManager: "", statut: "brouillon",
@@ -354,15 +354,15 @@
   });
 
   // ---------- Formulaire ----------
-  async function commencer() {
-    const d = nouvelle();
-    try { const id = await store.creer(d); E.fermetures.set(id, Object.assign({ id }, d)); ouvrir(id); }
-    catch (e) { erreurEcriture(e); }
-  }
+  // Une nouvelle fermeture n'est enregistrée qu'à la première saisie : « Retour » sans rien taper ne laisse rien derrière.
+  function commencer() { E.ouverte = { id: null, d: nouvelle() }; afficherFormulaire(); }
   function ouvrir(id) {
     const f = E.fermetures.get(id); if (!f) return;
     E.ouverte = { id, d: JSON.parse(JSON.stringify(f)) };
     delete E.ouverte.d.id;
+    afficherFormulaire();
+  }
+  function afficherFormulaire() {
     if (E.onglet !== "saisie") { E.onglet = "saisie"; document.querySelectorAll(".onglet").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.onglet === "saisie"))); document.querySelectorAll("[data-section]").forEach((s) => s.classList.toggle("cache", s.dataset.section !== "saisie")); }
     $("choix").classList.add("cache"); $("formulaire").classList.remove("cache");
     dessinerFormulaire(); window.scrollTo(0, 0);
@@ -483,7 +483,7 @@
         if (v !== t.value) { const p = t.selectionStart; t.value = v; try { t.setSelectionRange(p, p); } catch (er) { /* champ sans curseur */ } }
       }
       if (["fond", "billetsTotal", "monnaie", "ventesEspeces", "pourboiresCash", "pourboiresLsp", "pourboiresRemis"].includes(k)) d[k] = lire(t.value); else d[k] = t.value;
-      if (k === "serveur") memo.set("serveur", t.value); if (k === "service") memo.set("service", t.value);
+      if (k === "service") memo.set("service", t.value);
     } else return;
     majResultat(); programmer();
   });
@@ -491,9 +491,9 @@
   function programmer() { clearTimeout(E.sauvegarde); E.sauvegarde = setTimeout(sauver, 1200); }
   function sauver(modif) {
     E.sauvegarde = null; if (!E.ouverte) return Promise.resolve();
-    const { id } = E.ouverte; const d = Object.assign({}, E.ouverte.d, modif || {}, { majLe: Date.now(), majPar: E.qui });
+    const o = E.ouverte; const d = Object.assign({}, o.d, modif || {}, { majLe: Date.now(), majPar: E.qui });
     d.achats = (d.achats || []).filter((a) => a.commerce || a.montant || a.observation || modif === undefined);
-    return enFile(async () => { await store.ecrire(id, d); });
+    return enFile(async () => { if (o.id) await store.ecrire(o.id, d); else o.id = await store.creer(d); });
   }
 
   $("formulaire").addEventListener("click", async (e) => {
@@ -504,8 +504,8 @@
     if (t.id === "imprimer") { imprimer(); return; }
     if (t.id === "supprimer") {
       if (!t.classList.contains("arme")) { t.classList.add("arme"); t.textContent = "Confirmer la suppression"; setTimeout(() => { if (t.isConnected) { t.classList.remove("arme"); t.textContent = "Supprimer"; } }, 4000); return; }
-      const id = E.ouverte.id; clearTimeout(E.sauvegarde); E.sauvegarde = null; E.ouverte = null;
-      try { await enFile(() => store.supprimer(id)); toast("Fermeture supprimée."); } catch (err) { erreurEcriture(err); }
+      const o = E.ouverte; clearTimeout(E.sauvegarde); E.sauvegarde = null; E.ouverte = null;
+      try { await enFile(async () => { if (o.id) await store.supprimer(o.id); }); toast(o.id ? "Fermeture supprimée." : "Fermeture annulée."); } catch (err) { erreurEcriture(err); }
       fermerFormulaire(); return;
     }
     if (t.id === "envoyer") {
