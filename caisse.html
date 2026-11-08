@@ -56,9 +56,12 @@
   .carte h2 { font-family: var(--titre); font-weight: 400; font-size: 18px; letter-spacing: .5px; text-transform: uppercase; color: var(--violet); margin: 0 0 12px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
   .carte h2 small { font-family: var(--corps); font-size: 13px; color: var(--gris); text-transform: none; letter-spacing: 0; }
   .champs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px; }
-  label.f { display: grid; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--gris); min-width: 0; }
+  label.f { display: grid; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--gris); min-width: 0; align-content: start; }
   .champ { width: 100%; min-width: 0; border: 1.5px solid var(--bord); background: var(--blanc); border-radius: 9px; padding: 9px 11px; font-size: 16px; color: var(--texte); font-weight: 400; }
   .champ:disabled { background: #f6f2e6; color: var(--texte); }
+  input.champ, select.champ { height: 46px; padding-top: 0; padding-bottom: 0; line-height: 44px; }
+  input[type="checkbox"].champ { height: auto; }
+  input.champ:disabled { -webkit-text-fill-color: var(--texte); opacity: 1; }
   textarea.champ { min-height: 70px; resize: vertical; font-size: 15px; }
   .aide { font-size: 12px; color: var(--gris); margin: 6px 0 0; }
 
@@ -392,7 +395,7 @@
           </div></div>
 
           <div class="carte"><h2>Comptage de la bourse</h2>
-            <div class="champs">${montant("billetsTotal", "Billets (total)", "le total des billets comptés")}${montant("monnaie", "Monnaie (total de la machine)", "le montant affiché par la machine à compter")}</div>
+            <div class="champs">${montant("billetsTotal", "Billets", "total des billets comptés")}${montant("monnaie", "Monnaie (machine)", "total affiché par la machine")}</div>
             <div class="sous-total"><span>Bourse comptée</span><span class="num" id="tBourse"></span></div>
           </div>
 
