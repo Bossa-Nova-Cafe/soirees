@@ -5,7 +5,9 @@
 | Fichier | Rôle |
 | --- | --- |
 | `index.html` | Le calculateur pour les clients |
-| `admin.html` | Le panneau d'administration : plats, prix, vins, digestifs, réglages |
+| `admin.html` | L'accueil de l'administration : toutes les pages, en un seul endroit |
+| `festa-admin.html` | Les prix de la Festa : plats, prix, vins, digestifs, réglages, offres personnalisées |
+| `nav-admin.js` | La barre de navigation commune à toutes les pages d'administration |
 | `achats.html` | Les achats des soirées : soirées confirmées, liste d'achats, coût et marge |
 | `stock.html` | Le contrôle du stock du café (tablette, téléphone, Mac) |
 | `catalogue.js` | Le catalogue partagé et les valeurs d'origine |
@@ -15,7 +17,7 @@ Ces fichiers doivent rester dans le même dossier.
 
 ## 1. Tester en local
 
-1. Ouvrir `admin.html` dans Chrome. Le badge indique « Mode local ».
+1. Ouvrir `festa-admin.html` dans Chrome. Le badge indique « Mode local ».
 2. Changer un prix, cliquer sur **Enregistrer**.
 3. Ouvrir ou recharger `index.html` : le nouveau prix apparaît.
 
@@ -40,13 +42,13 @@ En mode local, les changements restent dans ce navigateur. Les clients ne les vo
 ```
 
 4. **GitHub** : le site est dans le dépôt `soirees`, publié par GitHub Pages (branche main).
-5. Ouvrir `admin.html` en ligne, se connecter, vérifier les prix, puis **Enregistrer** une première fois : le catalogue est alors créé dans Firestore.
+5. Ouvrir `festa-admin.html` en ligne, se connecter, vérifier les prix, puis **Enregistrer** une première fois : le catalogue est alors créé dans Firestore.
 
 Tant que rien n'est enregistré en ligne, le calculateur utilise les valeurs d'origine de `catalogue.js`.
 
 ## Offres personnalisées
 
-Dans `admin.html`, section « Offres personnalisées » : client, date, nombre d'invités, remises, cadeaux, prix spéciaux et un mot pour le client. Le bouton crée un lien à envoyer au client : le calculateur s'ouvre avec ses conditions, et sa demande arrive avec le numéro de l'offre.
+Dans `festa-admin.html`, section « Offres personnalisées » : client, date, nombre d'invités, remises, cadeaux, prix spéciaux et un mot pour le client. Le bouton crée un lien à envoyer au client : le calculateur s'ouvre avec ses conditions, et sa demande arrive avec le numéro de l'offre.
 
 - Les conditions sont contenues dans le lien lui-même. Si vous modifiez une offre, renvoyez le nouveau lien : l'ancien garde les anciennes conditions.
 - Vérifiez toujours le numéro de l'offre dans la demande reçue avant de confirmer : c'est votre liste d'offres qui fait foi.
@@ -56,11 +58,11 @@ Dans `admin.html`, section « Offres personnalisées » : client, date, nombre d
 
 - Décocher « Visible » retire un plat du calculateur sans le supprimer : pratique pour un plat de saison.
 - « Télécharger une copie » garde une sauvegarde du catalogue sur l'ordinateur ; « Charger une copie » la remet.
-- `admin.html` n'est pas référencé par les moteurs de recherche, mais son adresse n'est pas secrète : en ligne, c'est la connexion qui protège les modifications.
+- Les pages d'administration ne sont pas référencées par les moteurs de recherche, mais leur adresse n'est pas secrète : en ligne, c'est la connexion qui protège les modifications.
 
 ## Achats des soirées
 
-`achats.html` (lien « Achats des soirées » dans l'administration, même connexion).
+`achats.html` (barre de navigation en haut des pages d'administration, même connexion).
 
 1. **Soirées** : colle la demande reçue par WhatsApp ou e-mail, clique sur « Lire le message », vérifie, puis « Enregistrer la soirée ». Un plat non reconnu est signalé : ajoute-le à la main. Statut « En option » pour une soirée pas encore confirmée.
 2. **Liste d'achats** : choisis la période ; les quantités de toutes les soirées cochées s'additionnent, classées par rayon Aligro. Imprimer, ou copier en texte pour WhatsApp.
@@ -79,7 +81,7 @@ Coût matière et marge : calculés sur le prix du menu (hors TVA 8,1 %, hors vi
 
 ## Stock du café
 
-`stock.html` (lien « Stock » dans l'administration, même connexion). Pensé pour la tablette du bar : compteurs − / + pour les sorties et les livraisons, « Compter » pour l'inventaire, seuil d'alerte et stock idéal sur la fiche de chaque article. L'onglet **Commande** regroupe par fournisseur ce qui est au seuil ou en dessous, avec un texte à copier pour WhatsApp ; l'onglet **Journal** garde les mouvements des 120 derniers jours.
+`stock.html` (barre de navigation en haut des pages d'administration, même connexion). Pensé pour la tablette du bar : compteurs − / + pour les sorties et les livraisons, « Compter » pour l'inventaire, seuil d'alerte et stock idéal sur la fiche de chaque article. L'onglet **Commande** regroupe par fournisseur ce qui est au seuil ou en dessous, avec un texte à copier pour WhatsApp ; l'onglet **Journal** garde les mouvements des 120 derniers jours.
 
 Au premier lancement, le bouton « Importer la liste de départ » crée les articles des fiches papier.
 
@@ -94,3 +96,7 @@ Au premier lancement, le bouton « Importer la liste de départ » crée les art
       allow read, write: if admin();
     }
 ```
+
+## Accueil de l'administration
+
+`admin.html` rassemble toutes les pages : Stock, Réservations (gestion du portail `bossa-nova-reservations`), Prix de la Festa, Achats des soirées, et les pages à partager aux clients. Chaque page d'administration affiche en haut la même barre de navigation (`nav-admin.js`) pour passer de l'une à l'autre. Pour ajouter une page, l'ajouter dans la liste `PAGES` de `nav-admin.js` et une carte dans `admin.html`.

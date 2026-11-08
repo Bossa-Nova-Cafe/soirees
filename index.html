@@ -2059,7 +2059,7 @@
     }
   }
 
-  // ---------- Catalogue (plats, vins, prix) géré dans admin.html ----------
+  // ---------- Catalogue (plats, vins, prix) géré dans festa-admin.html ----------
   function dateCourte(iso) { const [a, m, j] = iso.split("-").map(Number); return `${j} ${MOIS[m - 1]} ${a}`; }
   const visibles = l => (l || []).filter(x => x.actif !== false);
   function appliquerCatalogue(cat) {

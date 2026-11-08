@@ -1,6 +1,6 @@
 /* Bossa Nova Café · Catalogue de la Festa
    Plats, vins, prix et réglages partagés entre le calculateur (index.html)
-   et le panneau d'administration (admin.html).
+   et la page des prix de la Festa (festa-admin.html).
 
    Deux modes :
    - local : sans Firebase, le catalogue est gardé dans ce navigateur (pour tester) ;
