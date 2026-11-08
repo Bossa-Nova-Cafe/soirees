@@ -389,7 +389,7 @@
         <div class="colonne">
           <div class="carte"><h2>Service</h2><div class="champs">
             <label class="f">Date<input class="champ" type="date" data-champ="date" value="${esc(d.date)}"${dis}></label>
-            <label class="f">Serveur<input class="champ" data-champ="serveur" value="${esc(d.serveur)}" placeholder="Prénom" autocomplete="off"${dis}></label>
+            <label class="f">Serveur<input class="champ" data-champ="serveur" value="${esc(d.serveur)}" placeholder="Prénom" autocomplete="off" autocapitalize="words"${dis}></label>
             <label class="f">Service ou livraison<select class="champ" data-champ="service"${dis}>${SERVICES.map((s) => `<option${s === d.service ? " selected" : ""}>${s}</option>`).join("")}</select></label>
             <label class="f">Fond de caisse<input class="champ num" value="${fmt(d.fond)} CHF" disabled aria-label="Fond de caisse"><span class="aide" style="font-weight:400">fixe, reçu en début de service</span></label>
           </div></div>
@@ -477,6 +477,11 @@
     else if (t.dataset.achat !== undefined) { const a = d.achats[+t.dataset.achat]; if (!a) return; if (t.dataset.k === "recu") a.recu = t.checked; else if (t.dataset.k === "montant") a.montant = lire(t.value); else a[t.dataset.k] = t.value; }
     else if (t.dataset.champ) {
       const k = t.dataset.champ;
+      if (k === "serveur") {
+        // Majuscule au début de chaque prénom (Taïs, Ana-Paula), sans déplacer le curseur
+        const v = t.value.replace(/(^|[\s-])(\p{Ll})/gu, (m, a, b) => a + b.toUpperCase());
+        if (v !== t.value) { const p = t.selectionStart; t.value = v; try { t.setSelectionRange(p, p); } catch (er) { /* champ sans curseur */ } }
+      }
       if (["fond", "billetsTotal", "monnaie", "ventesEspeces", "pourboiresCash", "pourboiresLsp", "pourboiresRemis"].includes(k)) d[k] = lire(t.value); else d[k] = t.value;
       if (k === "serveur") memo.set("serveur", t.value); if (k === "service") memo.set("service", t.value);
     } else return;
