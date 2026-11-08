@@ -118,7 +118,7 @@ Les règles Firestore complètes sont dans `firestore.rules` du dépôt `bossa-n
 
 `caisse.html` remplace la fermeture de caisse FileMaker.
 
-1. **Ma fermeture** (le serveur) : date, prénom, service ou livraison, fond de caisse ; comptage de la bourse par coupure ; ventes espèces du rapport Lightspeed ; achats payés depuis la caisse (ticket reçu ou non) ; pourboires cash, Lightspeed et remis ; motif si la caisse n'est pas juste. Tout s'enregistre au fur et à mesure. « Valider ma fermeture » l'envoie au manager.
+1. **Ma fermeture** (le serveur) : date, prénom, service ou livraison, fond de caisse ; comptage des billets par coupure et total de la monnaie donné par la machine à compter ; ventes espèces du rapport Lightspeed ; achats payés depuis la caisse (ticket reçu ou non) ; pourboires cash, Lightspeed et remis ; motif si la caisse n'est pas juste. Tout s'enregistre au fur et à mesure. « Valider ma fermeture » l'envoie au manager.
 2. **À valider** (le manager) : coche les tickets reçus, choisit le suivi, écrit l'observation manager (obligatoire en cas d'écart de caisse ou de pourboires, ou de ticket manquant), puis « Clôturer ». Une fermeture clôturée ne peut plus être modifiée. « Renvoyer au serveur » la remet en saisie.
 3. **Historique** : les fermetures du mois, avec totaux, et l'export CSV pour la comptabilité (s'ouvre dans Excel).
 

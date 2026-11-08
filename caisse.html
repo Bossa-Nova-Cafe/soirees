@@ -225,7 +225,7 @@
   // ---------- Calculs ----------
   function calc(d) {
     const billets = BILLETS.reduce((s, x) => s + x * (d.billets?.[cleDen(x)] || 0), 0);
-    const monnaie = PIECES.reduce((s, x) => s + x * (d.pieces?.[cleDen(x)] || 0), 0);
+    const monnaie = d.monnaie != null ? Number(d.monnaie) || 0 : PIECES.reduce((s, x) => s + x * (d.pieces?.[cleDen(x)] || 0), 0);
     const bourse = r2(billets + monnaie);
     const achats = r2((d.achats || []).reduce((s, a) => s + (Number(a.montant) || 0), 0));
     const theorique = r2((d.fond || 0) + (d.ventesEspeces || 0) - achats - (d.pourboiresLsp || 0));
@@ -239,7 +239,7 @@
   function nouvelle() {
     return {
       date: aujourdhui(), service: memo.get("service", "Service"), serveur: memo.get("serveur", ""),
-      fond: lire(memo.get("fond", "")), billets: {}, pieces: {}, ventesEspeces: 0, achats: [],
+      fond: lire(memo.get("fond", "")), billets: {}, monnaie: 0, ventesEspeces: 0, achats: [],
       pourboiresCash: 0, pourboiresLsp: 0, pourboiresRemis: 0, motif: "", observation: "",
       suivi: "", observationManager: "", statut: "brouillon",
       creeLe: Date.now(), creePar: E.qui, majLe: Date.now(), majPar: E.qui
@@ -390,10 +390,10 @@
             ${montant("fond", "Fond de caisse", "reçu en début de service")}
           </div></div>
 
-          <div class="carte"><h2>Comptage de la bourse <small>nombre de billets et de pièces</small></h2>
+          <div class="carte"><h2>Comptage de la bourse <small>nombre de billets, puis la monnaie</small></h2>
             <div class="coupures">${den(BILLETS, "billets")}</div>
             <div class="sous-total"><span>Billets</span><span class="num" id="tBillets"></span></div>
-            <div class="coupures" style="margin-top:12px">${den(PIECES, "pieces")}</div>
+            <div class="champs" style="margin-top:14px">${montant("monnaie", "Monnaie (total de la machine)", "le montant affiché par la machine à compter")}</div>
             <div class="sous-total"><span>Monnaie</span><span class="num" id="tMonnaie"></span></div>
           </div>
 
@@ -475,7 +475,7 @@
     else if (t.dataset.achat !== undefined) { const a = d.achats[+t.dataset.achat]; if (!a) return; if (t.dataset.k === "recu") a.recu = t.checked; else if (t.dataset.k === "montant") a.montant = lire(t.value); else a[t.dataset.k] = t.value; }
     else if (t.dataset.champ) {
       const k = t.dataset.champ;
-      if (["fond", "ventesEspeces", "pourboiresCash", "pourboiresLsp", "pourboiresRemis"].includes(k)) d[k] = lire(t.value); else d[k] = t.value;
+      if (["fond", "monnaie", "ventesEspeces", "pourboiresCash", "pourboiresLsp", "pourboiresRemis"].includes(k)) d[k] = lire(t.value); else d[k] = t.value;
       if (k === "serveur") memo.set("serveur", t.value); if (k === "service") memo.set("service", t.value); if (k === "fond") memo.set("fond", String(d.fond));
     } else return;
     majResultat(); programmer();
