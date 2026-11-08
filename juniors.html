@@ -39,6 +39,7 @@
   .choix { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   @media (max-width:600px){ .choix { grid-template-columns:1fr; } }
   .choix.choix-2 { grid-template-columns:repeat(2,1fr); } @media (max-width:600px){ .choix.choix-2 { grid-template-columns:1fr; } }
+  .choix.choix-3 { grid-template-columns:repeat(3,1fr); } @media (max-width:600px){ .choix.choix-3 { grid-template-columns:1fr; } }
   .choix label { border:2px solid var(--bord); border-radius:14px; padding:12px; cursor:pointer; background:#fff; display:block; }
   .choix label:hover { border-color:var(--jaune); }
   .choix input { position:absolute; opacity:0; pointer-events:none; }
@@ -137,9 +138,10 @@
 
     <section class="carte">
       <h2>Le dessert</h2>
-      <div class="choix choix-2" id="desserts">
+      <div class="choix choix-3" id="desserts">
         <label class="choisi"><input type="radio" name="dessert" value="Glace" checked><div class="nom">Glace</div><div class="desc">Tartufo pistache ou noisette-chocolat</div></label>
         <label><input type="radio" name="dessert" value="Tiramisù"><div class="nom">Tiramisù</div><div class="desc">Classico ou à la mangue</div></label>
+        <label><input type="radio" name="dessert" value="Coupe glacée vanille-chocolat"><div class="nom">Coupe glacée</div><div class="desc">Deux boules vanille et chocolat, chantilly</div></label>
       </div>
     </section>
 
@@ -327,7 +329,7 @@
 })();
 </script>
 <script src="firebase-config.js"></script>
-<script src="catalogue.js?v=48"></script>
+<script src="catalogue.js?v=53"></script>
 <script>
   try { window.Catalogue && window.Catalogue.charger().then(cat => { window.__catJuniors = cat; document.dispatchEvent(new Event("catalogue")); }).catch(() => {}); } catch (e) {}
 </script>
