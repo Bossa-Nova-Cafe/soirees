@@ -13,7 +13,7 @@
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
   const DEFAUT = {
-    version: 43,
+    version: 44,
     contacts: { whatsapp: "41766390495", email: "vevey@bossanova-cafe.ch" },
     saison: { debut: "2026-11-16", fin: "2027-02-28" },
     moments: { soir: true, midi: false, afterwork: false },
@@ -73,7 +73,7 @@
         { id: "tartufo-pistache", nom: "Tartufo pistache", ds: "Glace pistache, cœur fondant pistache et chocolat blanc", prix: 5.5, actif: true },
         { id: "tartufo-nocciola", nom: "Tartufo nocciola & cioccolato", ds: "Noisette et chocolat, cœur fondant, finition cacao", prix: 5.5, actif: true },
         { id: "pudim", nom: "Flan brésilien au caramel (pudim de leite)", ds: "Le flan brésilien au caramel", prix: 5.5, actif: true },
-        { id: "coupe-glacee", nom: "Coupe glacée vanille-chocolat", ds: "Deux boules de glace, vanille et chocolat, avec chantilly", prix: 5, actif: true },
+        { id: "coupe-glacee", nom: "Coupe glacée vanille-chocolat", ds: "Deux boules de glace, vanille et chocolat, avec chantilly", prix: 5, photo: "photos/coupe-glacee.jpg", actif: true },
         { id: "brigadeiros", nom: "Brigadeiros maison", ds: "Les truffes brésiliennes au chocolat, assortiment", prix: 7, actif: false },
         { id: "gourmand", nom: "Assiette gourmande", ds: "Brigadeiros, tiramisù mango et pudim de leite", prix: 11, actif: false },
         { id: "maracuja", nom: "Mousse de fruit de la passion", ds: "Légère et acidulée", prix: 8, actif: false },
@@ -309,6 +309,8 @@
     if (vAvant < 42) c.menu.plat = c.menu.plat.map(x => x.id === "escondidinho-vg" && !x.photo ? Object.assign({}, x, { photo: "photos/empadao.jpg" }) : x);
     // Version 43 : coupe glacée vanille-chocolat en dessert
     if (vAvant < 43 && !c.menu.dessert.some(x => x.id === "coupe-glacee")) c.menu.dessert.push(copie(DEFAUT.menu.dessert.find(x => x.id === "coupe-glacee")));
+    // Version 44 : photo de la coupe glacée
+    if (vAvant < 44) c.menu.dessert = c.menu.dessert.map(x => x.id === "coupe-glacee" && !x.photo ? Object.assign({}, x, { photo: "photos/coupe-glacee.jpg" }) : x);
     ["bols", "vins", "digestifs", "bulles"].forEach(k => { if (Array.isArray(cat[k])) c[k] = cat[k]; });
     // Version 14 : accompagnements revus (un seul bol au four) — seulement si la liste n'a pas été modifiée dans l'admin
     const BOLS_AVANT_14 = ["Riz blanc", "Farofa", "Haricots noirs", "Pommes de terre au four", "Patates douces rôties", "Courge, poivrons et oignons rouges rôtis au four", "Vinaigrette brésilienne", "Sauces pimentées douces"];
