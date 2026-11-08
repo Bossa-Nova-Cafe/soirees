@@ -280,7 +280,7 @@
   function message(html, type, duree) { const d = document.createElement("div"); d.className = "msg " + (type || "info"); d.innerHTML = html; $("messages").appendChild(d); if (duree) setTimeout(() => d.remove(), duree); return d; }
   const refus = (e) => e && (e.code === "permission-denied" || /permission/i.test(String(e.message)));
   function erreurEcriture(e) {
-    if (refus(e)) message("Enregistrement refusé par Firebase. Soit cette action est réservée à un manager, soit la règle de la caisse manque. Dans ce cas : console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des autres, puis Publier :<pre>" + esc(REGLE) + "</pre>", "erreur");
+    if (refus(e)) message("Enregistrement refusé par Firebase. Soit cette action est réservée à un manager, soit les règles de la caisse ne sont pas encore publiées : remplace alors les règles Firestore par la version complète du fichier <code>firestore.rules</code> (dépôt bossa-nova-reservations), puis Publier.", "erreur");
     else toast("Enregistrement impossible pour le moment. Vérifie le Wi-Fi et réessaie.");
   }
   let file = Promise.resolve();
@@ -555,7 +555,7 @@
       rendre();
     }, (e) => {
       clearTimeout(attente); E.charge = true;
-      if (refus(e)) message("Lecture refusée par Firebase. Soit ton compte n’est pas dans la liste de l’équipe, soit la règle de la caisse manque. Dans ce cas : console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des autres, puis Publier :<pre>" + esc(REGLE) + "</pre>", "erreur");
+      if (refus(e)) message("Lecture refusée par Firebase. Soit ton compte n’est pas dans la liste de l’équipe, soit les règles de la caisse ne sont pas encore publiées : remplace alors les règles Firestore par la version complète du fichier <code>firestore.rules</code> (dépôt bossa-nova-reservations), puis Publier. Recharge ensuite cette page.", "erreur");
       else message("La caisse ne peut pas être chargée : " + esc(e && e.message || e), "erreur");
       rendre();
     });
