@@ -39,7 +39,7 @@
   .choix { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
   @media (max-width:600px){ .choix { grid-template-columns:1fr; } }
   .choix.choix-2 { grid-template-columns:repeat(2,1fr); } @media (max-width:600px){ .choix.choix-2 { grid-template-columns:1fr; } }
-  .choix.choix-3 { grid-template-columns:repeat(3,1fr); } @media (max-width:600px){ .choix.choix-3 { grid-template-columns:1fr; } }
+  .choix.choix-1 { grid-template-columns:minmax(0,420px); }
   .choix label { border:2px solid var(--bord); border-radius:14px; padding:12px; cursor:pointer; background:#fff; display:block; }
   .choix label:hover { border-color:var(--jaune); }
   .choix input { position:absolute; opacity:0; pointer-events:none; }
@@ -96,7 +96,7 @@
       <p class="sous">Pour les jeunes jusqu'à 16 ans. CHF 18 par personne, jeunes et accompagnants. Soirée de 18h00 à 21h30.</p>
       <ul class="inclus">
         <li>un plat à volonté, posé au centre de la grande tablée ;</li>
-        <li>un dessert ;</li>
+        <li>une coupe glacée vanille-chocolat avec chantilly ;</li>
         <li>les moments à l'honneur et l'Amigo Secreto, offerts (trophées non compris) ;</li>
         <li>les softs en bouteilles d'1,5 litre sur la table, à CHF 7 la bouteille ;</li>
         <li>aucune boisson alcoolisée servie pendant la soirée, accompagnants compris.</li>
@@ -138,10 +138,8 @@
 
     <section class="carte">
       <h2>Le dessert</h2>
-      <div class="choix choix-3" id="desserts">
-        <label class="choisi"><input type="radio" name="dessert" value="Glace" checked><div class="nom">Glace</div><div class="desc">Tartufo pistache ou noisette-chocolat</div></label>
-        <label><input type="radio" name="dessert" value="Tiramisù"><div class="nom">Tiramisù</div><div class="desc">Classico ou à la mangue</div></label>
-        <label><input type="radio" name="dessert" value="Coupe glacée vanille-chocolat"><div class="nom">Coupe glacée</div><div class="desc">Deux boules vanille et chocolat, chantilly</div></label>
+      <div class="choix choix-1" id="desserts">
+        <label class="choisi"><input type="radio" name="dessert" value="Coupe glacée vanille-chocolat" checked><div class="nom">Coupe glacée</div><div class="desc">Deux boules de glace, vanille et chocolat, avec chantilly</div></label>
       </div>
     </section>
 
