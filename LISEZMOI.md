@@ -100,3 +100,15 @@ Au premier lancement, le bouton « Importer la liste de départ » crée les art
 ## Accueil de l'administration
 
 `admin.html` rassemble toutes les pages : Stock, Réservations (gestion du portail `bossa-nova-reservations`), Prix de la Festa, Achats des soirées, et les pages à partager aux clients. Chaque page d'administration affiche en haut la même barre de navigation (`nav-admin.js`) pour passer de l'une à l'autre. Pour ajouter une page, l'ajouter dans la liste `PAGES` de `nav-admin.js` et une carte dans `admin.html`.
+
+## Équipe : qui a accès à l'administration
+
+Dans `admin.html`, section **Équipe** : la liste des e-mails autorisés (document Firestore `parametres/equipe`).
+
+- **Ajouter quelqu'un** : 1. créer son compte dans la console Firebase, Authentication → Users → Ajouter un utilisateur ; 2. ajouter le même e-mail dans la section Équipe.
+- **Retirer quelqu'un** : bouton « Retirer » ; son accès est coupé sur toutes les pages.
+- **Lien mot de passe** : envoie l'e-mail Firebase pour choisir un nouveau mot de passe.
+- Tant que la liste n'est pas activée (bouton « Activer la liste de l'équipe »), tout compte connecté a accès.
+- Sécurité : dans la console Firebase, Authentication → Paramètres → Actions des utilisateurs, garder **« Activer la création (inscription) » décoché**.
+
+Les règles Firestore complètes sont dans `firestore.rules` du dépôt `bossa-nova-reservations`.

@@ -284,7 +284,7 @@
       async ajuster(id, delta, p) { await A.doc(id).update(Object.assign({}, p, { qty: inc(delta) })); },
       async supprimer(id) { await A.doc(id).delete(); },
       async noter(m) { await M.add(m); },
-      async importer(liste) { const b = db.batch(); liste.forEach((x) => b.set(A.doc(x.id), x.d)); await b.commit(); },
+      async importer(liste) { for (let i = 0; i < liste.length; i += 8) { const b = db.batch(); liste.slice(i, i + 8).forEach((x) => b.set(A.doc(x.id), x.d)); await b.commit(); } },
       async nettoyer(limite) { const s = await M.where("at", "<", limite).limit(200).get(); if (s.empty) return; const b = db.batch(); s.docs.forEach((d) => b.delete(d.ref)); await b.commit(); }
     };
   }
@@ -304,7 +304,7 @@
   }
   function refus(e) { return e && (e.code === "permission-denied" || /permission/i.test(String(e.message))); }
   function erreurEcriture(e) {
-    if (refus(e)) message("Enregistrement refusé par Firebase : il manque la règle du stock. Dans la console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des autres, puis Publier :<pre>" + esc(REGLE) + "</pre>", "erreur");
+    if (refus(e)) message("Enregistrement refusé par Firebase. Soit ton compte n’est pas dans la liste de l’équipe (Accueil de l’administration, section Équipe), soit la règle du stock manque. Dans ce cas : console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des autres, puis Publier :<pre>" + esc(REGLE) + "</pre>", "erreur");
     else toast("Enregistrement impossible pour le moment. Vérifie le Wi-Fi et réessaie.");
   }
   const chaines = new Map();
@@ -505,7 +505,7 @@
       rendre();
     }, (e) => {
       clearTimeout(attente); E.charge = true;
-      if (refus(e)) message("Lecture refusée par Firebase : il manque la règle du stock. Dans la console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des autres règles, puis Publier :<pre>" + esc(REGLE) + "</pre>Recharge ensuite cette page.", "erreur");
+      if (refus(e)) message("Lecture refusée par Firebase. Soit ton compte n’est pas dans la liste de l’équipe (Accueil de l’administration, section Équipe), soit la règle du stock manque. Dans la console Firebase, Firestore Database &gt; Règles, ajoute ce bloc à côté des autres règles, puis Publier :<pre>" + esc(REGLE) + "</pre>Recharge ensuite cette page.", "erreur");
       else message("Le stock ne peut pas être chargé : " + esc(e && e.message || e), "erreur");
       rendre();
     });
