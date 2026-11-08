@@ -7,6 +7,7 @@
 | `index.html` | Le calculateur pour les clients |
 | `admin.html` | Le panneau d'administration : plats, prix, vins, digestifs, réglages |
 | `achats.html` | Les achats des soirées : soirées confirmées, liste d'achats, coût et marge |
+| `stock.html` | Le contrôle du stock du café (tablette, téléphone, Mac) |
 | `catalogue.js` | Le catalogue partagé et les valeurs d'origine |
 | `firebase-config.js` | La connexion à Firebase (vide = mode local) |
 
@@ -72,6 +73,24 @@ Coût matière et marge : calculés sur le prix du menu (hors TVA 8,1 %, hors vi
 ```
     // Achats des soirées : réservés à l'équipe
     match /parametres/confra-achats {
+      allow read, write: if admin();
+    }
+```
+
+## Stock du café
+
+`stock.html` (lien « Stock » dans l'administration, même connexion). Pensé pour la tablette du bar : compteurs − / + pour les sorties et les livraisons, « Compter » pour l'inventaire, seuil d'alerte et stock idéal sur la fiche de chaque article. L'onglet **Commande** regroupe par fournisseur ce qui est au seuil ou en dessous, avec un texte à copier pour WhatsApp ; l'onglet **Journal** garde les mouvements des 120 derniers jours.
+
+Au premier lancement, le bouton « Importer la liste de départ » crée les articles des fiches papier.
+
+**Règle Firestore à ajouter une fois** (à côté de `confra-achats`, puis Publier) :
+
+```
+    // Stock : réservé à l'équipe
+    match /stock-articles/{id} {
+      allow read, write: if admin();
+    }
+    match /stock-mouvements/{id} {
       allow read, write: if admin();
     }
 ```
