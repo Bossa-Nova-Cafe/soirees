@@ -10,6 +10,7 @@
 | `nav-admin.js` | La barre de navigation commune à toutes les pages d'administration |
 | `achats.html` | Les achats des soirées : soirées confirmées, liste d'achats, coût et marge |
 | `stock.html` | Le contrôle du stock du café (tablette, téléphone, Mac) |
+| `caisse.html` | La fermeture de caisse : saisie par le serveur, clôture par le manager, historique et export |
 | `catalogue.js` | Le catalogue partagé et les valeurs d'origine |
 | `firebase-config.js` | La connexion à Firebase (vide = mode local) |
 
@@ -112,3 +113,15 @@ Dans `admin.html`, section **Équipe** : la liste des e-mails autorisés (docume
 - Sécurité : dans la console Firebase, Authentication → Paramètres → Actions des utilisateurs, garder **« Activer la création (inscription) » décoché**.
 
 Les règles Firestore complètes sont dans `firestore.rules` du dépôt `bossa-nova-reservations`.
+
+## Caisse
+
+`caisse.html` remplace la fermeture de caisse FileMaker.
+
+1. **Ma fermeture** (le serveur) : date, prénom, service ou livraison, fond de caisse ; comptage de la bourse par coupure ; ventes espèces du rapport Lightspeed ; achats payés depuis la caisse (ticket reçu ou non) ; pourboires cash, Lightspeed et remis ; motif si la caisse n'est pas juste. Tout s'enregistre au fur et à mesure. « Valider ma fermeture » l'envoie au manager.
+2. **À valider** (le manager) : coche les tickets reçus, choisit le suivi, écrit l'observation manager (obligatoire en cas d'écart de caisse ou de pourboires, ou de ticket manquant), puis « Clôturer ». Une fermeture clôturée ne peut plus être modifiée. « Renvoyer au serveur » la remet en saisie.
+3. **Historique** : les fermetures du mois, avec totaux, et l'export CSV pour la comptabilité (s'ouvre dans Excel).
+
+Calculs : caisse théorique = fond + ventes espèces − achats − pourboires Lightspeed ; écart = bourse comptée − caisse théorique ; à verser au bureau = bourse − fond ; écart pourboires = cash + Lightspeed − remis.
+
+Les managers se choisissent dans l'accueil, section Équipe (bouton « Manager »). Seuls les managers clôturent les fermetures et modifient l'équipe.

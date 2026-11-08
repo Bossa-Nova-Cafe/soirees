@@ -15,6 +15,7 @@
   const PAGES = [
     { id: "accueil", nom: "Accueil", href: S + "admin.html" },
     { id: "stock", nom: "Stock", href: S + "stock.html" },
+    { id: "caisse", nom: "Caisse", href: S + "caisse.html" },
     { id: "reservations", nom: "Réservations", href: R + "index.html#gestion" },
     { id: "festa", nom: "Prix de la Festa", href: S + "festa-admin.html" },
     { id: "achats", nom: "Achats des soirées", href: S + "achats.html" }

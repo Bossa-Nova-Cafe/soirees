@@ -66,6 +66,8 @@
   .petit { font: inherit; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 5px 12px; border: 1.5px solid var(--bord); color: var(--gris); background: var(--blanc); cursor: pointer; }
   .petit.danger { border-color: var(--rouge); color: var(--rouge); }
   .petit.danger.arme { background: var(--rouge); color: var(--blanc); }
+  .petit[aria-pressed="true"] { background: var(--vert); border-color: var(--vert); color: var(--creme); }
+  .role { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; border-radius: 4px; padding: 1px 6px; margin-left: 8px; background: #efe8f7; color: var(--violet); }
   .ajout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--bord); background: #fffdf7; }
   .ajout input { font: inherit; font-size: 15px; color: var(--texte); padding: 9px 11px; border: 1.5px solid var(--bord); border-radius: 9px; background: var(--blanc); width: 100%; min-width: 0; }
   .note { font-size: 13px; color: var(--gris); margin: 10px 0 0; max-width: 720px; }
@@ -107,6 +109,11 @@
           <p>Compter, noter les sorties et les livraisons, préparer les commandes par fournisseur.</p>
           <div class="etat" id="etat-stock"></div>
         </a>
+        <a class="carte" href="caisse.html">
+          <h3>Caisse <span>→</span></h3>
+          <p>Fermeture de caisse par serveur, contrôle et clôture par le manager, historique et export pour la comptabilité.</p>
+          <div class="etat" id="etat-caisse"></div>
+        </a>
         <a class="carte" href="../bossa-nova-reservations/index.html#gestion">
           <h3>Réservations <span>→</span></h3>
           <p>Soirées Music, Match, Brasil, Pizza a Gogo, Feijoada : créer, suivre le remplissage, confirmer par WhatsApp.</p>
@@ -140,7 +147,7 @@
 
     <section id="section-equipe" class="cache">
       <h2>Équipe</h2>
-      <p class="intro">Les personnes qui peuvent ouvrir les pages d’administration. Retirer quelqu’un coupe son accès partout, tout de suite.</p>
+      <p class="intro">Les personnes qui peuvent ouvrir les pages d’administration. Les <b>managers</b> valident et clôturent les fermetures de caisse, et gèrent cette liste. Retirer quelqu’un coupe son accès partout, tout de suite.</p>
       <div id="equipe-etat"></div>
       <div class="equipe" id="equipe-liste"></div>
       <p class="note">Pour ajouter quelqu’un : 1. crée son compte dans la <a href="https://console.firebase.google.com/project/bossa-nova-reservations/authentication/users" target="_blank" rel="noopener">console Firebase, Authentication → Users</a> (e-mail et mot de passe) ; 2. ajoute ici le même e-mail. « Lien mot de passe » lui envoie un e-mail de Firebase pour choisir son propre mot de passe.</p>
@@ -201,7 +208,8 @@
 
     // ---------- Équipe ----------
     const EQ = db.collection("parametres").doc("equipe");
-    let moi = "", liste = null, stopEquipe = null, enCours = false;
+    let moi = "", liste = null, managers = null, stopEquipe = null, enCours = false;
+    const estManager = (m) => managers === null || managers.includes(m);
     const propre = (m) => String(m || "").trim().toLowerCase();
     const valide = (m) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m);
     function rendreEquipe() {
@@ -211,18 +219,29 @@
         el.classList.add("cache"); return;
       }
       etat.innerHTML = ""; el.classList.remove("cache");
-      el.innerHTML = liste.map((m) => `<div class="membre"><div class="mail">${esc(m)}${m === moi ? "<small>toi</small>" : ""}</div><div class="boutons"><button class="petit" type="button" data-lien="${esc(m)}">Lien mot de passe</button>${m === moi ? "" : `<button class="petit danger" type="button" data-retirer="${esc(m)}">Retirer</button>`}</div></div>`).join("")
-        + `<form class="ajout" id="eq-form" novalidate><input type="email" id="eq-mail" placeholder="E-mail de la personne à ajouter" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" aria-label="E-mail à ajouter"><button class="btn" type="submit">Ajouter</button></form>`;
+      const chef = estManager(moi);
+      if (!chef) etat.innerHTML = `<div class="info-msg">Seuls les managers peuvent modifier l’équipe.</div>`;
+      el.innerHTML = liste.map((m) => `<div class="membre"><div class="mail">${esc(m)}${m === moi ? "<small>toi</small>" : ""}${!chef && estManager(m) ? '<span class="role">Manager</span>' : ""}</div>${chef ? `<div class="boutons"><button class="petit" type="button" data-role="${esc(m)}" aria-pressed="${estManager(m)}"${m === moi ? " disabled title=\"Tu ne peux pas retirer ton propre rôle de manager\"" : ""}>Manager</button><button class="petit" type="button" data-lien="${esc(m)}">Lien mot de passe</button>${m === moi ? "" : `<button class="petit danger" type="button" data-retirer="${esc(m)}">Retirer</button>`}</div>` : ""}</div>`).join("")
+        + (chef ? `<form class="ajout" id="eq-form" novalidate><input type="email" id="eq-mail" placeholder="E-mail de la personne à ajouter" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email" aria-label="E-mail à ajouter"><button class="btn" type="submit">Ajouter</button></form>` : "");
     }
-    async function ecrireListe(nouvelle, msgOk) {
+    async function ecrireListe(nouvelle, msgOk, nouveauxManagers) {
       if (enCours) return; enCours = true;
-      try { await EQ.set({ emails: nouvelle, majLe: new Date().toISOString(), majPar: moi }); toast(msgOk); }
+      // Sans liste de managers, tous les membres actuels sont managers : on la fixe à la première modification
+      let mg = nouveauxManagers || (managers === null ? (liste || [moi]).slice() : managers.slice());
+      mg = mg.filter((x) => nouvelle.includes(x));
+      if (!mg.includes(moi)) mg.push(moi);
+      try { await EQ.set({ emails: nouvelle, managers: mg.sort(), majLe: new Date().toISOString(), majPar: moi }); toast(msgOk); }
       catch (e) { toast(e && e.code === "permission-denied" ? "Refusé par Firebase : publie d’abord les nouvelles règles (voir LISEZMOI)." : "Enregistrement impossible. Vérifie le Wi-Fi et réessaie."); }
       enCours = false;
     }
     $("section-equipe").addEventListener("click", async (e) => {
       const t = e.target;
       if (t.id === "eq-activer") return ecrireListe([moi], "Liste activée. Ajoute maintenant les autres personnes.");
+      if (t.dataset.role) {
+        const m = t.dataset.role, base = managers === null ? liste.slice() : managers.slice();
+        const mg = base.includes(m) ? base.filter((x) => x !== m) : base.concat([m]);
+        return ecrireListe(liste, m + (mg.includes(m) ? " est manager." : " n’est plus manager."), mg);
+      }
       if (t.dataset.lien) {
         try { await auth.sendPasswordResetEmail(t.dataset.lien); toast("E-mail envoyé à " + t.dataset.lien + "."); }
         catch (err) { toast(err && err.code === "auth/user-not-found" ? "Aucun compte Firebase avec cet e-mail : crée-le d’abord dans la console." : "Envoi impossible pour le moment."); }
@@ -242,18 +261,25 @@
       ecrireListe(liste.concat([m]).sort(), m + " ajouté à l’équipe.");
     });
 
-    let stopStock = null;
+    let stopStock = null, stopCaisse = null;
     auth.onAuthStateChanged((u) => {
       $("deconnexion").classList.toggle("cache", !u);
       $("connexion").classList.toggle("cache", !!u);
       $("qui").textContent = u ? "Connecté : " + u.email : "";
       if (stopStock) { stopStock(); stopStock = null; }
+      if (stopCaisse) { stopCaisse(); stopCaisse = null; }
       if (stopEquipe) { stopEquipe(); stopEquipe = null; }
       $("section-equipe").classList.toggle("cache", !u);
-      if (!u) { $("etat-stock").innerHTML = ""; return; }
+      if (!u) { $("etat-stock").innerHTML = ""; $("etat-caisse").innerHTML = ""; return; }
+      // Caisse : fermetures à valider et en cours
+      stopCaisse = db.collection("caisse-fermetures").where("statut", "in", ["a_valider", "brouillon"]).onSnapshot((q) => {
+        const f = q.docs.map((d) => d.data()), av = f.filter((x) => x.statut === "a_valider").length, ec = f.length - av;
+        $("etat-caisse").innerHTML = (av ? pill(av + " à valider", "attention") : pill("Rien à valider", "ok")) + (ec ? pill(ec + " en cours", "info") : "");
+      }, () => { $("etat-caisse").innerHTML = pill("Règle Firebase de la caisse manquante", "attention"); });
       moi = propre(u.email);
       stopEquipe = EQ.onSnapshot((d) => {
         liste = d.exists && Array.isArray(d.data().emails) ? d.data().emails.map(propre) : null;
+        managers = d.exists && Array.isArray(d.data().managers) ? d.data().managers.map(propre) : null;
         if (liste && !liste.includes(moi)) { $("equipe-etat").innerHTML = `<div class="info-msg">Ton compte (${esc(moi)}) n’est pas dans la liste de l’équipe : tu n’as plus accès à l’administration. Demande à une personne de l’équipe de t’ajouter.</div>`; $("equipe-liste").classList.add("cache"); return; }
         rendreEquipe();
       }, () => { $("equipe-etat").innerHTML = `<div class="info-msg">Ton compte n’a pas accès à la liste de l’équipe.</div>`; });
