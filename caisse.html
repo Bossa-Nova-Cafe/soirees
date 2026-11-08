@@ -127,6 +127,15 @@
   .connexion p { margin: 0; color: var(--gris); font-size: 13.5px; }
   .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom)); background: var(--texte); color: var(--creme); padding: 10px 16px; border-radius: 9px; font-size: 14px; z-index: 20; max-width: calc(100vw - 32px); }
   #ticket { display: none; }
+  .journal { display: grid; gap: 8px; }
+  .entree { border-left: 3px solid var(--bord); padding: 2px 0 2px 10px; font-size: 13px; }
+  .entree.corr { border-left-color: var(--alerte); }
+  .entree b { font-weight: 600; }
+  .entree .q { color: var(--gris); font-size: 12px; }
+  .entree ul { margin: 4px 0 0; padding-left: 18px; }
+  .correction { border: 2px solid var(--alerte); background: #fff8f6; }
+  .correction h2 { color: var(--alerte); }
+  .corrigee { font-size: 11px; color: var(--alerte); font-weight: 600; margin-left: 6px; }
   @media (max-width: 860px) { .grille { grid-template-columns: 1fr; } .resultat { position: static; } }
   @media (max-width: 480px) { .achat { grid-template-columns: minmax(0, 1fr) 100px; } h1 { font-size: 26px; } }
   @media print {
@@ -223,7 +232,11 @@
   const cleDen = (d) => String(d);
   const memo = { get(k, def) { try { return localStorage.getItem("bossanova-caisse-" + k) ?? def; } catch (e) { return def; } }, set(k, v) { try { localStorage.setItem("bossanova-caisse-" + k, v); } catch (e) { /* sans stockage */ } } };
 
-  const E = { fermetures: new Map(), charge: false, qui: "", manager: true, onglet: "saisie", ouverte: null, sauvegarde: null };
+  const E = { fermetures: new Map(), charge: false, qui: "", manager: true, onglet: "saisie", ouverte: null, sauvegarde: null, correction: null };
+  const CORR = "Modification après clôture";
+  const entree = (action, extra) => Object.assign({ le: Date.now(), par: E.qui || "local", action }, extra || {});
+  const dateHeure = (t) => new Date(t).toLocaleString("fr-CH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const corrections = (f) => (f.journal || []).filter((j) => j.action === CORR);
   let store = null;
 
   // ---------- Calculs ----------
@@ -245,9 +258,25 @@
       date: aujourdhui(), service: memo.get("service", "Service"), serveur: "",
       fond: FOND, billetsTotal: 0, monnaie: 0, ventesEspeces: 0, achats: [],
       pourboiresCash: 0, pourboiresLsp: 0, pourboiresRemis: 0, motif: "", observation: "",
-      suivi: "", observationManager: "", statut: "brouillon",
+      suivi: "", observationManager: "", statut: "brouillon", journal: [],
       creeLe: Date.now(), creePar: E.qui, majLe: Date.now(), majPar: E.qui
     };
+  }
+
+  // ---------- Ce qui a changé, pour le journal ----------
+  function differences(av, ap) {
+    const ca = calc(av), cb = calc(ap), out = [];
+    const txt = (v) => (v === undefined || v === null || v === "" ? "—" : String(v));
+    const CH = [["date", "Date", (d) => dateFr(d.date)], ["serveur", "Serveur", (d) => d.serveur], ["service", "Service", (d) => d.service],
+      ["billets", "Billets", (d, c) => fmt(c.billets)], ["monnaie", "Monnaie", (d, c) => fmt(c.monnaie)], ["ventes", "Ventes espèces", (d) => fmt(d.ventesEspeces)],
+      ["pc", "Pourboires cash", (d) => fmt(d.pourboiresCash)], ["pl", "Pourboires Lightspeed", (d) => fmt(d.pourboiresLsp)], ["pr", "Pourboires remis", (d) => fmt(d.pourboiresRemis)],
+      ["achats", "Achats", (d, c) => fmt(c.achats) + " (" + (d.achats || []).filter((a) => a.commerce || a.montant).length + " ticket(s), " + c.manquants + " manquant(s))"],
+      ["motif", "Motif", (d) => d.motif], ["obs", "Observation serveur", (d) => d.observation], ["suivi", "Suivi manager", (d) => d.suivi], ["om", "Observation manager", (d) => d.observationManager]];
+    CH.forEach(([, label, f]) => { const x = txt(f(av, ca)), y = txt(f(ap, cb)); if (x !== y) out.push(`${label} : ${x} → ${y}`); });
+    const det = (d) => JSON.stringify((d.achats || []).filter((a) => a.commerce || a.montant).map((a) => [a.commerce || "", r2(a.montant), !!a.recu]));
+    if (det(av) !== det(ap) && !out.some((l) => l.startsWith("Achats"))) out.push("Achats : détail des tickets modifié");
+    if (ca.ecart !== cb.ecart) out.push(`Écart de caisse : ${fmtS(ca.ecart)} → ${fmtS(cb.ecart)}`);
+    return out;
   }
 
   // ---------- Stockage : Firestore en ligne, navigateur en local ----------
@@ -332,9 +361,11 @@
     if (!l.length) { $("historique").innerHTML = `<div class="liste"><div class="vide">${E.charge ? "Aucune fermeture ce mois-ci." : "Chargement…"}</div></div>`; return; }
     const t = { ventes: 0, bourse: 0, achats: 0, ecart: 0, verser: 0, pourb: 0 };
     const lignes = l.map((f) => { const c = calc(f); t.ventes += f.ventesEspeces || 0; t.bourse += c.bourse; t.achats += c.achats; t.ecart += c.ecart; t.verser += c.verser; t.pourb += c.pourboires;
-      return `<tr data-ouvrir="${f.id}"><td>${esc(dateFr(f.date))}</td><td>${esc(f.serveur || "")}</td><td><span class="statut ${f.statut}">${STATUT[f.statut] || ""}</span></td><td>${fmt(f.ventesEspeces)}</td><td>${fmt(c.achats)}</td><td>${fmt(c.bourse)}</td><td class="${c.ecart < 0 ? "neg" : c.ecart > 0 ? "pos" : ""}">${fmtS(c.ecart)}</td><td>${fmt(c.verser)}</td><td>${fmt(c.pourboires)}</td></tr>`; }).join("");
+      return `<tr data-ouvrir="${f.id}"><td>${esc(dateFr(f.date))}</td><td>${esc(f.serveur || "")}</td><td><span class="statut ${f.statut}">${STATUT[f.statut] || ""}</span>${corrections(f).length ? '<span class="corrigee">corrigée</span>' : ""}</td><td>${fmt(f.ventesEspeces)}</td><td>${fmt(c.achats)}</td><td>${fmt(c.bourse)}</td><td class="${c.ecart < 0 ? "neg" : c.ecart > 0 ? "pos" : ""}">${fmtS(c.ecart)}</td><td>${fmt(c.verser)}</td><td>${fmt(c.pourboires)}</td></tr>`; }).join("");
     $("historique").innerHTML = `<div class="liste tableau"><table><thead><tr><th>Date</th><th>Serveur</th><th>Statut</th><th>Ventes esp.</th><th>Achats</th><th>Bourse</th><th>Écart</th><th>À verser</th><th>Pourboires</th></tr></thead><tbody>${lignes}</tbody>
       <tfoot><tr><td colspan="3">${l.length} fermeture(s)</td><td>${fmt(t.ventes)}</td><td>${fmt(t.achats)}</td><td>${fmt(t.bourse)}</td><td class="${t.ecart < 0 ? "neg" : t.ecart > 0 ? "pos" : ""}">${fmtS(t.ecart)}</td><td>${fmt(t.verser)}</td><td>${fmt(t.pourb)}</td></tr></tfoot></table></div>`;
+    const corr = l.flatMap((f) => corrections(f).map((e) => ({ f, e }))).sort((a, b) => b.e.le - a.e.le);
+    if (corr.length) $("historique").innerHTML += `<div class="carte" style="margin-top:16px"><h2>Corrections après clôture <small>${corr.length}</small></h2><div class="journal">${corr.map(({ f, e }) => `<div class="entree corr"><b>${esc(dateFr(f.date))} · ${esc(f.serveur || "")}</b> <span class="q">corrigée le ${esc(dateHeure(e.le))} par ${esc(e.par)}</span><div>Raison : ${esc(e.raison || "")}</div><ul>${(e.changements || []).map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>`).join("")}</div></div>`;
   }
   $("mois").addEventListener("change", () => rendre());
   $("export").addEventListener("click", () => {
@@ -355,9 +386,10 @@
 
   // ---------- Formulaire ----------
   // Une nouvelle fermeture n'est enregistrée qu'à la première saisie : « Retour » sans rien taper ne laisse rien derrière.
-  function commencer() { E.ouverte = { id: null, d: nouvelle() }; afficherFormulaire(); }
+  function commencer() { E.correction = null; E.ouverte = { id: null, d: nouvelle() }; afficherFormulaire(); }
   function ouvrir(id) {
     const f = E.fermetures.get(id); if (!f) return;
+    E.correction = null;
     E.ouverte = { id, d: JSON.parse(JSON.stringify(f)) };
     delete E.ouverte.d.id;
     afficherFormulaire();
@@ -369,15 +401,15 @@
   }
   function fermerFormulaire(rafraichir = true) {
     if (E.sauvegarde) { clearTimeout(E.sauvegarde); sauver(); }
-    E.ouverte = null; $("formulaire").classList.add("cache"); $("formulaire").innerHTML = ""; $("choix").classList.remove("cache");
+    E.ouverte = null; E.correction = null; $("formulaire").classList.add("cache"); $("formulaire").innerHTML = ""; $("choix").classList.remove("cache");
     if (rafraichir) rendre();
   }
 
-  const modeForm = (d) => (d.statut === "cloturee" ? "lecture" : d.statut === "a_valider" ? (E.manager ? "manager" : "lecture") : "serveur");
+  const modeForm = (d) => (d.statut === "cloturee" ? (E.correction ? "correction" : "lecture") : d.statut === "a_valider" ? (E.manager ? "manager" : "lecture") : "serveur");
 
   function dessinerFormulaire() {
     const { d } = E.ouverte; const mode = modeForm(d);
-    const serveurEdite = mode === "serveur", managerEdite = mode === "manager";
+    const serveurEdite = mode === "serveur" || mode === "correction", managerEdite = mode === "manager" || mode === "correction";
     const dis = serveurEdite ? "" : " disabled";
     const den = (liste, cle) => liste.map((x) => `<label class="coupure"><b class="num">${x >= 1 ? x : chf.format(x)}</b><input class="champ num" inputmode="numeric" data-den="${cle}" data-val="${x}" value="${d[cle]?.[cleDen(x)] || ""}" placeholder="0" aria-label="Nombre de ${x} CHF"${dis}><small class="num" data-st="${cle}-${x}">${fmt(x * (d[cle]?.[cleDen(x)] || 0))}</small></label>`).join("");
     const opt = (liste, v, vide) => `<option value="">${vide}</option>` + liste.map((x) => `<option${x === v ? " selected" : ""}>${esc(x)}</option>`).join("");
@@ -385,6 +417,11 @@
 
     $("formulaire").innerHTML = `
       <div class="actions" style="margin-bottom:14px"><button class="btn discret" type="button" id="retour">← Retour</button><span class="statut ${d.statut}">${STATUT[d.statut]}</span>${d.validePar ? `<span style="font-size:13px;color:var(--gris)">validée par ${esc(d.validePar)}</span>` : ""}</div>
+      ${mode === "correction" ? `<div class="carte correction" style="margin-bottom:16px"><h2>Correction d’une fermeture clôturée</h2>
+        <p style="margin:0 0 12px;color:var(--gris);font-size:14px">Modifie les champs ci-dessous, puis enregistre. La correction est réservée à un manager et reste inscrite au journal de cette fermeture, avec la raison et le détail des changements.</p>
+        <label class="f">Raison de la correction<textarea class="champ" id="corr-raison" placeholder="Ex. : erreur de saisie des ventes espèces, recompte au bureau"></textarea></label>
+        ${store && !store.local ? `<div class="champs" style="margin-top:12px"><label class="f">E-mail du manager<input class="champ" type="email" id="corr-email" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></label><label class="f">Mot de passe du manager<input class="champ" type="password" id="corr-mdp" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"></label></div><p class="aide">Le manager se connecte seulement pour cette correction : la tablette reste connectée avec son compte.</p>` : ""}
+      </div>` : ""}
       <div class="grille">
         <div class="colonne">
           <div class="carte"><h2>Service</h2><div class="champs">
@@ -428,6 +465,8 @@
             <label class="f">Suivi<select class="champ" data-champ="suivi"${managerEdite ? "" : " disabled"}>${opt(SUIVIS, d.suivi, "—")}</select></label></div>
             <label class="f" style="margin-top:12px">Observation manager<textarea class="champ" data-champ="observationManager"${managerEdite ? "" : " disabled"}>${esc(d.observationManager)}</textarea></label>
           </div>` : ""}
+
+          ${(d.journal || []).length ? `<div class="carte"><h2>Journal <small>${d.journal.length} entrée(s)</small></h2><div class="journal">${d.journal.slice().reverse().map((e) => `<div class="entree${e.action === CORR ? " corr" : ""}"><b>${esc(e.action)}</b> <span class="q">${esc(dateHeure(e.le))} · ${esc(e.par)}</span>${e.raison ? `<div>Raison : ${esc(e.raison)}</div>` : ""}${(e.changements || []).length ? `<ul>${e.changements.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}</div>`).join("")}</div></div>` : ""}
         </div>
 
         <div class="resultat">
@@ -464,9 +503,10 @@
     const b = [];
     if (mode === "serveur") { b.push(`<button class="btn principal" type="button" id="envoyer">Valider ma fermeture</button>`); b.push(`<button class="btn danger" type="button" id="supprimer">Supprimer</button>`); }
     if (mode === "manager") { b.push(`<button class="btn principal" type="button" id="cloturer">Clôturer</button>`); b.push(`<button class="btn discret" type="button" id="renvoyer">Renvoyer au serveur</button>`); }
-    b.push(`<button class="btn" type="button" id="imprimer">Imprimer le ticket</button>`);
+    if (mode === "correction") { b.push(`<button class="btn principal" type="button" id="corr-enregistrer">Enregistrer la correction</button>`); b.push(`<button class="btn discret" type="button" id="corr-annuler">Annuler la correction</button>`); }
+    if (mode === "lecture" && d.statut === "cloturee") b.push(`<button class="btn danger" type="button" id="corriger">Corriger (manager)</button>`);
+    if (mode !== "correction") b.push(`<button class="btn" type="button" id="imprimer">Imprimer le ticket</button>`);
     $("boutons").innerHTML = b.join("");
-    if (mode === "manager" || mode === "lecture") $("supprimer")?.remove();
   }
 
   // Saisie : mise à jour de l'état, enregistrement automatique
@@ -488,10 +528,12 @@
     majResultat(); programmer();
   });
   $("formulaire").addEventListener("change", (e) => { if (e.target.type === "checkbox" || e.target.tagName === "SELECT") e.target.dispatchEvent(new Event("input", { bubbles: true })); });
-  function programmer() { clearTimeout(E.sauvegarde); E.sauvegarde = setTimeout(sauver, 1200); }
+  function programmer() { if (E.correction) return; clearTimeout(E.sauvegarde); E.sauvegarde = setTimeout(sauver, 1200); }
   function sauver(modif) {
     E.sauvegarde = null; if (!E.ouverte) return Promise.resolve();
-    const o = E.ouverte; const d = Object.assign({}, o.d, modif || {}, { majLe: Date.now(), majPar: E.qui });
+    const o = E.ouverte; if (E.correction) return Promise.resolve();
+    if (!o.id && !(o.d.journal || []).length) o.d.journal = [entree("Créée")];
+    const d = Object.assign({}, o.d, modif || {}, { majLe: Date.now(), majPar: E.qui });
     d.achats = (d.achats || []).filter((a) => a.commerce || a.montant || a.observation || modif === undefined);
     return enFile(async () => { if (o.id) await store.ecrire(o.id, d); else o.id = await store.creer(d); });
   }
@@ -502,6 +544,9 @@
     if (t.id === "ajoutAchat") { d.achats = d.achats || []; d.achats.push({ commerce: "", montant: 0, recu: false, observation: "" }); dessinerFormulaire(); const l = document.querySelectorAll('[data-k="commerce"]'); l[l.length - 1]?.focus(); return; }
     if (t.dataset.retirerAchat !== undefined) { d.achats.splice(+t.dataset.retirerAchat, 1); dessinerFormulaire(); programmer(); return; }
     if (t.id === "imprimer") { imprimer(); return; }
+    if (t.id === "corriger") { E.correction = { avant: JSON.parse(JSON.stringify(d)) }; dessinerFormulaire(); window.scrollTo(0, 0); setTimeout(() => $("corr-raison")?.focus(), 50); return; }
+    if (t.id === "corr-annuler") { E.ouverte.d = E.correction.avant; E.correction = null; dessinerFormulaire(); toast("Correction annulée : rien n’a été modifié."); return; }
+    if (t.id === "corr-enregistrer") { enregistrerCorrection(t); return; }
     if (t.id === "supprimer") {
       if (!t.classList.contains("arme")) { t.classList.add("arme"); t.textContent = "Confirmer la suppression"; setTimeout(() => { if (t.isConnected) { t.classList.remove("arme"); t.textContent = "Supprimer"; } }, 4000); return; }
       const o = E.ouverte; clearTimeout(E.sauvegarde); E.sauvegarde = null; E.ouverte = null;
@@ -513,11 +558,13 @@
       if (!c.bourse) { toast("Compte la bourse avant de valider."); return; }
       if (c.ecart !== 0 && !d.motif) { toast(`Un écart de ${fmtS(c.ecart)} CHF a été constaté. Sélectionne un motif avant de valider.`); document.querySelector('[data-champ="motif"]')?.focus(); return; }
       clearTimeout(E.sauvegarde);
+      d.journal = (d.journal || []).concat([entree("Envoyée au manager")]);
       try { await sauver({ statut: "a_valider", envoyeLe: Date.now(), envoyePar: E.qui }); toast("Fermeture envoyée au manager."); fermerFormulaire(); } catch (err) { erreurEcriture(err); }
       return;
     }
     if (t.id === "renvoyer") {
       clearTimeout(E.sauvegarde);
+      d.journal = (d.journal || []).concat([entree("Renvoyée au serveur")]);
       try { await sauver({ statut: "brouillon" }); toast("Fermeture renvoyée au serveur."); fermerFormulaire(); } catch (err) { erreurEcriture(err); }
       return;
     }
@@ -526,9 +573,48 @@
       const anomalie = c.ecart !== 0 || c.manquants > 0 || c.ecartPourboires !== 0;
       if (anomalie && !String(d.observationManager || "").trim()) { toast("Complète l’observation manager avant de clôturer."); document.querySelector('[data-champ="observationManager"]')?.focus(); return; }
       clearTimeout(E.sauvegarde);
+      d.journal = (d.journal || []).concat([entree("Clôturée")]);
       try { await sauver({ statut: "cloturee", valideLe: Date.now(), validePar: E.qui || "manager" }); toast("Fermeture clôturée."); E.ouverte.d.statut = "cloturee"; E.ouverte.d.validePar = E.qui || "manager"; dessinerFormulaire(); } catch (err) { erreurEcriture(err); }
     }
   });
+
+  async function enregistrerCorrection(bouton) {
+    const o = E.ouverte, d = o.d, avant = E.correction.avant, c = calc(d);
+    const raison = ($("corr-raison")?.value || "").trim();
+    if (!raison) { toast("Indique la raison de la correction."); $("corr-raison")?.focus(); return; }
+    d.achats = (d.achats || []).filter((a) => a.commerce || a.montant || a.observation);
+    const ch = differences(avant, d);
+    if (!ch.length) { toast("Aucun changement à enregistrer."); return; }
+    if (c.ecart !== 0 && !d.motif) { toast(`Un écart de caisse de ${fmtS(c.ecart)} CHF reste : sélectionne un motif.`); document.querySelector('[data-champ="motif"]')?.focus(); return; }
+    let par = E.qui || "local", app2 = null, ecrire;
+    if (store.local) ecrire = (doc) => store.ecrire(o.id, doc);
+    else {
+      par = ($("corr-email")?.value || "").trim().toLowerCase(); const mdp = $("corr-mdp")?.value || "";
+      if (!par || !mdp) { toast("Un manager doit saisir son e-mail et son mot de passe."); (par ? $("corr-mdp") : $("corr-email"))?.focus(); return; }
+      bouton.disabled = true; bouton.textContent = "Vérification…";
+      try {
+        app2 = window.firebase.initializeApp(window.FIREBASE_CONFIG, "correction-" + Date.now());
+        await app2.auth().setPersistence(window.firebase.auth.Auth.Persistence.NONE);
+        await app2.auth().signInWithEmailAndPassword(par, mdp);
+      } catch (e) {
+        bouton.disabled = false; bouton.textContent = "Enregistrer la correction";
+        toast(e && e.code === "auth/network-request-failed" ? "Pas de connexion internet. Vérifie le Wi-Fi." : "E-mail ou mot de passe du manager incorrect.");
+        if (app2) app2.delete().catch(() => {}); return;
+      }
+      ecrire = (doc) => app2.firestore().collection("caisse-fermetures").doc(o.id).set(doc);
+    }
+    const doc = JSON.parse(JSON.stringify(Object.assign({}, d, { statut: "cloturee", journal: (avant.journal || []).concat([{ le: Date.now(), par, action: CORR, raison, changements: ch }]), majLe: Date.now(), majPar: par })));
+    try {
+      await enFile(() => ecrire(doc));
+      E.ouverte.d = doc; E.correction = null; dessinerFormulaire(); toast("Correction enregistrée au journal.");
+    } catch (e) {
+      bouton.disabled = false; bouton.textContent = "Enregistrer la correction";
+      if (refus(e)) toast("Refusé : ce compte n’est pas manager, ou les nouvelles règles Firebase ne sont pas publiées.");
+      else toast("Enregistrement impossible. Vérifie le Wi-Fi et réessaie.");
+    } finally {
+      if (app2) { app2.auth().signOut().catch(() => {}); app2.delete().catch(() => {}); }
+    }
+  }
 
   function imprimer() {
     const d = E.ouverte.d, c = calc(d);
@@ -541,7 +627,7 @@
       ${l("Pourboires cash", fmt(d.pourboiresCash), "sep")}${l("Pourboires Lightspeed", fmt(d.pourboiresLsp))}${l("Pourboires remis", fmt(d.pourboiresRemis))}${l("Écart pourboires", fmtS(c.ecartPourboires))}
       ${(d.achats || []).map((a, i) => l((i ? "" : "Achats : ") + (a.commerce || "?") + (a.recu ? "" : " (ticket manquant)"), fmt(a.montant), i ? "" : "sep")).join("")}
       ${d.observation ? l("Observation", d.observation, "sep") : ""}${d.observationManager ? l("Manager", d.observationManager, d.observation ? "" : "sep") : ""}
-      ${d.validePar ? l("Validée par", d.validePar, "sep") : ""}</table><p style="margin-top:14px">Signature serveur : ____________</p><p>Signature manager : ____________</p>`;
+      ${d.validePar ? l("Validée par", d.validePar, "sep") : ""}${corrections(d).map((e) => l("Corrigée le " + dateHeure(e.le), e.par)).join("")}</table><p style="margin-top:14px">Signature serveur : ____________</p><p>Signature manager : ____________</p>`;
     window.print();
   }
 
