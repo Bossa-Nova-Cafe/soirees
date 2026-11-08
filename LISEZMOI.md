@@ -116,7 +116,7 @@ Les règles Firestore complètes sont dans `firestore.rules` du dépôt `bossa-n
 
 ## Caisse
 
-`caisse.html` remplace la fermeture de caisse FileMaker.
+`caisse.html` remplace la fermeture de caisse FileMaker. Le fond de caisse est fixe : 185 CHF (constante `FOND` en haut du script de la page).
 
 1. **Ma fermeture** (le serveur) : date, prénom, service ou livraison, fond de caisse ; total des billets et total de la monnaie donné par la machine à compter ; ventes espèces du rapport Lightspeed ; achats payés depuis la caisse (ticket reçu ou non) ; pourboires cash, Lightspeed et remis ; motif si la caisse n'est pas juste. Tout s'enregistre au fur et à mesure. « Valider ma fermeture » l'envoie au manager.
 2. **À valider** (le manager) : coche les tickets reçus, choisit le suivi, écrit l'observation manager (obligatoire en cas d'écart de caisse ou de pourboires, ou de ticket manquant), puis « Clôturer ». Une fermeture clôturée ne peut plus être modifiée. « Renvoyer au serveur » la remet en saisie.
