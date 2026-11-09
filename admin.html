@@ -43,6 +43,14 @@
   .etat { font-size: 13px; font-weight: 500; min-height: 20px; display: flex; flex-wrap: wrap; gap: 6px; }
   .pill { border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 600; background: var(--creme); color: var(--gris); }
   .pill.alerte { background: #fde6e3; color: var(--rouge); }
+  .alerte-soiree { background: var(--blanc); border: 1px solid var(--bord); border-left: 5px solid var(--orange); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+  .alerte-soiree.critique { border-left-color: var(--rouge); }
+  .alerte-soiree h3 { margin: 0 0 4px; font-size: 16px; color: var(--vert); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .alerte-soiree .jauge { height: 8px; background: var(--creme); border-radius: 99px; overflow: hidden; margin: 8px 0; max-width: 360px; }
+  .alerte-soiree .jauge i { display: block; height: 100%; background: var(--orange); }
+  .alerte-soiree.critique .jauge i { background: var(--rouge); }
+  .alerte-soiree p { margin: 0 0 6px; font-size: 13.5px; color: var(--gris); }
+  .alerte-soiree ul { margin: 4px 0 0; padding-left: 20px; font-size: 14px; display: grid; gap: 4px; }
   .pill.attention { background: #fdf0cc; color: var(--orange); }
   .pill.ok { background: #e5f3ea; color: var(--ok); }
   .pill.info { background: #efe8f7; color: var(--violet); }
@@ -104,6 +112,12 @@
       </div>
       <div id="login-msg"></div>
       <button class="btn" type="button" id="login-btn">Se connecter</button>
+    </section>
+
+    <section class="alertes-resa" id="alertes-resa" hidden>
+      <h2>Soirées à remplir</h2>
+      <p class="intro">Les soirées des deux prochaines semaines qui se remplissent trop lentement, avec les actions à lancer maintenant.</p>
+      <div id="alertes-liste"></div>
     </section>
 
     <section>
@@ -235,6 +249,57 @@
     const app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(conf);
     const db = app.firestore(), auth = app.auth();
 
+    // ---------- Alerte remplissage : soirées des 14 prochains jours trop vides ----------
+    const joursAvant = (date) => Math.round((new Date(date + "T12:00") - new Date(new Date().toLocaleDateString("sv-SE") + "T12:00")) / 864e5);
+    function analyser(e) {
+      const cap = Number(e.cap) || 0, pax = Number(e.pax) || 0, j = joursAvant(e.date);
+      if (!cap || j > 14 || pax >= cap) return null;
+      const taux = pax / cap;
+      let niveau = null;
+      if (j <= 2 && taux < 0.6) niveau = "critique";
+      else if (j <= 7 && taux < 0.4) niveau = "critique";
+      else if (j <= 7 && taux < 0.6) niveau = "attention";
+      else if (j <= 14 && taux < 0.25) niveau = "attention";
+      return niveau ? { e, cap, pax, j, taux, niveau } : null;
+    }
+    function mesures(r) {
+      const t = ((r.e.titre || "") + " " + (r.e.type || r.e.categorie || "")).toLowerCase(), m = [];
+      const manque = r.cap - r.pax;
+      if (r.j <= 2) {
+        m.push(`Décide aujourd’hui : maintenir, réduire (moins de personnel, achats ajustés) ou reporter la soirée. Avec ${r.pax} réservation${r.pax > 1 ? "s" : ""}, calcule si elle couvre au moins le personnel.`);
+        m.push("Envoie un message WhatsApp aux personnes déjà inscrites : « Venez avec un ami, il reste de la place ».");
+        m.push("Publie une story Instagram et Facebook ce soir et demain midi, avec la photo de l’ambiance et l’heure.");
+        m.push("Ajuste les achats et le planning du personnel au nombre réel de réservations.");
+      } else if (r.j <= 7) {
+        m.push("Publie une story chaque jour jusqu’à la soirée, et un post avec le lien de réservation.");
+        m.push("Envoie un message WhatsApp à ta liste de clients habitués, et demande aux inscrits d’inviter un ami.");
+        m.push("Affiche la soirée à la caisse et sur les tables, et parles-en aux clients du jour.");
+        m.push("Pense à une petite publicité Instagram ciblée sur Vevey et Montreux (environ CHF 20 à 30 sur 3 jours).");
+      } else {
+        m.push("Publie un post et une story avec le lien de réservation, puis une story tous les deux jours.");
+        m.push("Envoie un message WhatsApp à ta liste de clients habitués.");
+        m.push("Contacte un ou deux groupes qui pourraient venir ensemble (club, association, collègues).");
+      }
+      if (/match|foot|football|nati/.test(t)) m.push("Écris aux clubs de foot de la Riviera et aux supporters : une table réservée pour leur groupe.");
+      if (/music|musique|concert|live/.test(t)) m.push("Demande à l’artiste de partager la soirée sur ses réseaux et à ses proches.");
+      if (/brasil|br[ée]sil|samba|forr|feijoada/.test(t)) m.push("Partage la soirée dans les groupes WhatsApp et Facebook de la communauté brésilienne de la région.");
+      if (/pizza/.test(t)) m.push("Propose la soirée aux familles et aux équipes juniors : un tarif groupe peut décider une réservation.");
+      if (/halloween/.test(t)) m.push("Propose un concours de déguisements avec un petit prix : ça donne une raison de venir à plusieurs.");
+      m.push(`Objectif : encore ${manque} réservation${manque > 1 ? "s" : ""} pour remplir la salle.`);
+      return m;
+    }
+    function afficherAlertes(risques) {
+      const z = $("alertes-resa"); z.hidden = !risques.length;
+      $("alertes-liste").innerHTML = risques.map((r) => {
+        const d = new Date(r.e.date + "T12:00").toLocaleDateString("fr-CH", { weekday: "long", day: "numeric", month: "long" });
+        const quand = r.j === 0 ? "ce soir" : r.j === 1 ? "demain" : "dans " + r.j + " jours";
+        return `<div class="alerte-soiree ${r.niveau}"><h3>${esc(r.e.titre || "Soirée")} ${pill(r.niveau === "critique" ? "Urgent" : "À surveiller", r.niveau === "critique" ? "alerte" : "attention")}</h3>
+          <p>${esc(d.charAt(0).toUpperCase() + d.slice(1))}, ${quand} · <b>${r.pax} / ${r.cap} places</b> (${Math.round(r.taux * 100)} %)</p>
+          <div class="jauge"><i style="width:${Math.max(3, Math.round(r.taux * 100))}%"></i></div>
+          <ul>${mesures(r).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
+      }).join("");
+    }
+
     // Réservations : la prochaine soirée (lecture publique)
     db.collection("soirees").orderBy("date").onSnapshot((q) => {
       const auj = new Date().toLocaleDateString("sv-SE");
@@ -242,7 +307,10 @@
       if (!av.length) { $("etat-resa").innerHTML = pill("Aucune soirée programmée", "attention"); return; }
       const e = av[0], d = new Date(e.date + "T12:00").toLocaleDateString("fr-CH", { weekday: "short", day: "numeric", month: "short" });
       const plein = e.cap && (e.pax || 0) >= e.cap;
-      $("etat-resa").innerHTML = pill("Prochaine : " + d + (e.titre ? " · " + e.titre : ""), "info") + pill((e.pax || 0) + " / " + (e.cap || "?") + " places", plein ? "ok" : "") + (av.length > 1 ? pill(av.length + " soirées à venir") : "");
+      const risques = av.map(analyser).filter(Boolean);
+      const r0 = risques.find((x) => x.e === e);
+      $("etat-resa").innerHTML = pill("Prochaine : " + d + (e.titre ? " · " + e.titre : ""), "info") + pill((e.pax || 0) + " / " + (e.cap || "?") + " places", plein ? "ok" : r0 ? (r0.niveau === "critique" ? "alerte" : "attention") : "") + (av.length > 1 ? pill(av.length + " soirées à venir") : "") + (risques.length ? pill(risques.length === 1 ? "1 soirée à remplir" : risques.length + " soirées à remplir", "alerte") : "");
+      afficherAlertes(risques);
     }, () => {});
 
     // ---------- Équipe ----------
