@@ -134,7 +134,7 @@
       <div class="grille" style="margin-top:16px">
         <section class="carte large"><h2>Visites par jour</h2><p class="aide" id="aide-jours">Chaque barre est une journée. Passe le doigt ou la souris sur une barre pour voir le chiffre.</p><div id="g-jours"></div></section>
         <section class="carte"><h2>Pages consultées</h2><p class="aide">Les pages que les clients ont ouvertes, de la plus vue à la moins vue.</p><div class="lignes" id="g-pages"></div></section>
-        <section class="carte"><h2>D’où viennent les visiteurs</h2><p class="aide">Le site ou l’application où ils ont trouvé le lien. « Lien direct » regroupe surtout WhatsApp, les e-mails et les favoris.</p><div class="lignes" id="g-sources"></div></section>
+        <section class="carte"><h2>D’où viennent les visiteurs</h2><p class="aide">Le site, l’application ou l’envoi où ils ont trouvé le lien. « Lien direct » regroupe surtout WhatsApp, les e-mails et les favoris. « E-mails aux clubs sportifs » compte les clics sur le lien de la prospection.</p><div class="lignes" id="g-sources"></div></section>
         <section class="carte"><h2>À quelle heure</h2><p class="aide">Toutes les visites de la période, réparties par heure de la journée.</p><div id="g-heures"></div></section>
         <section class="carte"><h2>Quel jour de la semaine</h2><p class="aide">Utile pour choisir le meilleur moment pour publier ou envoyer un message.</p><div id="g-semaine"></div></section>
         <section class="carte"><h2>Sur quel appareil</h2><p class="aide">Selon la taille de l’écran.</p><div class="lignes" id="g-appareils"></div></section>
@@ -179,6 +179,9 @@
   function nomSource(s) {
     const n = String(s.name || "").toLowerCase();
     if (!n || n === "(no data)" || n === "(unknown)") return "Lien direct (WhatsApp, e-mail, favori)";
+    // Liens marqués (…?src=clubs dans les e-mails ; Instagram ajoute utm_source=ig à ses liens)
+    const CAMPAGNES = { clubs: "E-mails aux clubs sportifs", entreprises: "E-mails aux entreprises", ig: "Instagram", fb: "Facebook", wa: "WhatsApp", whatsapp: "WhatsApp" };
+    if (CAMPAGNES[n]) return CAMPAGNES[n];
     const regles = [["google", "Google"], ["instagram", "Instagram"], ["facebook", "Facebook"], ["fb.", "Facebook"], ["whatsapp", "WhatsApp"], ["linkedin", "LinkedIn"], ["tiktok", "TikTok"], ["bing", "Bing"], ["duckduckgo", "DuckDuckGo"], ["ecosia", "Ecosia"], ["yahoo", "Yahoo"], ["t.co", "X (Twitter)"], ["twitter", "X (Twitter)"], ["youtube", "YouTube"], ["gmail", "Gmail"], ["mail.", "Messagerie e-mail"], ["outlook", "Outlook"], ["bossa-nova-cafe.github.io", "Une autre page du site"], ["bossanova-cafe.ch", "Site du Bossa Nova"]];
     for (const [k, v] of regles) if (n.includes(k)) return v;
     return s.name;
