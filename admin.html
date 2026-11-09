@@ -147,7 +147,7 @@
 
     <section>
       <h2>Pages pour les clients</h2>
-      <p class="intro">Les pages publiques, à ouvrir pour vérifier ou à copier pour WhatsApp, les e-mails et les réseaux. Les visites viennent de GoatCounter ; celles de l’équipe ne sont pas comptées.</p>
+      <p class="intro">Les pages publiques, à ouvrir pour vérifier ou à copier pour WhatsApp, les e-mails et les réseaux. Les visites viennent de GoatCounter ; celles de l’équipe ne sont pas comptées. Ce compteur public est mis à jour environ toutes les 4 heures : les visites des dernières heures apparaissent plus tard (la page Statistiques, elle, est à jour).</p>
       <div class="stats" id="stats"><div class="chiffres" id="stats-total">Chargement des visites…</div><a href="statistiques.html">Statistiques détaillées →</a></div>
       <div class="cartes" id="publiques"></div>
     </section>
@@ -195,7 +195,8 @@
   const nombre = (x) => parseInt(String(x ?? "0").replace(/\D/g, ""), 10) || 0;
   const PERIODES = [["Aujourd’hui", 0], ["7 jours", 6], ["30 jours", 29]];
   async function compter(chemin, depuis) {
-    const r = await fetch(GC + encodeURIComponent(chemin) + ".json?start=" + jour(depuis) + "&end=" + jour(0), { cache: "no-store" });
+    // Fin au lendemain : la journée en cours est toujours comprise, que GoatCounter compte la date de fin ou non
+    const r = await fetch(GC + encodeURIComponent(chemin) + ".json?start=" + jour(depuis) + "&end=" + jour(-1), { cache: "no-store" });
     if (r.status === 404) return 0; // aucune visite pour cette page sur la période
     if (!r.ok) { const e = new Error("goatcounter " + r.status); e.status = r.status; throw e; }
     const j = await r.json(); return nombre(j.count);
