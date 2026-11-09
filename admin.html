@@ -49,6 +49,12 @@
   .partage { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .partage a, .partage button { font: inherit; font-size: 13px; font-weight: 600; border-radius: 999px; padding: 6px 13px; border: 1.5px solid var(--vert); color: var(--vert); background: var(--blanc); text-decoration: none; cursor: pointer; }
   .partage a { background: var(--vert); color: var(--creme); }
+  .visites { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--gris); min-height: 22px; }
+  .visites b { color: var(--vert); font-variant-numeric: tabular-nums; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; background: var(--blanc); border: 1px solid var(--bord); border-radius: 14px; padding: 12px 16px; margin: 0 0 12px; font-size: 14px; }
+  .stats .chiffres { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  .stats .chiffres span b { font-size: 18px; color: var(--vert); font-variant-numeric: tabular-nums; margin-right: 4px; }
+  .stats a { color: var(--vert); font-weight: 600; }
   .adresse { font-size: 12px; color: var(--gris); overflow-wrap: anywhere; user-select: all; }
 
   .connexion { background: var(--blanc); border: 1px solid var(--bord); border-radius: 14px; padding: 18px; display: grid; gap: 12px; max-width: 560px; }
@@ -141,7 +147,8 @@
 
     <section>
       <h2>Pages pour les clients</h2>
-      <p class="intro">Les pages publiques, à ouvrir pour vérifier ou à copier pour WhatsApp, les e-mails et les réseaux.</p>
+      <p class="intro">Les pages publiques, à ouvrir pour vérifier ou à copier pour WhatsApp, les e-mails et les réseaux. Les visites viennent de GoatCounter ; celles de l’équipe ne sont pas comptées.</p>
+      <div class="stats" id="stats"><div class="chiffres" id="stats-total">Chargement des visites…</div><a href="https://bossanova.goatcounter.com" target="_blank" rel="noopener">Statistiques détaillées →</a></div>
       <div class="cartes" id="publiques"></div>
     </section>
 
@@ -165,13 +172,14 @@
 
   // ---------- Pages publiques : ouvrir ou copier le lien ----------
   const PUBLIQUES = [
-    { nom: "Portail de réservations", texte: "Les soirées à venir, réservation en 6 langues.", chemin: "../bossa-nova-reservations/" },
-    { nom: "Calculateur de la Festa", texte: "Le client compose sa soirée privée et voit son budget.", chemin: "./" },
-    { nom: "Soirée Juniors", texte: "Soirées sans alcool pour les clubs et les anniversaires.", chemin: "juniors.html" },
-    { nom: "Amigo Secreto", texte: "Le tirage de l’ami secret pour les Festas.", chemin: "amigo-secreto/" }
+    { nom: "Portail de réservations", texte: "Les soirées à venir, réservation en 6 langues.", chemin: "../bossa-nova-reservations/", gc: ["/bossa-nova-reservations/", "/bossa-nova-reservations/index.html"] },
+    { nom: "Calculateur de la Festa", texte: "Le client compose sa soirée privée et voit son budget.", chemin: "./", gc: ["/soirees/", "/soirees/index.html"] },
+    { nom: "Soirée Juniors", texte: "Soirées sans alcool pour les clubs et les anniversaires.", chemin: "juniors.html", gc: ["/soirees/juniors.html"] },
+    { nom: "Amigo Secreto", texte: "Le tirage de l’ami secret pour les Festas.", chemin: "amigo-secreto/", gc: ["/soirees/amigo-secreto/", "/soirees/amigo-secreto/index.html"] }
   ];
   const absolu = (c) => new URL(c, location.href).href;
   $("publiques").innerHTML = PUBLIQUES.map((p, i) => `<div class="carte"><h3>${esc(p.nom)}</h3><p>${esc(p.texte)}</p>
+    <div class="visites" data-visites="${i}"></div>
     <div class="partage"><a href="${esc(p.chemin)}" target="_blank" rel="noopener">Ouvrir</a><button type="button" data-copier="${i}">Copier le lien</button></div>
     <div class="adresse">${esc(absolu(p.chemin))}</div></div>`).join("");
   $("publiques").addEventListener("click", async (e) => {
@@ -180,6 +188,36 @@
     try { await navigator.clipboard.writeText(lien); toast("Lien copié."); }
     catch (err) { const a = b.closest(".carte").querySelector(".adresse"); const r = document.createRange(); r.selectNodeContents(a); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast("Le lien est sélectionné : copie-le."); }
   });
+
+  // ---------- Visites (GoatCounter, compteur public de bossanova.goatcounter.com) ----------
+  const GC = "https://bossanova.goatcounter.com/counter/";
+  const jour = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toLocaleDateString("sv-SE"); };
+  const nombre = (x) => parseInt(String(x ?? "0").replace(/\D/g, ""), 10) || 0;
+  const PERIODES = [["Aujourd’hui", 0], ["7 jours", 6], ["30 jours", 29]];
+  async function compter(chemin, depuis) {
+    const r = await fetch(GC + encodeURIComponent(chemin) + ".json?start=" + jour(depuis) + "&end=" + jour(0), { cache: "no-store" });
+    if (r.status === 404) return 0; // aucune visite pour cette page sur la période
+    if (!r.ok) { const e = new Error("goatcounter " + r.status); e.status = r.status; throw e; }
+    const j = await r.json(); return nombre(j.count);
+  }
+  const fmtN = new Intl.NumberFormat("fr-CH");
+  (async () => {
+    try {
+      const total = await Promise.all(PERIODES.map(([, n]) => compter("TOTAL", n)));
+      $("stats-total").innerHTML = PERIODES.map(([l], k) => `<span><b>${fmtN.format(total[k])}</b>visites ${l === "Aujourd’hui" ? "aujourd’hui" : "sur " + l}</span>`).join("");
+      await Promise.all(PUBLIQUES.map(async (p, i) => {
+        const el = document.querySelector(`[data-visites="${i}"]`);
+        try {
+          const v = await Promise.all(PERIODES.slice(1).map(([, n]) => Promise.all(p.gc.map((c) => compter(c, n))).then((a) => a.reduce((x, y) => x + y, 0))));
+          el.innerHTML = `Visites : <b>${fmtN.format(v[0])}</b> sur 7 jours · <b>${fmtN.format(v[1])}</b> sur 30 jours`;
+        } catch (e) { el.textContent = ""; }
+      }));
+    } catch (e) {
+      $("stats-total").innerHTML = e && e.status
+        ? "Les visites ne s’affichent pas encore : dans GoatCounter, Settings → coche « Allow adding visitor counts on your website », puis Save."
+        : "Les visites ne peuvent pas être chargées pour le moment.";
+    }
+  })();
 
   // ---------- État en direct (en ligne, une fois connecté) ----------
   const conf = window.FIREBASE_CONFIG;

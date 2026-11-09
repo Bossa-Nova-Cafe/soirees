@@ -5,6 +5,8 @@
    Pour ajouter une page à toutes les barres : l'ajouter dans PAGES ci-dessous, et dans admin.html. */
 (function () {
   const script = document.currentScript;
+  // Les visites de l'équipe ne sont pas comptées dans GoatCounter (tout le site bossa-nova-cafe.github.io)
+  try { localStorage.setItem("skipgc", "t"); } catch (e) { /* navigation privée */ }
   if (!script) return;
   const ici = script.dataset.page || "";
   // Les deux sites sont voisins sur bossa-nova-cafe.github.io : /soirees/ et /bossa-nova-reservations/

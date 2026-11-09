@@ -126,3 +126,9 @@ Les règles Firestore complètes sont dans `firestore.rules` du dépôt `bossa-n
 Calculs : caisse théorique = fond + ventes espèces − achats − pourboires Lightspeed ; écart = bourse comptée − caisse théorique ; à verser au bureau = bourse − fond ; écart pourboires = cash + Lightspeed − remis.
 
 Les managers se choisissent dans l'accueil, section Équipe (bouton « Manager »). Seuls les managers clôturent les fermetures et modifient l'équipe.
+
+## Visites (GoatCounter)
+
+Les pages clients envoient leurs visites à https://bossanova.goatcounter.com. L'accueil de l'administration affiche les visites du jour, sur 7 et sur 30 jours (total et par page), grâce au compteur public de GoatCounter : dans GoatCounter, Settings → cocher « Allow adding visitor counts on your website ».
+
+Les appareils de l'équipe ne sont pas comptés : chaque page d'administration (via `nav-admin.js`) inscrit `skipgc` dans le navigateur, et GoatCounter ignore alors ses visites sur tout le site.
