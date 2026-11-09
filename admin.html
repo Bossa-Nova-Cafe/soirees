@@ -55,6 +55,15 @@
   .questions input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: var(--vert); }
   .questions li.fait span { color: var(--gris); }
   .questions em { font-style: normal; font-weight: 600; color: var(--ok); }
+  .q-edit { display: grid; gap: 8px; margin-bottom: 12px; }
+  .q-ligne { display: grid; grid-template-columns: minmax(0,1fr) 175px 170px auto auto; gap: 8px; align-items: center; background: var(--blanc); border: 1px solid var(--bord); border-radius: 10px; padding: 8px 10px; }
+  .q-ligne textarea, .q-ligne input[type=text], .q-ligne select { font: inherit; font-size: 13.5px; padding: 6px 8px; border: 1px solid var(--bord); border-radius: 8px; width: 100%; min-width: 0; background: var(--blanc); color: inherit; }
+  .q-ligne textarea { resize: vertical; min-height: 38px; }
+  .q-ligne label.jr { font-size: 12.5px; display: flex; gap: 6px; align-items: center; white-space: nowrap; color: var(--gris); }
+  .q-ligne .suppr { border: 0; background: transparent; color: var(--rouge); font-size: 20px; cursor: pointer; padding: 0 6px; }
+  .q-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn.btn-clair { background: transparent; color: var(--vert); border: 1.5px solid var(--vert); }
+  @media (max-width: 760px) { .q-ligne { grid-template-columns: 1fr 1fr; } .q-ligne textarea { grid-column: 1 / -1; } }
   .pill.attention { background: #fdf0cc; color: var(--orange); }
   .pill.ok { background: #e5f3ea; color: var(--ok); }
   .pill.info { background: #efe8f7; color: var(--violet); }
@@ -170,6 +179,18 @@
       <div class="cartes" id="publiques"></div>
     </section>
 
+    <section id="section-questions" class="cache">
+      <h2>Questions des alertes de remplissage</h2>
+      <p class="intro">Les questions posées quand une soirée se remplit trop lentement. Choisis à quel moment chacune apparaît, et pour quelles soirées : laisse « Mots du titre » vide pour toutes les soirées, ou écris par exemple « match, foot » pour les soirées dont le titre contient un de ces mots. Dans le texte, {reservations} et {reste} sont remplacés par les chiffres de la soirée.</p>
+      <div id="questions-etat"></div>
+      <div class="q-edit" id="questions-liste"></div>
+      <div class="q-actions">
+        <button class="btn btn-clair" type="button" id="q-ajouter">Ajouter une question</button>
+        <button class="btn" type="button" id="q-enregistrer">Enregistrer les questions</button>
+        <button class="btn btn-clair" type="button" id="q-defaut">Revenir aux questions de départ</button>
+      </div>
+    </section>
+
     <section id="section-equipe" class="cache">
       <h2>Équipe</h2>
       <p class="intro">Les personnes qui peuvent ouvrir les pages d’administration. Les <b>managers</b> valident et clôturent les fermetures de caisse, et gèrent cette liste. Retirer quelqu’un coupe son accès partout, tout de suite.</p>
@@ -266,33 +287,40 @@
       else if (j <= 14 && taux < 0.25) niveau = "attention";
       return niveau ? { e, id: e._id || e.date, cap, pax, j, taux, niveau } : null;
     }
-    // Actions sous forme de questions à cocher ; « chaque jour » se réinitialise le lendemain
+    // Questions à cocher : liste modifiable dans l'admin (parametres/alertes-soirees, champ « questions »)
+    // moment : "j14" (8 à 14 jours), "j7" (3 à 7 jours), "j2" (0 à 2 jours), "toujours" ; mots : mots du titre (vide = toutes) ; jour : à refaire chaque jour
+    const QUESTIONS_DEFAUT = [
+      { k: "decision", moment: "j2", mots: "", jour: false, q: "As-tu décidé : maintenir, réduire (personnel, achats) ou reporter ? Avec {reservations} réservations, la soirée couvre-t-elle au moins le personnel ?" },
+      { k: "ami", moment: "j2", mots: "", jour: false, q: "As-tu écrit aux inscrits sur WhatsApp pour qu’ils viennent avec un ami ?" },
+      { k: "story", moment: "j2", mots: "", jour: true, q: "As-tu publié une story aujourd’hui ?" },
+      { k: "achats", moment: "j2", mots: "", jour: false, q: "Les achats et le planning du personnel sont-ils ajustés au nombre réel de réservations ?" },
+      { k: "story", moment: "j7", mots: "", jour: true, q: "As-tu publié une story aujourd’hui ?" },
+      { k: "post", moment: "j7", mots: "", jour: false, q: "As-tu publié un post avec le lien de réservation ?" },
+      { k: "habitues", moment: "j7", mots: "", jour: false, q: "As-tu envoyé un message WhatsApp à tes clients habitués ?" },
+      { k: "ami", moment: "j7", mots: "", jour: false, q: "As-tu demandé aux inscrits d’inviter un ami ?" },
+      { k: "affiche", moment: "j7", mots: "", jour: false, q: "La soirée est-elle affichée à la caisse et sur les tables ?" },
+      { k: "pub", moment: "j7", mots: "", jour: false, q: "As-tu lancé une petite publicité Instagram ciblée sur Vevey et Montreux (environ CHF 20 à 30 sur 3 jours) ?" },
+      { k: "post", moment: "j14", mots: "", jour: false, q: "As-tu publié un post avec le lien de réservation ?" },
+      { k: "story", moment: "j14", mots: "", jour: true, q: "As-tu publié une story aujourd’hui ? (une tous les deux jours suffit)" },
+      { k: "habitues", moment: "j14", mots: "", jour: false, q: "As-tu envoyé un message WhatsApp à tes clients habitués ?" },
+      { k: "groupes", moment: "j14", mots: "", jour: false, q: "As-tu contacté un ou deux groupes qui pourraient venir ensemble (club, association, collègues) ?" },
+      { k: "clubs", moment: "toujours", mots: "match, foot, nati", jour: false, q: "As-tu écrit aux clubs de foot de la Riviera et aux supporters pour leur réserver une table ?" },
+      { k: "artiste", moment: "toujours", mots: "music, musique, concert, live", jour: false, q: "L’artiste a-t-il partagé la soirée sur ses réseaux ?" },
+      { k: "communaute", moment: "toujours", mots: "brasil, brésil, bresil, samba, forró, feijoada", jour: false, q: "As-tu partagé la soirée dans les groupes de la communauté brésilienne de la région ?" },
+      { k: "familles", moment: "toujours", mots: "pizza", jour: false, q: "As-tu proposé la soirée aux familles et aux équipes juniors ?" },
+      { k: "deguisement", moment: "toujours", mots: "halloween", jour: false, q: "As-tu annoncé un concours de déguisements avec un petit prix ?" },
+    ];
+    const copieQ = (l) => l.map((x) => Object.assign({}, x));
+    let questions = copieQ(QUESTIONS_DEFAUT);
+    const sansAccent = (x) => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     function mesures(r) {
-      const t = ((r.e.titre || "") + " " + (r.e.type || r.e.categorie || "")).toLowerCase(), m = [];
-      if (r.j <= 2) {
-        m.push({ k: "decision", q: `As-tu décidé : maintenir, réduire (personnel, achats) ou reporter ? Avec ${r.pax} réservation${r.pax > 1 ? "s" : ""}, la soirée couvre-t-elle au moins le personnel ?` });
-        m.push({ k: "ami", q: "As-tu écrit aux inscrits sur WhatsApp pour qu’ils viennent avec un ami ?" });
-        m.push({ k: "story", q: "As-tu publié une story aujourd’hui ?", jour: true });
-        m.push({ k: "achats", q: "Les achats et le planning du personnel sont-ils ajustés au nombre réel de réservations ?" });
-      } else if (r.j <= 7) {
-        m.push({ k: "story", q: "As-tu publié une story aujourd’hui ?", jour: true });
-        m.push({ k: "post", q: "As-tu publié un post avec le lien de réservation ?" });
-        m.push({ k: "habitues", q: "As-tu envoyé un message WhatsApp à tes clients habitués ?" });
-        m.push({ k: "ami", q: "As-tu demandé aux inscrits d’inviter un ami ?" });
-        m.push({ k: "affiche", q: "La soirée est-elle affichée à la caisse et sur les tables ?" });
-        m.push({ k: "pub", q: "As-tu lancé une petite publicité Instagram ciblée sur Vevey et Montreux (environ CHF 20 à 30 sur 3 jours) ?" });
-      } else {
-        m.push({ k: "post", q: "As-tu publié un post avec le lien de réservation ?" });
-        m.push({ k: "story", q: "As-tu publié une story aujourd’hui ? (une tous les deux jours suffit)", jour: true });
-        m.push({ k: "habitues", q: "As-tu envoyé un message WhatsApp à tes clients habitués ?" });
-        m.push({ k: "groupes", q: "As-tu contacté un ou deux groupes qui pourraient venir ensemble (club, association, collègues) ?" });
-      }
-      if (/match|foot|football|nati/.test(t)) m.push({ k: "clubs", q: "As-tu écrit aux clubs de foot de la Riviera et aux supporters pour leur réserver une table ?" });
-      if (/music|musique|concert|live/.test(t)) m.push({ k: "artiste", q: "L’artiste a-t-il partagé la soirée sur ses réseaux ?" });
-      if (/brasil|br[ée]sil|samba|forr|feijoada/.test(t)) m.push({ k: "communaute", q: "As-tu partagé la soirée dans les groupes de la communauté brésilienne de la région ?" });
-      if (/pizza/.test(t)) m.push({ k: "familles", q: "As-tu proposé la soirée aux familles et aux équipes juniors ?" });
-      if (/halloween/.test(t)) m.push({ k: "deguisement", q: "As-tu annoncé un concours de déguisements avec un petit prix ?" });
-      return m;
+      const t = sansAccent((r.e.titre || "") + " " + (r.e.type || r.e.categorie || ""));
+      const phase = r.j <= 2 ? "j2" : r.j <= 7 ? "j7" : "j14";
+      const vus = new Set();
+      return questions.filter((a) => a.q && (a.moment === phase || a.moment === "toujours"))
+        .filter((a) => { const m = String(a.mots || "").split(",").map((x) => sansAccent(x).trim()).filter(Boolean); return !m.length || m.some((x) => t.includes(x)); })
+        .filter((a) => (vus.has(a.k) ? false : (vus.add(a.k), true)))
+        .map((a) => Object.assign({}, a, { q: a.q.replace(/\{reservations\}/g, r.pax).replace(/\{reste\}/g, r.cap - r.pax) }));
     }
     // Suivi partagé des actions (Firestore parametres/alertes-soirees), sinon dans ce navigateur
     const CLE_SUIVI = "alertes-soirees";
@@ -329,11 +357,44 @@
         cocher(r.id, a, c.checked);
       }));
     }
+    // ---------- Éditeur des questions ----------
+    let editionEnCours = false;
+    const MOMENTS = [["j14", "8 à 14 jours avant"], ["j7", "3 à 7 jours avant"], ["j2", "0 à 2 jours avant"], ["toujours", "À tout moment"]];
+    function afficherEditeur() {
+      const z = $("questions-liste"); if (!z) return;
+      $("questions-etat").innerHTML = refSuivi && !suiviPartage ? `<div class="info-msg">Les questions ne peuvent pas encore être enregistrées pour l’équipe : ajoute la règle Firestore « alertes-soirees » (voir LISEZMOI), puis recharge.</div>` : "";
+      z.innerHTML = questions.map((a, i) => `<div class="q-ligne" data-i="${i}">
+        <textarea data-f="q" rows="2" aria-label="Question">${esc(a.q)}</textarea>
+        <select data-f="moment" aria-label="Moment">${MOMENTS.map(([v, l]) => `<option value="${v}" ${a.moment === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <input type="text" data-f="mots" value="${esc(a.mots || "")}" placeholder="Toutes les soirées" aria-label="Mots du titre">
+        <label class="jr"><input type="checkbox" data-f="jour" ${a.jour ? "checked" : ""}> Chaque jour</label>
+        <button type="button" class="suppr" aria-label="Supprimer cette question" title="Supprimer">×</button></div>`).join("");
+      z.querySelectorAll(".q-ligne").forEach((l) => {
+        const i = Number(l.dataset.i);
+        l.querySelectorAll("[data-f]").forEach((c) => c.addEventListener("input", () => { editionEnCours = true; questions[i][c.dataset.f] = c.type === "checkbox" ? c.checked : c.value; }));
+        l.querySelector(".suppr").addEventListener("click", () => { editionEnCours = true; questions.splice(i, 1); afficherEditeur(); });
+      });
+    }
+    $("q-ajouter").addEventListener("click", () => { editionEnCours = true; questions.push({ k: "q" + Date.now().toString(36), moment: "j7", mots: "", jour: false, q: "" }); afficherEditeur(); const t = $("questions-liste").querySelectorAll("textarea"); t[t.length - 1].focus(); });
+    $("q-defaut").addEventListener("click", () => { editionEnCours = true; questions = copieQ(QUESTIONS_DEFAUT); afficherEditeur(); $("questions-etat").innerHTML = `<div class="info-msg">Questions de départ rétablies. Clique sur « Enregistrer les questions » pour les garder.</div>`; });
+    $("q-enregistrer").addEventListener("click", async () => {
+      questions = questions.filter((a) => String(a.q || "").trim()).map((a) => ({ k: a.k, moment: a.moment, mots: a.mots || "", jour: !!a.jour, q: String(a.q).trim() }));
+      afficherAlertes(dernieresAlertes);
+      if (!refSuivi) return;
+      try { await refSuivi.set({ questions }, { mergeFields: ["questions"] }); editionEnCours = false; afficherEditeur(); $("questions-etat").innerHTML = `<div class="info-msg" style="background:#e5f3ea;color:#1f5a35">Questions enregistrées pour toute l’équipe.</div>`; }
+      catch (e) { $("questions-etat").innerHTML = `<div class="info-msg">Enregistrement impossible : ajoute d’abord la règle Firestore « alertes-soirees » (voir LISEZMOI), puis réessaie.</div>`; }
+    });
+
     function suivreAlertes(actif) {
+      $("section-questions").classList.toggle("cache", !actif);
       if (!actif) { refSuivi = null; suiviPartage = false; return; }
+      afficherEditeur();
       refSuivi = db.collection("parametres").doc("alertes-soirees");
-      refSuivi.onSnapshot((d) => { suiviPartage = true; const x = d.exists ? d.data() : {}; suivi = Object.assign({}, suivi, x); afficherAlertes(dernieresAlertes); },
-        () => { suiviPartage = false; afficherAlertes(dernieresAlertes); });
+      refSuivi.onSnapshot((d) => {
+        suiviPartage = true; const x = Object.assign({}, d.exists ? d.data() : {});
+        if (Array.isArray(x.questions) && x.questions.length) questions = x.questions; delete x.questions;
+        suivi = Object.assign({}, suivi, x); afficherAlertes(dernieresAlertes); if (!editionEnCours) afficherEditeur();
+      }, () => { suiviPartage = false; afficherAlertes(dernieresAlertes); afficherEditeur(); });
     }
 
     // Réservations : la prochaine soirée (lecture publique)

@@ -100,7 +100,7 @@ Au premier lancement, le bouton « Importer la liste de départ » crée les art
 
 ## Accueil de l'administration
 
-**Soirées à remplir** : quand une soirée des 14 prochains jours se remplit trop lentement, l'accueil affiche une alerte avec des questions à cocher (« As-tu publié une story aujourd'hui ? »…). Les réponses sont partagées avec l'équipe grâce au document `parametres/alertes-soirees`. **Règle Firestore à ajouter une fois** (à côté de `confra-achats`, puis Publier) :
+**Soirées à remplir** : quand une soirée des 14 prochains jours se remplit trop lentement, l'accueil affiche une alerte avec des questions à cocher (« As-tu publié une story aujourd'hui ? »…). Les réponses, et la liste des questions (modifiable dans la section « Questions des alertes de remplissage »), sont partagées avec l'équipe grâce au document `parametres/alertes-soirees`. **Règle Firestore à ajouter une fois** (à côté de `confra-achats`, puis Publier) :
 
 ```
     // Suivi des alertes de remplissage : réservé à l'équipe
