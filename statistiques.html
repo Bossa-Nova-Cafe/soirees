@@ -121,7 +121,7 @@
       <h2>Connecter les statistiques</h2>
       <p class="aide" style="margin:0">Une seule fois : un manager relie cette page au compte GoatCounter du Bossa Nova avec une clé en lecture seule. Elle permet seulement de lire les chiffres.</p>
       <ol>
-        <li>Ouvre <a href="https://bossanova.goatcounter.com/user/api" target="_blank" rel="noopener">GoatCounter → ton compte → API</a> (connecté avec le compte du café).</li>
+        <li>Ouvre <a href="https://bossanova.goatcounter.com/user/api" target="_blank" rel="noopener">GoatCounter → API</a>, connecté avec le compte du café. Si le lien ne mène pas à la bonne page : clique sur ton e-mail en haut à droite, puis sur <b>API</b>.</li>
         <li>Clique sur <b>New token</b>, donne-lui le nom « Admin Bossa Nova » et coche seulement <b>Read statistics</b>.</li>
         <li>Clique sur <b>Create</b>, copie la clé affichée et colle-la ci-dessous.</li>
       </ol>
@@ -308,7 +308,7 @@
     if (cle.length < 20) { $("cle-msg").innerHTML = `<p class="msg erreur">Colle la clé complète affichée par GoatCounter.</p>`; return; }
     const b = $("cle-ok"); b.disabled = true; b.textContent = "Vérification…";
     try {
-      const r = await fetch(API + "me", { headers: { Authorization: "Bearer " + cle, "Content-Type": "application/json" } });
+      const r = await fetch(API + "stats/total?" + new URLSearchParams({ start: borne(new Date()), end: borne(new Date(), true) }), { headers: { Authorization: "Bearer " + cle, "Content-Type": "application/json" } });
       if (!r.ok) throw Object.assign(new Error(), { status: r.status });
       await E.sauverCle(cle); $("cle").value = ""; avecCle(cle);
     } catch (e) { $("cle-msg").innerHTML = `<p class="msg erreur">${e.status === 401 || e.status === 403 ? "GoatCounter ne reconnaît pas cette clé. Vérifie que tu as copié toute la clé." : e.code === "permission-denied" ? "Firebase refuse l’enregistrement : il faut être manager, et la règle des statistiques doit être publiée." : "Vérification impossible pour le moment. Réessaie."}</p>`; }
