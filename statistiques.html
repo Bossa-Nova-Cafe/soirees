@@ -228,6 +228,9 @@
   addEventListener("scroll", () => bulle.classList.add("cache"), { passive: true });
 
   // ---------- Chargement ----------
+  // Un bloqueur de publicité (uBlock, AdBlock, protection renforcée) coupe les appels à GoatCounter : le navigateur ne renvoie alors qu'une « erreur réseau ».
+  const BLOQUE = "Ce navigateur bloque GoatCounter, le plus souvent à cause d’un bloqueur de publicité (uBlock, AdBlock…). Désactive-le pour bossa-nova-cafe.github.io (clique sur son icône, puis sur le bouton d’arrêt), recharge la page et réessaie. Sur la tablette ou dans Safari, la page fonctionne sans réglage.";
+  const reseau = (e) => e instanceof TypeError || /networkerror|failed to fetch|load failed/i.test(String(e && e.message));
   function message(html, type) { $("messages").innerHTML = html ? `<p class="msg ${type || ""}">${html}</p>` : ""; }
   async function charger() {
     const n = ++E.demande, J = E.jours;
@@ -249,7 +252,8 @@
       if (e.status === 401 || e.status === 403) {
         message("GoatCounter refuse la clé enregistrée : elle a peut-être été supprimée ou ne permet pas de lire les statistiques." + (E.manager ? " Enregistre une nouvelle clé ci-dessous." : " Demande à un manager d’en enregistrer une nouvelle."), "erreur");
         if (E.manager) { $("reglage").classList.remove("cache"); }
-      } else message("Les statistiques ne peuvent pas être chargées pour le moment (" + esc(e.message) + "). Vérifie la connexion internet et recharge la page.", "erreur");
+      } else if (reseau(e)) message(BLOQUE, "avert");
+      else message("Les statistiques ne peuvent pas être chargées pour le moment (" + esc(e.message) + "). Vérifie la connexion internet et recharge la page.", "erreur");
     }
   }
 
@@ -314,7 +318,7 @@
       const r = await fetch(API + "stats/total?" + new URLSearchParams({ start: borne(decaler(new Date(), -1)), end: borne(new Date(), true) }), { headers: { Authorization: "Bearer " + cle, "Content-Type": "application/json" } });
       if (!r.ok) { let t = ""; try { t = await r.text(); } catch (er) { /* sans corps */ } throw Object.assign(new Error("GoatCounter " + r.status + (t && t.length < 300 ? " : " + t : "")), { status: r.status }); }
       await E.sauverCle(cle); $("cle").value = ""; avecCle(cle);
-    } catch (e) { $("cle-msg").innerHTML = `<p class="msg erreur">${e.status === 401 || e.status === 403 ? "GoatCounter ne reconnaît pas cette clé. Vérifie que tu as copié toute la clé." : e.code === "permission-denied" ? "Firebase refuse l’enregistrement : il faut être manager, et la règle des statistiques doit être publiée." : "Vérification impossible pour le moment (" + esc(e.message || e.code || "erreur inconnue") + "). Réessaie."}</p>`; }
+    } catch (e) { $("cle-msg").innerHTML = `<p class="msg erreur">${e.status === 401 || e.status === 403 ? "GoatCounter ne reconnaît pas cette clé. Vérifie que tu as copié toute la clé." : reseau(e) ? BLOQUE : e.code === "permission-denied" ? "Firebase refuse l’enregistrement : il faut être manager, et la règle des statistiques doit être publiée." : "Vérification impossible pour le moment (" + esc(e.message || e.code || "erreur inconnue") + "). Réessaie."}</p>`; }
     b.disabled = false; b.textContent = "Enregistrer";
   });
 
