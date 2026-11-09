@@ -100,6 +100,17 @@ Au premier lancement, le bouton « Importer la liste de départ » crée les art
 
 ## Accueil de l'administration
 
+**Soirées à remplir** : quand une soirée des 14 prochains jours se remplit trop lentement, l'accueil affiche une alerte avec des questions à cocher (« As-tu publié une story aujourd'hui ? »…). Les réponses sont partagées avec l'équipe grâce au document `parametres/alertes-soirees`. **Règle Firestore à ajouter une fois** (à côté de `confra-achats`, puis Publier) :
+
+```
+    // Suivi des alertes de remplissage : réservé à l'équipe
+    match /parametres/alertes-soirees {
+      allow read, write: if admin();
+    }
+```
+
+Sans cette règle, les coches restent seulement sur l'appareil où elles sont faites.
+
 `admin.html` rassemble toutes les pages : Stock, Réservations (gestion du portail `bossa-nova-reservations`), Prix de la Festa, Achats des soirées, et les pages à partager aux clients. Chaque page d'administration affiche en haut la même barre de navigation (`nav-admin.js`) pour passer de l'une à l'autre. Pour ajouter une page, l'ajouter dans la liste `PAGES` de `nav-admin.js` et une carte dans `admin.html`.
 
 ## Équipe : qui a accès à l'administration

@@ -50,7 +50,11 @@
   .alerte-soiree .jauge i { display: block; height: 100%; background: var(--orange); }
   .alerte-soiree.critique .jauge i { background: var(--rouge); }
   .alerte-soiree p { margin: 0 0 6px; font-size: 13.5px; color: var(--gris); }
-  .alerte-soiree ul { margin: 4px 0 0; padding-left: 20px; font-size: 14px; display: grid; gap: 4px; }
+  .alerte-soiree ul.questions { list-style: none; margin: 6px 0 0; padding: 0; font-size: 14px; display: grid; gap: 4px; }
+  .questions label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; padding: 4px 0; }
+  .questions input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: var(--vert); }
+  .questions li.fait span { color: var(--gris); }
+  .questions em { font-style: normal; font-weight: 600; color: var(--ok); }
   .pill.attention { background: #fdf0cc; color: var(--orange); }
   .pill.ok { background: #e5f3ea; color: var(--ok); }
   .pill.info { background: #efe8f7; color: var(--violet); }
@@ -260,50 +264,82 @@
       else if (j <= 7 && taux < 0.4) niveau = "critique";
       else if (j <= 7 && taux < 0.6) niveau = "attention";
       else if (j <= 14 && taux < 0.25) niveau = "attention";
-      return niveau ? { e, cap, pax, j, taux, niveau } : null;
+      return niveau ? { e, id: e._id || e.date, cap, pax, j, taux, niveau } : null;
     }
+    // Actions sous forme de questions à cocher ; « chaque jour » se réinitialise le lendemain
     function mesures(r) {
       const t = ((r.e.titre || "") + " " + (r.e.type || r.e.categorie || "")).toLowerCase(), m = [];
-      const manque = r.cap - r.pax;
       if (r.j <= 2) {
-        m.push(`Décide aujourd’hui : maintenir, réduire (moins de personnel, achats ajustés) ou reporter la soirée. Avec ${r.pax} réservation${r.pax > 1 ? "s" : ""}, calcule si elle couvre au moins le personnel.`);
-        m.push("Envoie un message WhatsApp aux personnes déjà inscrites : « Venez avec un ami, il reste de la place ».");
-        m.push("Publie une story Instagram et Facebook ce soir et demain midi, avec la photo de l’ambiance et l’heure.");
-        m.push("Ajuste les achats et le planning du personnel au nombre réel de réservations.");
+        m.push({ k: "decision", q: `As-tu décidé : maintenir, réduire (personnel, achats) ou reporter ? Avec ${r.pax} réservation${r.pax > 1 ? "s" : ""}, la soirée couvre-t-elle au moins le personnel ?` });
+        m.push({ k: "ami", q: "As-tu écrit aux inscrits sur WhatsApp pour qu’ils viennent avec un ami ?" });
+        m.push({ k: "story", q: "As-tu publié une story aujourd’hui ?", jour: true });
+        m.push({ k: "achats", q: "Les achats et le planning du personnel sont-ils ajustés au nombre réel de réservations ?" });
       } else if (r.j <= 7) {
-        m.push("Publie une story chaque jour jusqu’à la soirée, et un post avec le lien de réservation.");
-        m.push("Envoie un message WhatsApp à ta liste de clients habitués, et demande aux inscrits d’inviter un ami.");
-        m.push("Affiche la soirée à la caisse et sur les tables, et parles-en aux clients du jour.");
-        m.push("Pense à une petite publicité Instagram ciblée sur Vevey et Montreux (environ CHF 20 à 30 sur 3 jours).");
+        m.push({ k: "story", q: "As-tu publié une story aujourd’hui ?", jour: true });
+        m.push({ k: "post", q: "As-tu publié un post avec le lien de réservation ?" });
+        m.push({ k: "habitues", q: "As-tu envoyé un message WhatsApp à tes clients habitués ?" });
+        m.push({ k: "ami", q: "As-tu demandé aux inscrits d’inviter un ami ?" });
+        m.push({ k: "affiche", q: "La soirée est-elle affichée à la caisse et sur les tables ?" });
+        m.push({ k: "pub", q: "As-tu lancé une petite publicité Instagram ciblée sur Vevey et Montreux (environ CHF 20 à 30 sur 3 jours) ?" });
       } else {
-        m.push("Publie un post et une story avec le lien de réservation, puis une story tous les deux jours.");
-        m.push("Envoie un message WhatsApp à ta liste de clients habitués.");
-        m.push("Contacte un ou deux groupes qui pourraient venir ensemble (club, association, collègues).");
+        m.push({ k: "post", q: "As-tu publié un post avec le lien de réservation ?" });
+        m.push({ k: "story", q: "As-tu publié une story aujourd’hui ? (une tous les deux jours suffit)", jour: true });
+        m.push({ k: "habitues", q: "As-tu envoyé un message WhatsApp à tes clients habitués ?" });
+        m.push({ k: "groupes", q: "As-tu contacté un ou deux groupes qui pourraient venir ensemble (club, association, collègues) ?" });
       }
-      if (/match|foot|football|nati/.test(t)) m.push("Écris aux clubs de foot de la Riviera et aux supporters : une table réservée pour leur groupe.");
-      if (/music|musique|concert|live/.test(t)) m.push("Demande à l’artiste de partager la soirée sur ses réseaux et à ses proches.");
-      if (/brasil|br[ée]sil|samba|forr|feijoada/.test(t)) m.push("Partage la soirée dans les groupes WhatsApp et Facebook de la communauté brésilienne de la région.");
-      if (/pizza/.test(t)) m.push("Propose la soirée aux familles et aux équipes juniors : un tarif groupe peut décider une réservation.");
-      if (/halloween/.test(t)) m.push("Propose un concours de déguisements avec un petit prix : ça donne une raison de venir à plusieurs.");
-      m.push(`Objectif : encore ${manque} réservation${manque > 1 ? "s" : ""} pour remplir la salle.`);
+      if (/match|foot|football|nati/.test(t)) m.push({ k: "clubs", q: "As-tu écrit aux clubs de foot de la Riviera et aux supporters pour leur réserver une table ?" });
+      if (/music|musique|concert|live/.test(t)) m.push({ k: "artiste", q: "L’artiste a-t-il partagé la soirée sur ses réseaux ?" });
+      if (/brasil|br[ée]sil|samba|forr|feijoada/.test(t)) m.push({ k: "communaute", q: "As-tu partagé la soirée dans les groupes de la communauté brésilienne de la région ?" });
+      if (/pizza/.test(t)) m.push({ k: "familles", q: "As-tu proposé la soirée aux familles et aux équipes juniors ?" });
+      if (/halloween/.test(t)) m.push({ k: "deguisement", q: "As-tu annoncé un concours de déguisements avec un petit prix ?" });
       return m;
     }
+    // Suivi partagé des actions (Firestore parametres/alertes-soirees), sinon dans ce navigateur
+    const CLE_SUIVI = "alertes-soirees";
+    let suivi = {}, suiviPartage = false, dernieresAlertes = [], refSuivi = null;
+    try { suivi = JSON.parse(localStorage.getItem(CLE_SUIVI) || "{}"); } catch (e) { suivi = {}; }
+    const aujISO = () => new Date().toLocaleDateString("sv-SE");
+    const fait = (id, a) => { const v = (suivi[id] || {})[a.k]; return v && (!a.jour || v === aujISO()) ? v : null; };
+    async function cocher(id, a, oui) {
+      const m = Object.assign({}, suivi[id] || {});
+      if (oui) m[a.k] = aujISO(); else delete m[a.k];
+      suivi[id] = m;
+      try { localStorage.setItem(CLE_SUIVI, JSON.stringify(suivi)); } catch (e) {}
+      afficherAlertes(dernieresAlertes);
+      if (refSuivi && suiviPartage) {
+        try { await refSuivi.set({ [id]: m }, { mergeFields: [new window.firebase.firestore.FieldPath(id)] }); }
+        catch (e) { suiviPartage = false; afficherAlertes(dernieresAlertes); }
+      }
+    }
     function afficherAlertes(risques) {
+      dernieresAlertes = risques;
       const z = $("alertes-resa"); z.hidden = !risques.length;
-      $("alertes-liste").innerHTML = risques.map((r) => {
+      $("alertes-liste").innerHTML = (refSuivi && !suiviPartage ? `<p class="intro" style="margin:0 0 10px">Les coches sont gardées sur cet appareil seulement. Pour les partager avec l’équipe, ajoute la règle Firestore « alertes-soirees » (voir LISEZMOI).</p>` : "") + risques.map((r, i) => {
         const d = new Date(r.e.date + "T12:00").toLocaleDateString("fr-CH", { weekday: "long", day: "numeric", month: "long" });
         const quand = r.j === 0 ? "ce soir" : r.j === 1 ? "demain" : "dans " + r.j + " jours";
-        return `<div class="alerte-soiree ${r.niveau}"><h3>${esc(r.e.titre || "Soirée")} ${pill(r.niveau === "critique" ? "Urgent" : "À surveiller", r.niveau === "critique" ? "alerte" : "attention")}</h3>
-          <p>${esc(d.charAt(0).toUpperCase() + d.slice(1))}, ${quand} · <b>${r.pax} / ${r.cap} places</b> (${Math.round(r.taux * 100)} %)</p>
+        const acts = mesures(r), faits = acts.filter((a) => fait(r.id, a)).length, manque = r.cap - r.pax;
+        const tri = acts.slice().sort((a, b) => (fait(r.id, a) ? 1 : 0) - (fait(r.id, b) ? 1 : 0));
+        return `<div class="alerte-soiree ${r.niveau}"><h3>${esc(r.e.titre || "Soirée")} ${pill(r.niveau === "critique" ? "Urgent" : "À surveiller", r.niveau === "critique" ? "alerte" : "attention")} ${pill(faits + " / " + acts.length + " actions faites", faits === acts.length ? "ok" : "")}</h3>
+          <p>${esc(d.charAt(0).toUpperCase() + d.slice(1))}, ${quand} · <b>${r.pax} / ${r.cap} places</b> (${Math.round(r.taux * 100)} %) · encore ${manque} réservation${manque > 1 ? "s" : ""} pour remplir la salle</p>
           <div class="jauge"><i style="width:${Math.max(3, Math.round(r.taux * 100))}%"></i></div>
-          <ul>${mesures(r).map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
+          <ul class="questions">${tri.map((a) => { const v = fait(r.id, a); return `<li class="${v ? "fait" : ""}"><label><input type="checkbox" data-s="${i}" data-k="${esc(a.k)}" ${v ? "checked" : ""}><span>${esc(a.q)}${v ? ` <em>Oui${a.jour ? ", aujourd’hui" : ", le " + esc(new Date(v + "T12:00").toLocaleDateString("fr-CH", { day: "numeric", month: "short" }))}</em>` : ""}</span></label></li>`; }).join("")}</ul></div>`;
       }).join("");
+      $("alertes-liste").querySelectorAll("input[data-k]").forEach((c) => c.addEventListener("change", () => {
+        const r = risques[Number(c.dataset.s)], a = mesures(r).find((x) => x.k === c.dataset.k);
+        cocher(r.id, a, c.checked);
+      }));
+    }
+    function suivreAlertes(actif) {
+      if (!actif) { refSuivi = null; suiviPartage = false; return; }
+      refSuivi = db.collection("parametres").doc("alertes-soirees");
+      refSuivi.onSnapshot((d) => { suiviPartage = true; const x = d.exists ? d.data() : {}; suivi = Object.assign({}, suivi, x); afficherAlertes(dernieresAlertes); },
+        () => { suiviPartage = false; afficherAlertes(dernieresAlertes); });
     }
 
     // Réservations : la prochaine soirée (lecture publique)
     db.collection("soirees").orderBy("date").onSnapshot((q) => {
       const auj = new Date().toLocaleDateString("sv-SE");
-      const av = q.docs.map((d) => d.data()).filter((e) => e.date >= auj);
+      const av = q.docs.map((d) => Object.assign({ _id: d.id }, d.data())).filter((e) => e.date >= auj);
       if (!av.length) { $("etat-resa").innerHTML = pill("Aucune soirée programmée", "attention"); return; }
       const e = av[0], d = new Date(e.date + "T12:00").toLocaleDateString("fr-CH", { weekday: "short", day: "numeric", month: "short" });
       const plein = e.cap && (e.pax || 0) >= e.cap;
@@ -377,6 +413,7 @@
       if (stopCaisse) { stopCaisse(); stopCaisse = null; }
       if (stopEquipe) { stopEquipe(); stopEquipe = null; }
       $("section-equipe").classList.toggle("cache", !u);
+      suivreAlertes(!!u);
       if (!u) { $("etat-stock").innerHTML = ""; $("etat-caisse").innerHTML = ""; return; }
       // Caisse : fermetures à valider et en cours
       stopCaisse = db.collection("caisse-fermetures").where("statut", "in", ["a_valider", "brouillon"]).onSnapshot((q) => {
