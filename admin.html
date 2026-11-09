@@ -55,6 +55,14 @@
   .questions input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: var(--vert); }
   .questions li.fait span { color: var(--gris); }
   .questions em { font-style: normal; font-weight: 600; color: var(--ok); }
+  .pli-alerte { margin-top: 6px; }
+  .pli-alerte > summary, .pli-questions > summary { cursor: pointer; font-weight: 600; color: var(--vert); font-size: 14px; list-style: none; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pli-alerte > summary::-webkit-details-marker, .pli-questions > summary::-webkit-details-marker { display: none; }
+  .pli-alerte > summary::before, .pli-questions > summary::before { content: "▸"; color: var(--jaune); font-size: 16px; transition: transform .15s; }
+  .pli-alerte[open] > summary::before, .pli-questions[open] > summary::before { transform: rotate(90deg); }
+  .pli-questions > summary h2 { margin: 0; display: inline; }
+  .pli-questions .pli-aide { font-weight: 400; color: var(--gris); font-size: 13px; }
+  .pli-questions[open] > summary { margin-bottom: 8px; }
   .q-edit { display: grid; gap: 8px; margin-bottom: 12px; }
   .q-ligne { display: grid; grid-template-columns: minmax(0,1fr) 175px 170px auto auto; gap: 8px; align-items: center; background: var(--blanc); border: 1px solid var(--bord); border-radius: 10px; padding: 8px 10px; }
   .q-ligne textarea, .q-ligne input[type=text], .q-ligne select { font: inherit; font-size: 13.5px; padding: 6px 8px; border: 1px solid var(--bord); border-radius: 8px; width: 100%; min-width: 0; background: var(--blanc); color: inherit; }
@@ -180,7 +188,8 @@
     </section>
 
     <section id="section-questions" class="cache">
-      <h2>Questions des alertes de remplissage</h2>
+      <details class="pli-questions" id="pli-questions">
+      <summary><h2>Questions des alertes de remplissage</h2><span class="pli-aide" id="q-resume"></span></summary>
       <p class="intro">Les questions posées quand une soirée se remplit trop lentement. Choisis à quel moment chacune apparaît, et pour quelles soirées : laisse « Mots du titre » vide pour toutes les soirées, ou écris par exemple « match, foot » pour les soirées dont le titre contient un de ces mots. Dans le texte, {reservations} et {reste} sont remplacés par les chiffres de la soirée.</p>
       <div id="questions-etat"></div>
       <div class="q-edit" id="questions-liste"></div>
@@ -189,6 +198,7 @@
         <button class="btn" type="button" id="q-enregistrer">Enregistrer les questions</button>
         <button class="btn btn-clair" type="button" id="q-defaut">Revenir aux questions de départ</button>
       </div>
+      </details>
     </section>
 
     <section id="section-equipe" class="cache">
@@ -309,7 +319,28 @@
       { k: "communaute", moment: "toujours", mots: "brasil, brésil, bresil, samba, forró, feijoada", jour: false, q: "As-tu partagé la soirée dans les groupes de la communauté brésilienne de la région ?" },
       { k: "familles", moment: "toujours", mots: "pizza", jour: false, q: "As-tu proposé la soirée aux familles et aux équipes juniors ?" },
       { k: "deguisement", moment: "toujours", mots: "halloween", jour: false, q: "As-tu annoncé un concours de déguisements avec un petit prix ?" },
+      // Version 2 : questions ajoutées
+      { k: "evenement-fb", moment: "j14", mots: "", jour: false, v: 2, q: "As-tu créé l’événement sur Facebook et invité tes contacts ?" },
+      { k: "google", moment: "j14", mots: "", jour: false, v: 2, q: "La soirée est-elle annoncée sur ta fiche Google (publication « Événement ») ?" },
+      { k: "anciens", moment: "j7", mots: "", jour: false, v: 2, q: "As-tu écrit aux participants des soirées précédentes du même genre ?" },
+      { k: "equipe", moment: "j7", mots: "", jour: false, v: 2, q: "As-tu demandé à l’équipe de partager la soirée sur ses réseaux personnels ?" },
+      { k: "rappel", moment: "j2", mots: "", jour: false, v: 2, q: "As-tu envoyé un rappel aux inscrits (heure, adresse, à deux pas de la gare) ?" },
+      { k: "materiel", moment: "j2", mots: "", jour: false, v: 2, q: "Le son, l’écran et la décoration sont-ils prêts et testés ?" },
+      { k: "match-ecran", moment: "toujours", mots: "match, foot, nati", jour: false, v: 2, q: "As-tu vérifié la chaîne qui diffuse le match et annoncé l’heure du coup d’envoi ?" },
+      { k: "match-offre", moment: "toujours", mots: "match, foot, nati", jour: false, v: 2, q: "As-tu annoncé une offre pour le match (pression, planchette à partager) ?" },
+      { k: "artiste-extrait", moment: "toujours", mots: "music, musique, concert, live", jour: false, v: 2, q: "As-tu publié un extrait vidéo ou audio de l’artiste ?" },
+      { k: "artiste-son", moment: "j2", mots: "music, musique, concert, live", jour: false, v: 2, q: "Les besoins techniques de l’artiste (son, prises, place) sont-ils réglés ?" },
+      { k: "ecoles", moment: "toujours", mots: "brasil, brésil, bresil, samba, forró, forro", jour: false, v: 2, q: "As-tu prévenu les écoles de danse, de samba ou de capoeira de la région ?" },
+      { k: "menu-bresil", moment: "toujours", mots: "brasil, brésil, bresil", jour: false, v: 2, q: "Le menu brésilien du soir (plats, caipirinha) est-il mis en avant dans la publication ?" },
+      { k: "culture-reseau", moment: "toujours", mots: "cultura, culture, expo, vernissage, livre, lecture, conférence, conference, débat", jour: false, v: 2, q: "L’artiste, l’auteur ou l’intervenant a-t-il invité son propre réseau ?" },
+      { k: "agenda", moment: "j14", mots: "cultura, culture, expo, vernissage, livre, lecture, conférence, conference, débat, concert", jour: false, v: 2, q: "As-tu envoyé l’information à l’agenda culturel de Vevey et aux médias locaux ?" },
+      { k: "pub-playlist", moment: "toujours", mots: "pub, 90", jour: false, v: 2, q: "As-tu publié un extrait des tubes de la soirée ou lancé un quiz musical ?" },
+      { k: "pub-theme", moment: "toujours", mots: "pub, 90", jour: false, v: 2, q: "As-tu proposé un thème (look années 90) pour donner envie de venir à plusieurs ?" },
+      { k: "feijoada-entreprises", moment: "toujours", mots: "feijoada", jour: false, v: 2, q: "As-tu proposé la feijoada aux entreprises et commerces voisins pour un repas d’équipe ?" },
+      { k: "pizza-photo", moment: "toujours", mots: "pizza", jour: false, v: 2, q: "As-tu publié une photo ou une vidéo des pizzas qui sortent du four ?" },
+      { k: "halloween-deco", moment: "j2", mots: "halloween", jour: false, v: 2, q: "La décoration et la playlist d’Halloween sont-elles prêtes ?" },
     ];
+    const QUESTIONS_VERSION = 2;
     const copieQ = (l) => l.map((x) => Object.assign({}, x));
     let questions = copieQ(QUESTIONS_DEFAUT);
     const sansAccent = (x) => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -325,6 +356,7 @@
     // Suivi partagé des actions (Firestore parametres/alertes-soirees), sinon dans ce navigateur
     const CLE_SUIVI = "alertes-soirees";
     let suivi = {}, suiviPartage = false, dernieresAlertes = [], refSuivi = null;
+    const ouverts = new Set();
     try { suivi = JSON.parse(localStorage.getItem(CLE_SUIVI) || "{}"); } catch (e) { suivi = {}; }
     const aujISO = () => new Date().toLocaleDateString("sv-SE");
     const fait = (id, a) => { const v = (suivi[id] || {})[a.k]; return v && (!a.jour || v === aujISO()) ? v : null; };
@@ -350,8 +382,10 @@
         return `<div class="alerte-soiree ${r.niveau}"><h3>${esc(r.e.titre || "Soirée")} ${pill(r.niveau === "critique" ? "Urgent" : "À surveiller", r.niveau === "critique" ? "alerte" : "attention")} ${pill(faits + " / " + acts.length + " actions faites", faits === acts.length ? "ok" : "")}</h3>
           <p>${esc(d.charAt(0).toUpperCase() + d.slice(1))}, ${quand} · <b>${r.pax} / ${r.cap} places</b> (${Math.round(r.taux * 100)} %) · encore ${manque} réservation${manque > 1 ? "s" : ""} pour remplir la salle</p>
           <div class="jauge"><i style="width:${Math.max(3, Math.round(r.taux * 100))}%"></i></div>
-          <ul class="questions">${tri.map((a) => { const v = fait(r.id, a); return `<li class="${v ? "fait" : ""}"><label><input type="checkbox" data-s="${i}" data-k="${esc(a.k)}" ${v ? "checked" : ""}><span>${esc(a.q)}${v ? ` <em>Oui${a.jour ? ", aujourd’hui" : ", le " + esc(new Date(v + "T12:00").toLocaleDateString("fr-CH", { day: "numeric", month: "short" }))}</em>` : ""}</span></label></li>`; }).join("")}</ul></div>`;
+          <details class="pli-alerte" data-id="${esc(r.id)}" ${ouverts.has(r.id) ? "open" : ""}><summary>${faits === acts.length ? "Toutes les actions sont faites" : `Voir les ${acts.length - faits} action${acts.length - faits > 1 ? "s" : ""} à faire`}</summary>
+          <ul class="questions">${tri.map((a) => { const v = fait(r.id, a); return `<li class="${v ? "fait" : ""}"><label><input type="checkbox" data-s="${i}" data-k="${esc(a.k)}" ${v ? "checked" : ""}><span>${esc(a.q)}${v ? ` <em>Oui${a.jour ? ", aujourd’hui" : ", le " + esc(new Date(v + "T12:00").toLocaleDateString("fr-CH", { day: "numeric", month: "short" }))}</em>` : ""}</span></label></li>`; }).join("")}</ul></details></div>`;
       }).join("");
+      $("alertes-liste").querySelectorAll("details.pli-alerte").forEach((d) => d.addEventListener("toggle", () => { d.open ? ouverts.add(d.dataset.id) : ouverts.delete(d.dataset.id); }));
       $("alertes-liste").querySelectorAll("input[data-k]").forEach((c) => c.addEventListener("change", () => {
         const r = risques[Number(c.dataset.s)], a = mesures(r).find((x) => x.k === c.dataset.k);
         cocher(r.id, a, c.checked);
@@ -362,6 +396,7 @@
     const MOMENTS = [["j14", "8 à 14 jours avant"], ["j7", "3 à 7 jours avant"], ["j2", "0 à 2 jours avant"], ["toujours", "À tout moment"]];
     function afficherEditeur() {
       const z = $("questions-liste"); if (!z) return;
+      $("q-resume").textContent = questions.length + " questions · cliquer pour voir et modifier";
       $("questions-etat").innerHTML = refSuivi && !suiviPartage ? `<div class="info-msg">Les questions ne peuvent pas encore être enregistrées pour l’équipe : ajoute la règle Firestore « alertes-soirees » (voir LISEZMOI), puis recharge.</div>` : "";
       z.innerHTML = questions.map((a, i) => `<div class="q-ligne" data-i="${i}">
         <textarea data-f="q" rows="2" aria-label="Question">${esc(a.q)}</textarea>
@@ -381,7 +416,7 @@
       questions = questions.filter((a) => String(a.q || "").trim()).map((a) => ({ k: a.k, moment: a.moment, mots: a.mots || "", jour: !!a.jour, q: String(a.q).trim() }));
       afficherAlertes(dernieresAlertes);
       if (!refSuivi) return;
-      try { await refSuivi.set({ questions }, { mergeFields: ["questions"] }); editionEnCours = false; afficherEditeur(); $("questions-etat").innerHTML = `<div class="info-msg" style="background:#e5f3ea;color:#1f5a35">Questions enregistrées pour toute l’équipe.</div>`; }
+      try { await refSuivi.set({ questions, questionsVersion: QUESTIONS_VERSION }, { mergeFields: ["questions", "questionsVersion"] }); editionEnCours = false; afficherEditeur(); $("questions-etat").innerHTML = `<div class="info-msg" style="background:#e5f3ea;color:#1f5a35">Questions enregistrées pour toute l’équipe.</div>`; }
       catch (e) { $("questions-etat").innerHTML = `<div class="info-msg">Enregistrement impossible : ajoute d’abord la règle Firestore « alertes-soirees » (voir LISEZMOI), puis réessaie.</div>`; }
     });
 
@@ -392,7 +427,13 @@
       refSuivi = db.collection("parametres").doc("alertes-soirees");
       refSuivi.onSnapshot((d) => {
         suiviPartage = true; const x = Object.assign({}, d.exists ? d.data() : {});
-        if (Array.isArray(x.questions) && x.questions.length) questions = x.questions; delete x.questions;
+        if (Array.isArray(x.questions) && x.questions.length) {
+          questions = x.questions;
+          // Ajoute les nouvelles questions de départ à une liste déjà enregistrée
+          const v = Number(x.questionsVersion) || 1;
+          if (v < QUESTIONS_VERSION) QUESTIONS_DEFAUT.filter((d) => (d.v || 1) > v && !questions.some((q) => q.k === d.k && q.moment === d.moment)).forEach((d) => questions.push(Object.assign({}, d)));
+        }
+        delete x.questions; delete x.questionsVersion;
         suivi = Object.assign({}, suivi, x); afficherAlertes(dernieresAlertes); if (!editionEnCours) afficherEditeur();
       }, () => { suiviPartage = false; afficherAlertes(dernieresAlertes); afficherEditeur(); });
     }
