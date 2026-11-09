@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f3d2e">
+<title>Statistiques — Bossa Nova Café</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Statistiques des pages clients : bandeau vert, choix de la période, quatre chiffres clés,
+     puis des cartes simples (visites par jour, pages, provenance, heures, jours, appareils, pays), chacune avec une phrase d'explication. */
+  :root {
+    --vert: #0f3d2e; --barre: #1e6b4f; --barre-forte: #0f3d2e; --jaune: #f2c230; --violet: #6b3fa0;
+    --creme: #fbf6e9; --blanc: #fff; --texte: #1d1d1b; --gris: #66665f; --bord: #e2dac3; --piste: #f1ead6;
+    --ok: #1e7a3e; --alerte: #b3261e;
+    --titre: "Anton", Impact, "Arial Narrow", sans-serif;
+    --corps: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font-family: var(--corps); background: var(--creme); color: var(--texte); font-size: 15px; line-height: 1.45; }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--jaune); outline-offset: 2px; }
+  .cache { display: none !important; }
+  .in { max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  header { background: var(--vert); color: var(--creme); }
+  header .in { padding-block: 16px 18px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: flex-end; justify-content: space-between; }
+  header small { display: block; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--jaune); }
+  h1 { font-family: var(--titre); font-weight: 400; font-size: 30px; text-transform: uppercase; letter-spacing: .5px; margin: 0; line-height: 1.05; }
+  .periodes { display: flex; gap: 6px; flex-wrap: wrap; }
+  .periode { background: rgba(255,255,255,.08); border: 1px solid rgba(242,194,48,.45); color: var(--creme); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 13.5px; }
+  .periode[aria-pressed="true"] { background: var(--jaune); color: var(--vert); border-color: var(--jaune); }
+
+  main .in { padding-block: 20px 60px; display: grid; gap: 16px; }
+  .msg { border-radius: 10px; padding: 12px 14px; font-size: 14px; margin: 0; background: #eef5f1; color: var(--vert); }
+  .msg.avert { background: #fff6d6; color: #6b4e00; }
+  .msg.erreur { background: #fdecea; color: #8c1d18; }
+
+  .chiffres { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+  .chiffre { background: var(--blanc); border: 1px solid var(--bord); border-radius: 14px; padding: 14px 16px; min-width: 0; }
+  .chiffre .l { font-size: 12.5px; font-weight: 600; color: var(--gris); }
+  .chiffre .v { font-size: 30px; font-weight: 600; color: var(--vert); line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .chiffre .s { font-size: 13px; color: var(--gris); }
+  .hausse { color: var(--ok); font-weight: 600; } .baisse { color: var(--alerte); font-weight: 600; }
+
+  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 16px; align-items: start; }
+  .carte { background: var(--blanc); border: 1px solid var(--bord); border-radius: 14px; padding: 16px; min-width: 0; }
+  .carte.large { grid-column: 1 / -1; }
+  .carte h2 { font-family: var(--titre); font-weight: 400; font-size: 18px; letter-spacing: .5px; text-transform: uppercase; color: var(--violet); margin: 0; }
+  .carte .aide { margin: 2px 0 14px; color: var(--gris); font-size: 13.5px; }
+
+  /* Barres verticales (jours, heures) */
+  .colonnes { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; align-items: end; height: 170px; border-bottom: 1px solid var(--bord); padding-top: 18px; }
+  .col { position: relative; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+  .col i { display: block; width: 100%; max-width: 34px; min-height: 2px; background: var(--barre); border-radius: 4px 4px 0 0; }
+  .col.max i { background: var(--barre-forte); }
+  .col.vide i { background: var(--piste); }
+  .col:hover i, .col:focus-visible i { background: var(--jaune); }
+  .col .etiq { position: absolute; top: -18px; font-size: 11.5px; font-weight: 600; color: var(--texte); white-space: nowrap; }
+  .axe { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; margin-top: 5px; font-size: 11px; color: var(--gris); text-align: center; }
+  .axe span { white-space: nowrap; overflow: visible; }
+  .bulle { position: fixed; z-index: 30; pointer-events: none; background: var(--texte); color: var(--creme); font-size: 12.5px; padding: 6px 9px; border-radius: 7px; max-width: 220px; transform: translate(-50%, calc(-100% - 10px)); }
+
+  /* Barres horizontales (pages, provenance, appareils, pays) */
+  .lignes { display: grid; gap: 10px; }
+  .ligne { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 12px; align-items: center; }
+  .ligne .n { font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+  .ligne .n small { display: block; color: var(--gris); font-size: 12px; }
+  .ligne .c { font-weight: 600; font-variant-numeric: tabular-nums; font-size: 14px; text-align: right; }
+  .ligne .c small { color: var(--gris); font-weight: 400; margin-left: 4px; }
+  .ligne .p { grid-column: 1 / -1; height: 10px; background: var(--piste); border-radius: 5px; overflow: hidden; }
+  .ligne .p i { display: block; height: 100%; background: var(--barre); border-radius: 5px; }
+  .vide-txt { color: var(--gris); font-size: 14px; padding: 8px 0; }
+
+  .reglage { display: grid; gap: 12px; }
+  .reglage ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14.5px; }
+  .reglage a { color: var(--vert); font-weight: 600; }
+  .ligne-cle { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .champ { width: 100%; min-width: 0; border: 1.5px solid var(--bord); background: var(--blanc); border-radius: 9px; padding: 0 11px; height: 46px; font-size: 15px; }
+  .btn { border: 1.5px solid var(--vert); background: var(--vert); color: var(--creme); border-radius: 999px; padding: 10px 18px; font-weight: 600; font-size: 14px; }
+  .btn.discret { background: var(--blanc); color: var(--gris); border-color: var(--bord); }
+  .pied { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; font-size: 13px; color: var(--gris); }
+  .pied a { color: var(--vert); font-weight: 600; }
+  .pied button { background: none; border: 0; color: var(--gris); text-decoration: underline; padding: 0; font-size: 13px; }
+  .connexion { max-width: 420px; margin: 30px auto; background: var(--blanc); border: 1px solid var(--bord); border-radius: 14px; padding: 22px; display: grid; gap: 12px; }
+  .connexion label { display: grid; gap: 5px; font-size: 12.5px; font-weight: 600; color: var(--gris); }
+  @media (max-width: 480px) { h1 { font-size: 26px; } .chiffre .v { font-size: 26px; } .colonnes { height: 140px; } }
+</style>
+</head>
+<body>
+<script src="nav-admin.js" data-page="stats"></script>
+<header>
+  <div class="in">
+    <div><small>Bossa Nova Café</small><h1>Statistiques</h1></div>
+    <div class="periodes" id="periodes" role="group" aria-label="Période">
+      <button class="periode" type="button" data-jours="7" aria-pressed="false">7 jours</button>
+      <button class="periode" type="button" data-jours="30" aria-pressed="true">30 jours</button>
+      <button class="periode" type="button" data-jours="90" aria-pressed="false">3 mois</button>
+    </div>
+  </div>
+</header>
+
+<section class="connexion cache" id="ecran-connexion">
+  <p style="margin:0;color:var(--gris)">Réservé à l’équipe du Bossa Nova. Même compte que les autres pages d’administration.</p>
+  <label>E-mail<input class="champ" type="email" id="login-email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"></label>
+  <label>Mot de passe<input class="champ" type="password" id="login-mdp" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
+  <div id="login-msg"></div>
+  <button class="btn" type="button" id="login-btn">Se connecter</button>
+</section>
+
+<main id="ecran-app" class="cache">
+  <div class="in">
+    <div id="messages"></div>
+
+    <section class="carte reglage cache" id="reglage">
+      <h2>Connecter les statistiques</h2>
+      <p class="aide" style="margin:0">Une seule fois : un manager relie cette page au compte GoatCounter du Bossa Nova avec une clé en lecture seule. Elle permet seulement de lire les chiffres.</p>
+      <ol>
+        <li>Ouvre <a href="https://bossanova.goatcounter.com/user/api" target="_blank" rel="noopener">GoatCounter → ton compte → API</a> (connecté avec le compte du café).</li>
+        <li>Clique sur <b>New token</b>, donne-lui le nom « Admin Bossa Nova » et coche seulement <b>Read statistics</b>.</li>
+        <li>Clique sur <b>Create</b>, copie la clé affichée et colle-la ci-dessous.</li>
+      </ol>
+      <div class="ligne-cle"><input class="champ" id="cle" type="password" placeholder="Clé GoatCounter" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" aria-label="Clé GoatCounter"><button class="btn" type="button" id="cle-ok">Enregistrer</button></div>
+      <div id="cle-msg"></div>
+    </section>
+
+    <div id="tableau" class="cache">
+      <div class="chiffres" id="chiffres"></div>
+      <div class="grille" style="margin-top:16px">
+        <section class="carte large"><h2>Visites par jour</h2><p class="aide" id="aide-jours">Chaque barre est une journée. Passe le doigt ou la souris sur une barre pour voir le chiffre.</p><div id="g-jours"></div></section>
+        <section class="carte"><h2>Pages consultées</h2><p class="aide">Les pages que les clients ont ouvertes, de la plus vue à la moins vue.</p><div class="lignes" id="g-pages"></div></section>
+        <section class="carte"><h2>D’où viennent les visiteurs</h2><p class="aide">Le site ou l’application où ils ont trouvé le lien. « Lien direct » regroupe surtout WhatsApp, les e-mails et les favoris.</p><div class="lignes" id="g-sources"></div></section>
+        <section class="carte"><h2>À quelle heure</h2><p class="aide">Toutes les visites de la période, réparties par heure de la journée.</p><div id="g-heures"></div></section>
+        <section class="carte"><h2>Quel jour de la semaine</h2><p class="aide">Utile pour choisir le meilleur moment pour publier ou envoyer un message.</p><div id="g-semaine"></div></section>
+        <section class="carte"><h2>Sur quel appareil</h2><p class="aide">Selon la taille de l’écran.</p><div class="lignes" id="g-appareils"></div></section>
+        <section class="carte"><h2>De quel pays</h2><p class="aide">D’après la connexion internet du visiteur.</p><div class="lignes" id="g-pays"></div></section>
+      </div>
+      <div class="pied" style="margin-top:16px"><span id="maj"></span><span><a href="https://bossanova.goatcounter.com" target="_blank" rel="noopener">Ouvrir GoatCounter</a> · <button type="button" id="changer-cle" class="cache">Changer la clé</button></span></div>
+    </div>
+  </div>
+</main>
+<div class="bulle cache" id="bulle" role="status"></div>
+
+<script src="firebase-config.js"></script>
+<script>
+(() => {
+  const API = "https://bossanova.goatcounter.com/api/v0/";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const nf = new Intl.NumberFormat("fr-CH");
+  const pays = (() => { try { return new Intl.DisplayNames(["fr"], { type: "region" }); } catch (e) { return null; } })();
+  const E = { jours: 30, cle: null, manager: true, sauverCle: null, demande: 0 };
+  try { const j = parseInt(localStorage.getItem("bossanova-stats-jours"), 10); if ([7, 30, 90].includes(j)) E.jours = j; } catch (e) { /* sans stockage */ }
+
+  // ---------- Dates ----------
+  const iso = (d) => d.toLocaleDateString("sv-SE");
+  const decaler = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const borne = (d, fin) => iso(d) + (fin ? "T23:59:59Z" : "T00:00:00Z");
+  const jourCourt = (s) => new Date(s + "T12:00").toLocaleDateString("fr-CH", { day: "numeric", month: "numeric" });
+  const jourLong = (s) => new Date(s + "T12:00").toLocaleDateString("fr-CH", { weekday: "long", day: "numeric", month: "long" });
+
+  // ---------- Noms compréhensibles ----------
+  function nomPage(h) {
+    const p = (h.path || "").toLowerCase();
+    if (p.startsWith("/bossa-nova-reservations")) return p.includes("?") ? ["Portail de réservations", "y compris les liens de soirées partagés"] : ["Portail de réservations", ""];
+    if (p === "/soirees/" || p === "/soirees/index.html" || p.startsWith("/soirees/?") || p.startsWith("/soirees/index.html?")) return ["Calculateur de la Festa", ""];
+    if (p.startsWith("/soirees/juniors")) return ["Soirée Juniors", ""];
+    if (p.startsWith("/soirees/amigo-secreto")) return ["Amigo Secreto", ""];
+    return [h.title || h.path || "Autre page", h.title ? h.path : ""];
+  }
+  function nomSource(s) {
+    const n = String(s.name || "").toLowerCase();
+    if (!n || n === "(no data)" || n === "(unknown)") return "Lien direct (WhatsApp, e-mail, favori)";
+    const regles = [["google", "Google"], ["instagram", "Instagram"], ["facebook", "Facebook"], ["fb.", "Facebook"], ["whatsapp", "WhatsApp"], ["linkedin", "LinkedIn"], ["tiktok", "TikTok"], ["bing", "Bing"], ["duckduckgo", "DuckDuckGo"], ["ecosia", "Ecosia"], ["yahoo", "Yahoo"], ["t.co", "X (Twitter)"], ["twitter", "X (Twitter)"], ["youtube", "YouTube"], ["gmail", "Gmail"], ["mail.", "Messagerie e-mail"], ["outlook", "Outlook"], ["bossa-nova-cafe.github.io", "Une autre page du site"], ["bossanova-cafe.ch", "Site du Bossa Nova"]];
+    for (const [k, v] of regles) if (n.includes(k)) return v;
+    return s.name;
+  }
+  const APPAREIL = { phone: "Téléphone", largephone: "Téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Ordinateur", unknown: "Inconnu", "": "Inconnu" };
+  function nomPays(s) {
+    const code = String(s.id || "").slice(0, 2).toUpperCase();
+    if (/^[A-Z]{2}$/.test(code) && pays) { try { return pays.of(code); } catch (e) { /* code inconnu */ } }
+    return "Inconnu";
+  }
+  function regrouper(liste, nom) {
+    const m = new Map();
+    liste.forEach((x) => { const [k, sous] = [].concat(nom(x)); const v = m.get(k) || { nom: k, sous: new Set(), n: 0 }; v.n += Number(x.count) || 0; if (sous) v.sous.add(sous); m.set(k, v); });
+    return [...m.values()].sort((a, b) => b.n - a.n);
+  }
+
+  // ---------- Appels à GoatCounter ----------
+  async function api(chemin, params) {
+    const u = API + chemin + "?" + new URLSearchParams(params).toString();
+    for (let essai = 0; essai < 3; essai++) {
+      const r = await fetch(u, { headers: { Authorization: "Bearer " + E.cle, "Content-Type": "application/json" }, cache: "no-store" });
+      if (r.status === 429) { await new Promise((ok) => setTimeout(ok, 1200 * (essai + 1))); continue; }
+      if (!r.ok) { const e = new Error("GoatCounter " + r.status); e.status = r.status; throw e; }
+      return r.json();
+    }
+    const e = new Error("GoatCounter occupé"); e.status = 429; throw e;
+  }
+
+  // ---------- Graphiques ----------
+  function colonnes(el, donnees, axe) {
+    const max = Math.max(1, ...donnees.map((d) => d.v)); const iMax = donnees.findIndex((d) => d.v === max && max > 0);
+    el.innerHTML = `<div class="colonnes" role="list">${donnees.map((d, i) => `<div class="col${i === iMax ? " max" : ""}${d.v ? "" : " vide"}" role="listitem" tabindex="0" data-bulle="${esc(d.bulle)}" aria-label="${esc(d.bulle)}">${i === iMax ? `<span class="etiq num">${nf.format(d.v)}</span>` : ""}<i style="height:${d.v ? Math.max(2, (d.v / max) * 100) : 1.5}%"></i></div>`).join("")}</div>
+      <div class="axe" aria-hidden="true">${donnees.map((d, i) => `<span>${axe(d, i) || ""}</span>`).join("")}</div>`;
+  }
+  function lignes(el, liste, total, unite) {
+    if (!liste.length) { el.innerHTML = `<div class="vide-txt">Pas encore de données sur cette période.</div>`; return; }
+    const max = Math.max(1, ...liste.map((x) => x.n));
+    el.innerHTML = liste.map((x) => { const sous = x.sous ? [...x.sous].filter(Boolean).join(", ") : ""; const pc = total ? Math.round((x.n / total) * 100) : 0;
+      return `<div class="ligne"><div class="n">${esc(x.nom)}${sous ? `<small>${esc(sous)}</small>` : ""}</div><div class="c">${nf.format(x.n)}<small>${pc} %</small></div><div class="p"><i style="width:${(x.n / max) * 100}%"></i></div></div>`; }).join("");
+  }
+  // Bulles : survol à la souris, appui au doigt, focus au clavier
+  const bulle = $("bulle");
+  function montrer(col) { const r = col.getBoundingClientRect(); bulle.textContent = col.dataset.bulle; bulle.style.left = Math.min(Math.max(r.left + r.width / 2, 120), innerWidth - 120) + "px"; bulle.style.top = (r.top + Math.min(r.height - (col.querySelector("i")?.offsetHeight || 0), r.height - 4)) + "px"; bulle.classList.remove("cache"); }
+  document.addEventListener("pointerover", (e) => { const c = e.target.closest?.(".col"); if (c) montrer(c); });
+  document.addEventListener("pointerout", (e) => { if (e.target.closest?.(".col")) bulle.classList.add("cache"); });
+  document.addEventListener("focusin", (e) => { const c = e.target.closest?.(".col"); if (c) montrer(c); else bulle.classList.add("cache"); });
+  addEventListener("scroll", () => bulle.classList.add("cache"), { passive: true });
+
+  // ---------- Chargement ----------
+  function message(html, type) { $("messages").innerHTML = html ? `<p class="msg ${type || ""}">${html}</p>` : ""; }
+  async function charger() {
+    const n = ++E.demande, J = E.jours;
+    const fin = new Date(), debut = decaler(fin, -(J - 1)), avantFin = decaler(debut, -1), avantDebut = decaler(debut, -J);
+    const per = { start: borne(debut), end: borne(fin, true) };
+    message("Chargement des statistiques…");
+    try {
+      const total = await api("stats/total", per);
+      const avant = await api("stats/total", { start: borne(avantDebut), end: borne(avantFin, true) });
+      const hits = await api("stats/hits", Object.assign({ limit: 100 }, per));
+      const refs = await api("stats/toprefs", Object.assign({ limit: 20 }, per));
+      const tailles = await api("stats/sizes", per);
+      const lieux = await api("stats/locations", Object.assign({ limit: 20 }, per));
+      if (n !== E.demande) return;
+      message("");
+      dessiner(J, debut, total, avant, hits, refs, tailles, lieux);
+    } catch (e) {
+      if (n !== E.demande) return;
+      if (e.status === 401 || e.status === 403) {
+        message("GoatCounter refuse la clé enregistrée : elle a peut-être été supprimée ou ne permet pas de lire les statistiques." + (E.manager ? " Enregistre une nouvelle clé ci-dessous." : " Demande à un manager d’en enregistrer une nouvelle."), "erreur");
+        if (E.manager) { $("reglage").classList.remove("cache"); }
+      } else message("Les statistiques ne peuvent pas être chargées pour le moment (" + esc(e.message) + "). Vérifie la connexion internet et recharge la page.", "erreur");
+    }
+  }
+
+  function dessiner(J, debut, total, avant, hits, refs, tailles, lieux) {
+    $("tableau").classList.remove("cache");
+    // Jours de la période, y compris ceux sans visite
+    const parJour = new Map((total.stats || []).map((s) => [s.day, s]));
+    const jours = []; for (let i = 0; i < J; i++) { const d = iso(decaler(debut, i)); const s = parJour.get(d); jours.push({ day: d, daily: s ? Number(s.daily) || 0 : 0, hourly: s && Array.isArray(s.hourly) ? s.hourly : [] }); }
+    const somme = jours.reduce((a, d) => a + d.daily, 0);
+    const tot = Number(total.total) || somme, prec = Number(avant.total) || (avant.stats || []).reduce((a, d) => a + (Number(d.daily) || 0), 0);
+    const meilleur = jours.reduce((a, d) => (d.daily > a.daily ? d : a), { daily: -1 });
+    const appareils = regrouper(tailles.stats || [], (s) => APPAREIL[s.id] || APPAREIL[String(s.name || "").toLowerCase()] || s.name || "Inconnu");
+    const totApp = appareils.reduce((a, x) => a + x.n, 0);
+    const tel = appareils.find((x) => x.nom === "Téléphone");
+    const evol = prec ? Math.round(((tot - prec) / prec) * 100) : null;
+    const libelle = J === 90 ? "3 derniers mois" : J + " derniers jours";
+
+    $("chiffres").innerHTML = [
+      ["Visites", nf.format(tot), libelle + (evol === null ? "" : ` · <span class="${evol >= 0 ? "hausse" : "baisse"}">${evol >= 0 ? "+" : ""}${evol} %</span> par rapport à la période d’avant`)],
+      ["Par jour en moyenne", nf.format(Math.round((tot / J) * 10) / 10), "visites"],
+      ["Meilleur jour", meilleur.daily > 0 ? nf.format(meilleur.daily) : "—", meilleur.daily > 0 ? jourLong(meilleur.day) : "pas encore de visite"],
+      ["Sur téléphone", totApp ? Math.round(((tel ? tel.n : 0) / totApp) * 100) + " %" : "—", "des visites"]
+    ].map(([l, v, s]) => `<div class="chiffre"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+
+    const pas = J <= 7 ? 1 : J <= 30 ? 5 : 14;
+    colonnes($("g-jours"), jours.map((d) => ({ v: d.daily, bulle: jourLong(d.day) + " : " + nf.format(d.daily) + " visite" + (d.daily > 1 ? "s" : "") })), (d, i) => (i % pas === 0 || i === J - 1 ? (J <= 7 ? new Date(jours[i].day + "T12:00").toLocaleDateString("fr-CH", { weekday: "short" }) : jourCourt(jours[i].day)) : ""));
+
+    lignes($("g-pages"), regrouper(hits.hits || [], nomPage).slice(0, 8), (hits.hits || []).reduce((a, h) => a + (Number(h.count) || 0), 0));
+    const sources = regrouper(refs.stats || [], (s) => nomSource(s));
+    lignes($("g-sources"), sources.slice(0, 8), sources.reduce((a, x) => a + x.n, 0));
+
+    const heures = Array.from({ length: 24 }, (_, h) => jours.reduce((a, d) => a + (Number(d.hourly[h]) || 0), 0));
+    colonnes($("g-heures"), heures.map((v, h) => ({ v, bulle: `${h} h – ${h + 1} h : ${nf.format(v)} visite${v > 1 ? "s" : ""}` })), (d, h) => (h % 3 === 0 ? h + "h" : ""));
+    const NOMS = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."], LONGS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+    const sem = [0, 0, 0, 0, 0, 0, 0]; jours.forEach((d) => { sem[(new Date(d.day + "T12:00").getDay() + 6) % 7] += d.daily; });
+    colonnes($("g-semaine"), sem.map((v, i) => ({ v, bulle: `${LONGS[i]} : ${nf.format(v)} visite${v > 1 ? "s" : ""}` })), (d, i) => NOMS[i]);
+
+    lignes($("g-appareils"), appareils, totApp);
+    const lp = regrouper(lieux.stats || [], nomPays);
+    lignes($("g-pays"), lp.slice(0, 8), lp.reduce((a, x) => a + x.n, 0));
+    $("maj").textContent = "Mis à jour à " + new Date().toLocaleTimeString("fr-CH", { hour: "2-digit", minute: "2-digit" }) + " · les visites de l’équipe ne sont pas comptées";
+  }
+
+  // ---------- Période ----------
+  function marquerPeriode() { document.querySelectorAll(".periode").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.jours === E.jours))); }
+  marquerPeriode();
+  $("periodes").addEventListener("click", (e) => { const b = e.target.closest(".periode"); if (!b) return; E.jours = +b.dataset.jours; try { localStorage.setItem("bossanova-stats-jours", String(E.jours)); } catch (er) { /* sans stockage */ } marquerPeriode(); if (E.cle) charger(); });
+
+  // ---------- Clé GoatCounter ----------
+  function avecCle(cle) {
+    E.cle = cle || null;
+    $("changer-cle").classList.toggle("cache", !E.manager);
+    if (!E.cle) { $("tableau").classList.add("cache"); if (E.manager) $("reglage").classList.remove("cache"); else message("Les statistiques ne sont pas encore connectées. Un manager doit enregistrer une fois la clé GoatCounter sur cette page.", "avert"); return; }
+    $("reglage").classList.add("cache"); charger();
+  }
+  $("changer-cle").addEventListener("click", () => { $("reglage").classList.remove("cache"); $("cle").focus(); scrollTo(0, 0); });
+  $("cle-ok").addEventListener("click", async () => {
+    const cle = $("cle").value.trim(); $("cle-msg").innerHTML = "";
+    if (cle.length < 20) { $("cle-msg").innerHTML = `<p class="msg erreur">Colle la clé complète affichée par GoatCounter.</p>`; return; }
+    const b = $("cle-ok"); b.disabled = true; b.textContent = "Vérification…";
+    try {
+      const r = await fetch(API + "me", { headers: { Authorization: "Bearer " + cle, "Content-Type": "application/json" } });
+      if (!r.ok) throw Object.assign(new Error(), { status: r.status });
+      await E.sauverCle(cle); $("cle").value = ""; avecCle(cle);
+    } catch (e) { $("cle-msg").innerHTML = `<p class="msg erreur">${e.status === 401 || e.status === 403 ? "GoatCounter ne reconnaît pas cette clé. Vérifie que tu as copié toute la clé." : e.code === "permission-denied" ? "Firebase refuse l’enregistrement : il faut être manager, et la règle des statistiques doit être publiée." : "Vérification impossible pour le moment. Réessaie."}</p>`; }
+    b.disabled = false; b.textContent = "Enregistrer";
+  });
+
+  // ---------- Démarrage ----------
+  function ouvrir() { $("ecran-connexion").classList.add("cache"); $("ecran-app").classList.remove("cache"); }
+  function charge(src) { return new Promise((ok, ko) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+  (async () => {
+    const conf = window.FIREBASE_CONFIG;
+    if (!conf || !conf.projectId) { // mode local : la clé reste dans ce navigateur
+      ouvrir(); E.sauverCle = async (c) => { try { localStorage.setItem("bossanova-gc-cle", c); } catch (e) { /* sans stockage */ } };
+      let c = null; try { c = localStorage.getItem("bossanova-gc-cle"); } catch (e) { /* sans stockage */ } avecCle(c); return;
+    }
+    const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+    let app; try { await charge(SDK + "firebase-app-compat.js"); await Promise.all([charge(SDK + "firebase-firestore-compat.js"), charge(SDK + "firebase-auth-compat.js")]); app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(conf); }
+    catch (e) { $("ecran-connexion").classList.remove("cache"); $("login-msg").innerHTML = `<p class="msg erreur">Impossible de charger la connexion. Vérifie internet.</p>`; return; }
+    const db = app.firestore(), auth = app.auth(), DOC = db.collection("parametres").doc("goatcounter");
+    E.sauverCle = (c) => DOC.set({ cle: c, majLe: new Date().toISOString() });
+    let lance = false;
+    auth.onAuthStateChanged(async (u) => {
+      if (!u) { if (lance) location.reload(); else $("ecran-connexion").classList.remove("cache"); return; }
+      if (lance) return; lance = true; ouvrir();
+      const moi = (u.email || "").toLowerCase();
+      try { const eq = await db.collection("parametres").doc("equipe").get(); const m = eq.exists ? eq.data().managers : null; E.manager = !Array.isArray(m) || m.map((x) => String(x).toLowerCase()).includes(moi); } catch (e) { E.manager = true; }
+      try { const d = await DOC.get(); avecCle(d.exists ? d.data().cle : null); }
+      catch (e) { message(e.code === "permission-denied" ? "Firebase refuse l’accès aux statistiques : la règle <code>parametres/goatcounter</code> n’est pas encore publiée, ou ton compte n’est pas dans l’équipe." : "Chargement impossible : " + esc(e.message), "erreur"); }
+    });
+    $("login-btn").addEventListener("click", async () => {
+      const b = $("login-btn"); $("login-msg").innerHTML = ""; b.disabled = true;
+      try { await auth.signInWithEmailAndPassword($("login-email").value.trim().toLowerCase(), $("login-mdp").value); }
+      catch (e) { $("login-msg").innerHTML = `<p class="msg erreur">E-mail ou mot de passe incorrect.</p>`; }
+      b.disabled = false;
+    });
+    $("login-mdp").addEventListener("keydown", (e) => { if (e.key === "Enter") $("login-btn").click(); });
+  })();
+})();
+</script>
+</body>
+</html>

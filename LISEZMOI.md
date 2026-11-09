@@ -132,3 +132,7 @@ Les managers se choisissent dans l'accueil, section Équipe (bouton « Manager �
 Les pages clients envoient leurs visites à https://bossanova.goatcounter.com. L'accueil de l'administration affiche les visites du jour, sur 7 et sur 30 jours (total et par page), grâce au compteur public de GoatCounter : dans GoatCounter, Settings → cocher « Allow adding visitor counts on your website ».
 
 Les appareils de l'équipe ne sont pas comptés : chaque page d'administration (via `nav-admin.js`) inscrit `skipgc` dans le navigateur, et GoatCounter ignore alors ses visites sur tout le site.
+
+## Statistiques
+
+`statistiques.html` (barre de navigation → Statistiques) présente les visites des pages clients de façon simple : chiffres clés, visites par jour, pages, provenance, heures, jours de la semaine, appareils et pays, sur 7 jours, 30 jours ou 3 mois. Les données viennent de l'API GoatCounter, avec une clé en lecture seule (« Read statistics ») enregistrée une fois par un manager sur la page (document Firestore `parametres/goatcounter`, lisible par l'équipe, modifiable par les managers).
