@@ -513,7 +513,7 @@
       </div>
       <div id="bloc-bulles" data-ecran="3-bulles">
         <label class="champ titre-groupe">4. Les bulles, pour trinquer</label>
-        <div class="aide" style="margin-top:0">Une coupe pour lever son verre au bon moment : à l’accueil, avec les trophées ou au dessert. vous choisis le moment dans le programme.</div>
+        <div class="aide" style="margin-top:0">Une coupe pour lever son verre au bon moment : à l’accueil, avec les trophées ou au dessert. vous choisissez le moment dans le programme.</div>
         <div id="bulles"></div>
         <div class="aide" id="bulles-conseil" style="margin-top:6px"></div>
       </div>
@@ -524,7 +524,7 @@
         <label><input type="radio" name="boissons" value="individuel" checked>
           <span><strong>Chaque invité paie ce qu’il commande</strong><small>Les invités règlent eux-mêmes au bar, par carte ou TWINT. Rien n’est ajouté à votre facture.</small></span></label>
         <label><input type="radio" name="boissons" value="facture">
-          <span><strong>L’organisateur paie, jusqu’à un montant maximum</strong><small>Les invités commandent librement : c’est ajouté à votre facture. Quand le montant maximum est atteint, nous te prévenons et vous choisis : soit vous augmentes le montant, soit les invités paient eux-mêmes leurs boissons à partir de ce moment.</small></span></label>
+          <span><strong>L’organisateur paie, jusqu’à un montant maximum</strong><small>Les invités commandent librement : c’est ajouté à votre facture. Quand le montant maximum est atteint, nous vous prévenons et vous choisissez : soit vous augmentez le montant, soit les invités paient eux-mêmes leurs boissons à partir de ce moment.</small></span></label>
         <div id="bloc-plafond">
           <div class="rangee" style="align-items:center">
             <div style="flex:0 0 auto">Montant maximum : CHF</div>
@@ -1595,7 +1595,7 @@
     if (bc) {
       const ecart = r.total - bc.total;
       $("budget-ecart").textContent = ecart > 0
-        ? `Ton budget : ${chf(bc.total)}, soit ${chf(ecart)} de moins que l’estimation. Envoie votre demande : nous te proposerons des ajustements.`
+        ? `Votre budget : ${chf(bc.total)}, soit ${chf(ecart)} de moins que l’estimation. Envoie votre demande : nous vous proposerons des ajustements.`
         : `Ton budget de ${chf(bc.total)} couvre l’estimation.`;
     }
     $("envoyer-wa").textContent = bc && r.total > bc.total ? "Demander une proposition par WhatsApp" : "Envoyer ma demande par WhatsApp";
