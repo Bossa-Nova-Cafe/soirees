@@ -1,0 +1,1073 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Amigo Secreto — Père Noël secret gratuit | Bossa Nova Café Vevey</title>
+<meta name="description" content="Organisez gratuitement votre Amigo Secreto, le Père Noël secret brésilien. Tirage au sort entre amis, collègues ou en famille. Sans inscription, sans téléchargement. Offert par le Bossa Nova Café à Vevey.">
+<!-- =====================================================================
+     DÉPLACEMENT DE LA PAGE
+     Si cette page est un jour déplacée vers https://bossa-nova-cafe.github.io/amigo-secreto/
+     (dépôt « amigo-secreto » à créer dans l'organisation), remplacer partout
+     l'adresse https://bossa-nova-cafe.github.io/soirees/noel/
+     par       https://bossa-nova-cafe.github.io/amigo-secreto/
+     Elle apparaît trois fois : canonical, og:url et og:image.
+     L'image de partage DOIT être accessible à l'adresse indiquée,
+     sinon Facebook et Instagram n'afficheront aucun aperçu.
+===================================================================== -->
+<link rel="canonical" href="https://bossa-nova-cafe.github.io/soirees/noel/">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_CH">
+<meta property="og:site_name" content="Bossa Nova Café">
+<meta property="og:title" content="🎁 Le Bossa Nova Café vous offre votre Amigo Secreto !">
+<meta property="og:description" content="Père Noël secret gratuit, entre amis, collègues ou en famille. Créez votre groupe, lancez le tirage, partagez les liens secrets. 100 % gratuit, sans inscription.">
+<meta property="og:url" content="https://bossa-nova-cafe.github.io/soirees/noel/">
+<meta property="og:image" content="https://bossa-nova-cafe.github.io/soirees/noel/partage.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Amigo Secreto — le cadeau de Noël du Bossa Nova Café">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0f3d2e">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230f3d2e'/%3E%3Ctext x='50' y='50' font-size='58' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%8E%81%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Chango&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --vert: #0f3d2e;
+    --vert-clair: #1d5a45;
+    --vert-profond: #0a2a20;
+    --jaune: #f2c230;
+    --or: #d9a521;
+    --violet: #6b3fa0;
+    --corail: #e25f4c;
+    --creme: #fbf6e9;
+    --texte: #1d1d1b;
+    --gris: #6b6b66;
+    --ombre: 0 10px 30px rgba(0,0,0,.20);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Poppins", system-ui, -apple-system, sans-serif;
+    background: var(--vert);
+    color: var(--texte);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ---------- Décor ---------- */
+  .feuillage {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(29,90,69,.55), transparent 42%),
+      radial-gradient(circle at 88% 18%, rgba(107,63,160,.28), transparent 38%),
+      radial-gradient(circle at 50% 100%, rgba(242,194,48,.12), transparent 50%);
+  }
+  .contenu { position: relative; z-index: 1; }
+
+  /* ---------- En-tête ---------- */
+  header {
+    text-align: center;
+    padding: 34px 18px 26px;
+    color: var(--creme);
+  }
+  .marque {
+    font-family: "Chango", system-ui, serif;
+    color: var(--jaune);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  header h1 {
+    font-family: "Anton", system-ui, sans-serif;
+    font-weight: 400;
+    font-size: clamp(38px, 11vw, 60px);
+    line-height: 1.02;
+    margin: 10px 0 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  header h1 .cadeau { display: block; font-size: .72em; margin-bottom: 2px; }
+  .sous-titre {
+    margin: 0 auto;
+    max-width: 30ch;
+    font-size: clamp(15px, 4.2vw, 18px);
+    font-weight: 500;
+    color: var(--jaune);
+    line-height: 1.4;
+  }
+  .arguments {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 22px auto 0;
+    max-width: 520px;
+  }
+  .arguments span {
+    background: rgba(251,246,233,.12);
+    border: 1px solid rgba(242,194,48,.45);
+    color: var(--creme);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Structure ---------- */
+  main { max-width: 660px; margin: 0 auto; padding: 0 16px 40px; }
+  .carte {
+    background: var(--creme);
+    border-radius: 20px;
+    padding: 26px 22px;
+    margin-bottom: 18px;
+    box-shadow: var(--ombre);
+  }
+  .carte h2 {
+    font-family: "Anton", system-ui, sans-serif;
+    font-weight: 400;
+    color: var(--vert);
+    font-size: clamp(21px, 5.6vw, 27px);
+    line-height: 1.15;
+    margin: 0 0 14px;
+    text-transform: uppercase;
+  }
+  .carte h3 {
+    font-family: "Anton", system-ui, sans-serif;
+    font-weight: 400;
+    color: var(--vert);
+    font-size: 19px;
+    margin: 22px 0 10px;
+    text-transform: uppercase;
+  }
+  p { line-height: 1.62; font-size: 15px; margin: 0 0 12px; }
+  p:last-child { margin-bottom: 0; }
+  .aide { color: var(--gris); font-size: 12.5px; font-weight: 400; }
+
+  /* ---------- Étapes ---------- */
+  .etapes { list-style: none; counter-reset: etape; margin: 0; padding: 0; }
+  .etapes li {
+    counter-increment: etape;
+    position: relative;
+    padding: 0 0 16px 46px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .etapes li:last-child { padding-bottom: 0; }
+  .etapes li::before {
+    content: counter(etape);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--vert);
+    color: var(--jaune);
+    font-family: "Anton", sans-serif;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .etapes strong { display: block; color: var(--vert); }
+
+  /* ---------- Formulaire ---------- */
+  label { display: block; font-weight: 600; font-size: 14px; margin: 16px 0 6px; color: var(--vert); }
+  input, textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 16px;
+    padding: 12px 14px;
+    border: 1.5px solid #d9d2bd;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--texte);
+  }
+  input:focus, textarea:focus { outline: 3px solid var(--jaune); outline-offset: 1px; border-color: var(--jaune); }
+  textarea { min-height: 170px; resize: vertical; line-height: 1.6; }
+  .rangee { display: flex; gap: 12px; }
+  .rangee > div { flex: 1; min-width: 0; }
+  .compteur { font-size: 12.5px; color: var(--gris); margin-top: 6px; }
+  .erreur { color: #b3261e; font-size: 14px; margin-top: 12px; font-weight: 500; min-height: 1em; }
+
+  /* ---------- Boutons ---------- */
+  button, .bouton {
+    font: inherit;
+    font-weight: 600;
+    border: 0;
+    border-radius: 999px;
+    padding: 14px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.3;
+    min-height: 48px;
+  }
+  .principal {
+    background: linear-gradient(180deg, var(--jaune), var(--or));
+    color: var(--vert);
+    font-size: 17px;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 22px;
+    box-shadow: 0 6px 16px rgba(217,165,33,.35);
+  }
+  .principal:hover { filter: brightness(1.06); }
+  .principal:active { transform: translateY(1px); }
+  .secondaire { background: var(--vert); color: var(--creme); font-size: 13.5px; padding: 10px 16px; min-height: 42px; }
+  .whatsapp { background: #25d366; color: #fff; font-size: 13.5px; padding: 10px 16px; min-height: 42px; }
+  .partage { background: var(--violet); color: #fff; font-size: 13.5px; padding: 10px 16px; min-height: 42px; }
+  .discret {
+    background: transparent;
+    color: var(--violet);
+    text-decoration: underline;
+    padding: 10px 2px;
+    font-weight: 500;
+    font-size: 14px;
+    min-height: 42px;
+  }
+  .copie { background: var(--vert-clair) !important; }
+
+  /* ---------- Liste des participants ---------- */
+  .bandeau {
+    background: var(--violet);
+    color: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .participant {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 0;
+    border-bottom: 1px solid #e6dfca;
+  }
+  .participant:last-child { border-bottom: 0; }
+  .participant .nom { font-weight: 600; font-size: 15.5px; word-break: break-word; }
+  .participant .actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+  .barre-actions { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .note-tirage { color: var(--gris); font-size: 12.5px; line-height: 1.5; margin-top: 16px; }
+
+  /* ---------- Révélation ---------- */
+  .revelation { text-align: center; }
+  .salut { font-size: 19px; margin: 0 0 6px; font-weight: 500; }
+  .evenement { color: var(--gris); font-size: 14px; margin: 0 0 20px; }
+  .enveloppe {
+    background: linear-gradient(160deg, var(--vert), var(--vert-profond));
+    color: var(--jaune);
+    border-radius: 18px;
+    padding: 36px 18px;
+    margin: 0 0 18px;
+    border: 1px solid rgba(242,194,48,.35);
+  }
+  .enveloppe .titre { font-size: 13.5px; color: var(--creme); opacity: .85; margin-bottom: 10px; letter-spacing: .5px; }
+  .enveloppe .ami {
+    font-family: "Chango", system-ui, serif;
+    font-size: clamp(28px, 8.5vw, 40px);
+    line-height: 1.15;
+    word-break: break-word;
+    animation: apparait .65s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes apparait {
+    from { opacity: 0; transform: scale(.7) rotate(-4deg); }
+    to { opacity: 1; transform: scale(1) rotate(0); }
+  }
+  .infos { text-align: left; font-size: 14.5px; line-height: 1.65; }
+  .infos p { margin: 5px 0; }
+  .regles { text-align: left; margin-top: 20px; padding-top: 18px; border-top: 1px solid #e6dfca; }
+
+  /* ---------- Offre commerciale ---------- */
+  .offre { background: linear-gradient(165deg, #14543f, var(--vert-profond)); color: var(--creme); border: 1px solid rgba(242,194,48,.4); }
+  .offre h2 { color: var(--jaune); }
+  .offre p { color: rgba(251,246,233,.92); }
+  .offre .photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: 14px;
+    margin: 4px 0 16px;
+    display: block;
+    background: rgba(255,255,255,.06);
+  }
+  .cadeau-offert {
+    background: rgba(242,194,48,.16);
+    border: 1px dashed var(--jaune);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-weight: 600;
+    color: var(--jaune);
+    font-size: 15.5px;
+    text-align: center;
+    line-height: 1.45;
+  }
+  .conditions { font-size: 12.5px; line-height: 1.6; color: rgba(251,246,233,.78); margin-top: 14px; }
+  .conditions li { margin-bottom: 4px; }
+  .conditions ul { margin: 6px 0 0; padding-left: 20px; }
+
+  /* ---------- Bon promotionnel ---------- */
+  .bon {
+    background: var(--creme);
+    border: 2px dashed var(--or);
+    border-radius: 16px;
+    padding: 22px 18px;
+    text-align: center;
+    margin-top: 18px;
+  }
+  .bon .libelle { font-size: 12.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gris); }
+  .bon .titre-bon {
+    font-family: "Anton", sans-serif;
+    font-size: clamp(18px, 5vw, 23px);
+    color: var(--vert);
+    text-transform: uppercase;
+    margin: 8px 0 14px;
+    line-height: 1.2;
+  }
+  .bon .code {
+    font-family: "Chango", serif;
+    font-size: clamp(26px, 8vw, 34px);
+    color: var(--corail);
+    letter-spacing: 2px;
+    margin: 6px 0 4px;
+  }
+  .bon .boutons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+  /* Le bon a un fond crème même à l'intérieur d'une carte .offre :
+     sans cette règle, .offre p rendrait son texte crème sur crème. */
+  .carte.offre .bon p { color: var(--gris); }
+  .carte.offre .bon .titre-bon { color: var(--vert); }
+
+  /* ---------- Café ---------- */
+  .adresse { font-style: normal; line-height: 1.6; font-size: 15px; }
+  .adresse strong { font-size: 16px; }
+  .liens-cafe { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+  /* ---------- Invitation participant ---------- */
+  .invitation { background: linear-gradient(165deg, #14543f, var(--vert-profond)); color: var(--creme); border: 1px solid rgba(242,194,48,.35); }
+  .invitation h2 { color: var(--jaune); font-size: 20px; }
+  .invitation p { color: rgba(251,246,233,.92); font-size: 14.5px; }
+
+  footer {
+    text-align: center;
+    color: var(--creme);
+    font-size: 12.5px;
+    padding: 8px 16px 34px;
+    line-height: 1.7;
+  }
+  footer .signature { font-family: "Chango", serif; color: var(--jaune); font-size: 14px; display: block; margin-bottom: 8px; }
+  footer a { color: var(--jaune); }
+
+  .cache { display: none !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 480px) {
+    .participant { flex-direction: column; align-items: stretch; }
+    .participant .actions { justify-content: stretch; }
+    .participant .actions > * { flex: 1; }
+    .rangee { flex-direction: column; gap: 0; }
+    .carte { padding: 22px 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="feuillage" aria-hidden="true"></div>
+<div class="contenu">
+
+<header>
+  <div class="marque">Bossa Nova Café · Vevey</div>
+  <h1><span class="cadeau">🎁</span>Amigo Secreto</h1>
+  <p class="sous-titre">Le Bossa Nova Café vous offre votre Ami Secret de Noël !</p>
+  <div class="arguments">
+    <span>100 % GRATUIT</span>
+    <span>TIRAGES ILLIMITÉS</span>
+    <span>SANS INSCRIPTION</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ VUE ACCUEIL / ORGANISATEUR ============ -->
+  <section id="vue-organisateur" class="cache">
+
+    <div class="carte">
+      <p>Au Brésil, Noël se fête aussi avec l'<em>Amigo Secreto</em> !</p>
+      <p>Cette année, le Bossa Nova Café vous offre une application entièrement gratuite pour organiser votre tirage au sort entre amis, collègues ou en famille.</p>
+      <p>Créez votre groupe, découvrez secrètement à qui offrir un cadeau et préparez une fête pleine de surprises !</p>
+      <button class="principal" id="aller-formulaire">🎁 Créer mon Amigo Secreto</button>
+    </div>
+
+    <div class="carte">
+      <h2>C'est quoi, l'Amigo Secreto ?</h2>
+      <p>C'est la tradition brésilienne de l'ami secret, particulièrement populaire à Noël. Chaque participant tire secrètement le nom d'une personne à qui offrir un cadeau. Le jour de la rencontre, chacun découvre son ami secret, souvent à travers des indices amusants.</p>
+      <ol class="etapes">
+        <li><strong>Créez votre groupe</strong>Ajoutez les participants et fixez le budget des cadeaux.</li>
+        <li><strong>Lancez le tirage</strong>L'application organise l'attribution secrète des cadeaux.</li>
+        <li><strong>Partagez les liens</strong>Chaque participant découvre individuellement le nom de la personne à qui offrir son cadeau.</li>
+        <li><strong>Profitez de votre fête !</strong>Retrouvez-vous chez vous, au bureau, entre amis ou dans le lieu de votre choix pour échanger les cadeaux.</li>
+      </ol>
+    </div>
+
+    <div class="carte" id="formulaire">
+      <h2>Organiser le tirage</h2>
+
+      <label for="evenement">Nom du groupe ou de l'événement</label>
+      <input id="evenement" maxlength="60" autocomplete="off" placeholder="ex. Noël de la famille Silva">
+
+      <div class="rangee">
+        <div>
+          <label for="date">Date de l'échange</label>
+          <input id="date" type="date">
+        </div>
+        <div>
+          <label for="budget">Budget indicatif (CHF)</label>
+          <input id="budget" type="number" inputmode="numeric" min="0" step="5" placeholder="30">
+        </div>
+      </div>
+
+      <label for="message">Message aux participants <span class="aide">(facultatif)</span></label>
+      <input id="message" maxlength="140" autocomplete="off" placeholder="ex. Un cadeau qui fait sourire !">
+
+      <label for="noms">Participants
+        <span class="aide" id="regle-noms"></span>
+      </label>
+      <textarea id="noms" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Ana&#10;Bruno&#10;Carla&#10;David"></textarea>
+      <div class="compteur" id="compteur">0 participant</div>
+
+      <div class="erreur" id="erreur" role="alert"></div>
+      <button class="principal" id="tirer">🎁 Lancer le tirage</button>
+    </div>
+
+    <div class="carte" id="carte-offre-accueil"></div>
+
+    <div class="carte">
+      <h2>🇧🇷 Un petit coin de Brésil au cœur de Vevey</h2>
+      <p>Situé sur la place de la Gare à Vevey, le Bossa Nova Café vous invite à découvrir une ambiance chaleureuse et colorée, entre café italien, spécialités brésiliennes, apéritifs et moments de convivialité.</p>
+      <p>Un lieu pour se retrouver, partager et profiter d'un peu de Brésil sur la Riviera vaudoise.</p>
+      <address class="adresse">
+        <strong>Bossa Nova Café</strong><br>
+        Place de la Gare 3<br>
+        1800 Vevey, Suisse
+      </address>
+      <div class="liens-cafe" id="liens-cafe"></div>
+    </div>
+
+  </section>
+
+  <!-- ============ VUE RÉSULTATS ============ -->
+  <section id="vue-resultats" class="cache">
+
+    <div class="carte">
+      <h2>🎉 Votre Amigo Secreto est prêt !</h2>
+      <p>Félicitations ! Votre tirage au sort est terminé. Il ne vous reste plus qu'à transmettre à chacun son lien personnel et à préparer les cadeaux.</p>
+      <p><strong>Joyeux Amigo Secreto ! 🇧🇷</strong></p>
+    </div>
+
+    <div class="carte">
+      <h2>Liens à envoyer</h2>
+      <div class="bandeau">
+        Envoyez à chaque personne <strong>son propre lien</strong>. N'ouvrez pas les liens des autres : vous découvririez leur ami secret.
+      </div>
+      <div id="liste"></div>
+      <div class="barre-actions">
+        <button class="secondaire" id="copier-tout">Copier tous les liens</button>
+        <button class="discret" id="refaire">Refaire le tirage</button>
+        <button class="discret" id="nouveau">Nouveau groupe</button>
+      </div>
+      <p class="note-tirage" id="note-resultats"></p>
+      <p class="note-tirage">
+        <strong>À savoir :</strong> en tant qu'organisateur, vous connaissez toutes les attributions, puisque le tirage se fait sur votre téléphone. Si vous voulez un secret complet pour tout le monde, demandez à quelqu'un d'extérieur au groupe de lancer le tirage.
+      </p>
+    </div>
+
+    <div class="carte" id="carte-offre-resultats"></div>
+
+  </section>
+
+  <!-- ============ VUE PARTICIPANT ============ -->
+  <section id="vue-participant" class="cache">
+
+    <div class="carte revelation">
+      <p class="salut">Olá, <strong id="p-donneur"></strong> ! 🇧🇷</p>
+      <p class="evenement" id="p-evenement"></p>
+
+      <div id="p-avant">
+        <p>Tu participes à un <strong>Amigo Secreto</strong> !</p>
+        <p>Quelqu'un dans ton groupe attend un cadeau de ta part…</p>
+        <p class="aide">Prêt à découvrir ton ami secret ?</p>
+        <button class="principal" id="reveler">🎁 Découvrir mon ami secret</button>
+      </div>
+
+      <div id="p-apres" class="cache">
+        <div class="enveloppe">
+          <div class="titre">Ton ami secret est</div>
+          <div class="ami" id="p-ami"></div>
+        </div>
+        <div class="infos">
+          <p id="p-budget"></p>
+          <p id="p-date"></p>
+          <p id="p-message"></p>
+        </div>
+        <div class="regles">
+          <h3>Comment préparer ton cadeau</h3>
+          <ol class="etapes">
+            <li><strong>Garde le secret</strong>Ne dis à personne qui tu as tiré, c'est tout le sel du jeu.</li>
+            <li><strong>Choisis un cadeau dans le budget</strong>L'idée compte plus que le prix.</li>
+            <li><strong>Prépare trois indices</strong>Une habitude, un trait de caractère, une anecdote — pour faire deviner ton ami secret sans dire son nom. Restons gentils !</li>
+            <li><strong>Le jour de l'échange</strong>Chacun décrit son ami secret à tour de rôle, le groupe devine, puis le cadeau change de mains.</li>
+          </ol>
+        </div>
+      </div>
+      <p class="note-tirage" id="p-tirage"></p>
+    </div>
+
+    <div class="carte" id="carte-invitation-participant"></div>
+
+    <div class="carte">
+      <p class="aide" style="text-align:center;margin:0">
+        Envie d'organiser votre propre Amigo Secreto ?<br>
+        <a href="./" style="color:var(--violet);font-weight:600">C'est gratuit, ici même.</a>
+      </p>
+    </div>
+
+  </section>
+
+  <!-- ============ LIEN INVALIDE ============ -->
+  <section id="vue-invalide" class="cache">
+    <div class="carte">
+      <h2>Lien incomplet</h2>
+      <p>Ce lien ne fonctionne pas. Demandez à l'organisateur de vous le renvoyer en entier — certaines messageries coupent les liens trop longs.</p>
+      <p><a href="./" style="color:var(--violet);font-weight:600">Créer mon propre Amigo Secreto</a></p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="signature">Le Brésil se partage, Noël aussi !</span>
+  Bossa Nova Café · Place de la Gare 3 · 1800 Vevey
+</footer>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =======================================================================
+     CONFIGURATION — tout ce qui se modifie sans toucher au moteur de tirage
+     =======================================================================
+
+     CAMPAGNE_ACTIVE : interrupteur unique de la partie commerciale.
+       false → l'application fonctionne normalement, aucune offre ni aucun
+               bouton de réservation n'est affiché. C'est l'état sûr tant que
+               la direction n'a pas validé les conditions ET que le parcours
+               client de réservation n'a pas été testé de bout en bout.
+       true  → l'offre, le bon promotionnel et les boutons de réservation
+               apparaissent sur l'accueil, après le tirage et sur la page
+               personnelle des participants.
+  ----------------------------------------------------------------------- */
+
+  var CAMPAGNE_ACTIVE = false;
+
+  var CONFIG = {
+    tirage: {
+      min: 3,
+      max: 20
+    },
+    reservation: {
+      url: "https://bossa-nova-cafe.github.io/bossa-nova-reservations/?e=QNhThU0CHGbjs0qtVPtK",
+      code: "AMIGO2026"
+    },
+    offre: {
+      intitule: "Une planche apéro brésilienne offerte à votre groupe !",
+      minPersonnes: 6,
+      periode: "du 20 novembre au 31 décembre 2026",
+      jours: "du dimanche au jeudi",
+      datesExclues: "les 24, 25 et 31 décembre",
+      conditions: [
+        "Groupe de 6 personnes minimum.",
+        "Réservation préalable obligatoire.",
+        "Une planche offerte par groupe et par réservation.",
+        "Consommation sur place.",
+        "Offre valable du dimanche au jeudi, hors 24, 25 et 31 décembre.",
+        "Offre non échangeable contre de l'argent, sous réserve des disponibilités.",
+        "Validité : du 20 novembre au 31 décembre 2026."
+      ]
+    },
+    cafe: {
+      // Remplacer par les adresses officielles des réseaux du café.
+      carte: "https://maps.google.com/?q=Bossa+Nova+Caf%C3%A9+Place+de+la+Gare+3+1800+Vevey",
+      facebook: "",
+      instagram: ""
+    }
+  };
+
+  /* ===================== Encodage des liens personnels =====================
+     Chaque lien ne contient QUE l'attribution de son destinataire : le reste
+     du tirage n'y figure pas. Les données voyagent après le « # », donc elles
+     ne sont jamais transmises à un serveur. C'est une obfuscation, pas un
+     chiffrement : le secret tient au fait que chacun ne reçoit que son lien.
+  ------------------------------------------------------------------------ */
+
+  var CLE = "bossanova-amigo-vevey";
+
+  function encoder(objet) {
+    var octets = new TextEncoder().encode(JSON.stringify(objet));
+    var melange = octets.map(function (o, i) { return o ^ CLE.charCodeAt(i % CLE.length); });
+    var binaire = "";
+    melange.forEach(function (o) { binaire += String.fromCharCode(o); });
+    return btoa(binaire).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function decoder(texte) {
+    var b64 = texte.replace(/-/g, "+").replace(/_/g, "/");
+    var binaire = atob(b64 + "===".slice((b64.length + 3) % 4));
+    var octets = Uint8Array.from(binaire, function (c, i) {
+      return c.charCodeAt(0) ^ CLE.charCodeAt(i % CLE.length);
+    });
+    return JSON.parse(new TextDecoder().decode(octets));
+  }
+
+  /* ========================= Moteur de tirage =============================
+     Mélange de Fisher-Yates, puis chaînage circulaire : chacun offre à la
+     personne suivante dans l'ordre mélangé. Garantit en une seule passe que
+     personne ne se tire soi-même, que chacun reçoit exactement un
+     destinataire et que chaque personne est désignée exactement une fois.
+  ------------------------------------------------------------------------ */
+
+  function melanger(liste) {
+    var t = liste.slice();
+    for (var i = t.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var x = t[i]; t[i] = t[j]; t[j] = x;
+    }
+    return t;
+  }
+
+  function tirage(noms) {
+    var ordre = melanger(noms);
+    return ordre.map(function (nom, i) {
+      return { donneur: nom, ami: ordre[(i + 1) % ordre.length] };
+    });
+  }
+
+  function numeroTirage() {
+    return Math.random().toString(36).slice(2, 6).toUpperCase();
+  }
+
+  /* ============================== Outils ================================ */
+
+  var $ = function (id) { return document.getElementById(id); };
+  var VUES = ["vue-organisateur", "vue-resultats", "vue-participant", "vue-invalide"];
+
+  function montrer(id) {
+    VUES.forEach(function (v) { $(v).classList.add("cache"); });
+    $(id).classList.remove("cache");
+    // Sur un lien personnel, les arguments d'acquisition n'ont pas lieu d'être :
+    // ils repousseraient la révélation sous la ligne de flottaison.
+    var args = document.querySelector(".arguments");
+    if (args) args.classList.toggle("cache", id === "vue-participant");
+    window.scrollTo(0, 0);
+  }
+
+  var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet",
+              "août", "septembre", "octobre", "novembre", "décembre"];
+
+  function dateLisible(iso) {
+    if (!iso) return "";
+    var p = iso.split("-").map(Number);
+    if (p.length !== 3 || !MOIS[p[1] - 1]) return "";
+    return p[2] + " " + MOIS[p[1] - 1] + " " + p[0];
+  }
+
+  function memoriser(cle, valeur) {
+    try { localStorage.setItem(cle, JSON.stringify(valeur)); } catch (e) { /* indisponible */ }
+  }
+
+  function relire(cle) {
+    try { return JSON.parse(localStorage.getItem(cle)); } catch (e) { return null; }
+  }
+
+  function confirmerCopie(bouton) {
+    var avant = bouton.dataset.libelle || bouton.textContent;
+    bouton.dataset.libelle = avant;
+    bouton.textContent = "✓ Copié";
+    bouton.classList.add("copie");
+    setTimeout(function () {
+      bouton.textContent = avant;
+      bouton.classList.remove("copie");
+    }, 1800);
+  }
+
+  function copier(texte, bouton) {
+    function secours() {
+      var zone = document.createElement("textarea");
+      zone.value = texte;
+      zone.setAttribute("readonly", "");
+      zone.style.position = "fixed";
+      zone.style.top = "-1000px";
+      document.body.appendChild(zone);
+      zone.select();
+      try { document.execCommand("copy"); } catch (e) { /* rien */ }
+      zone.remove();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texte).then(
+        function () { confirmerCopie(bouton); },
+        function () { secours(); confirmerCopie(bouton); }
+      );
+    } else {
+      secours();
+      confirmerCopie(bouton);
+    }
+  }
+
+  var adresseBase = function () { return location.href.split("#")[0]; };
+
+  function lienReservation(origine) {
+    var u = CONFIG.reservation.url;
+    var separateur = u.indexOf("?") === -1 ? "?" : "&";
+    return u + separateur +
+      "code=" + encodeURIComponent(CONFIG.reservation.code) +
+      "&src=" + encodeURIComponent(origine || "amigo-secreto");
+  }
+
+  function echapper(texte) {
+    var d = document.createElement("div");
+    d.textContent = texte == null ? "" : String(texte);
+    return d.innerHTML;
+  }
+
+  /* ====================== Blocs commerciaux (optionnels) ================= */
+
+  function boutonReservation(libelle, origine) {
+    return '<a class="bouton principal" style="width:auto;margin-top:0" target="_blank" rel="noopener" href="' +
+      echapper(lienReservation(origine)) + '">' + libelle + "</a>";
+  }
+
+  function blocOffre(origine) {
+    var o = CONFIG.offre;
+    return '' +
+      '<h2>🥂 Et si vous fêtiez votre Amigo Secreto chez nous ?</h2>' +
+      '<img class="photo" src="photos/petiscos.jpg" alt="Planche de petiscos brésiliens : pães de queijo, mini coxinhas et mini empadas" loading="lazy" width="900" height="600">' +
+      '<p>Votre Amigo Secreto est gratuit et vous pouvez organiser votre échange de cadeaux où vous le souhaitez !</p>' +
+      '<p>Mais si vous choisissez de réunir votre groupe au Bossa Nova Café, nous avons une petite surprise pour vous…</p>' +
+      '<div class="cadeau-offert">🎁 ' + echapper(o.intitule) + '</div>' +
+      '<p>Retrouvez vos amis, votre famille ou vos collègues autour d\'un verre, de spécialités brésiliennes et d\'une ambiance chaleureuse pour célébrer votre Amigo Secreto !</p>' +
+      '<div style="margin-top:18px">' + boutonReservation("🎁 Réserver notre Amigo Secreto au Bossa Nova", origine) + '</div>' +
+      '<div class="conditions"><strong>Conditions</strong><ul>' +
+        o.conditions.map(function (c) { return "<li>" + echapper(c) + "</li>"; }).join("") +
+      '</ul></div>';
+  }
+
+  function blocBon(origine) {
+    var o = CONFIG.offre;
+    return '' +
+      '<div class="bon">' +
+        '<div class="libelle">🎁 Votre cadeau Amigo Secreto</div>' +
+        '<div class="titre-bon">' + echapper(o.intitule.replace(" à votre groupe !", "")) + '</div>' +
+        '<div class="libelle">Code promotionnel</div>' +
+        '<div class="code">' + echapper(CONFIG.reservation.code) + '</div>' +
+        '<p class="aide" style="margin:10px 0 0">Bossa Nova Café — Vevey<br>' +
+          'Groupe de ' + o.minPersonnes + ' personnes minimum, réservation préalable, consommation sur place, une planche par réservation.</p>' +
+        '<div class="boutons">' +
+          '<button class="secondaire" id="copier-code">Copier mon code</button>' +
+          '<a class="bouton whatsapp" style="background:var(--vert)" target="_blank" rel="noopener" href="' +
+            echapper(lienReservation(origine)) + '">Réserver ma soirée</a>' +
+        '</div>' +
+        '<p class="aide" style="margin-top:12px;font-size:11.5px">Le code identifie l\'offre commerciale. Il ne constitue pas un bon unique à valeur monétaire et ne garantit ni réduction automatique ni disponibilité.</p>' +
+      '</div>';
+  }
+
+  function brancherCopieCode() {
+    var b = $("copier-code");
+    if (b) b.addEventListener("click", function () { copier(CONFIG.reservation.code, b); });
+  }
+
+  function remplirBlocsCommerciaux() {
+    var accueil = $("carte-offre-accueil");
+    var resultats = $("carte-offre-resultats");
+    var invitation = $("carte-invitation-participant");
+
+    if (!CAMPAGNE_ACTIVE) {
+      [accueil, resultats, invitation].forEach(function (n) { if (n) n.classList.add("cache"); });
+      return;
+    }
+
+    if (accueil) {
+      accueil.className = "carte offre";
+      accueil.innerHTML = blocOffre("accueil");
+    }
+
+    if (resultats) {
+      resultats.className = "carte offre";
+      resultats.innerHTML =
+        '<h2>🎁 Une surprise vous attend au Bossa Nova !</h2>' +
+        '<p>Vous avez organisé votre Amigo Secreto gratuitement.</p>' +
+        '<p>Maintenant, pourquoi ne pas réunir votre groupe au Bossa Nova Café pour échanger vos cadeaux ?</p>' +
+        '<p>Sur réservation, nous vous offrons une planche apéro brésilienne à partager, selon les conditions de notre offre.</p>' +
+        '<div style="margin-top:18px">' + boutonReservation("🥂 Profiter de notre surprise", "apres-tirage") + '</div>' +
+        blocBon("bon-resultats");
+      brancherCopieCode();
+    }
+
+    if (invitation) {
+      invitation.className = "carte invitation";
+      invitation.innerHTML =
+        '<h2>🇧🇷 Une invitation du Bossa Nova Café</h2>' +
+        '<p>Envie de partager votre échange de cadeaux dans une ambiance brésilienne ?</p>' +
+        '<p>Réservez votre rencontre au Bossa Nova Café à Vevey et profitez d\'une surprise gourmande offerte à votre groupe !</p>' +
+        '<div style="margin-top:16px">' + boutonReservation("Découvrir notre offre", "page-participant") + '</div>';
+    }
+  }
+
+  function remplirLiensCafe() {
+    var zone = $("liens-cafe");
+    if (!zone) return;
+    var liens = [];
+    if (CONFIG.cafe.carte) liens.push('<a class="bouton secondaire" target="_blank" rel="noopener" href="' + echapper(CONFIG.cafe.carte) + '">📍 Nous situer</a>');
+    if (CONFIG.cafe.facebook) liens.push('<a class="bouton secondaire" target="_blank" rel="noopener" href="' + echapper(CONFIG.cafe.facebook) + '">Facebook</a>');
+    if (CONFIG.cafe.instagram) liens.push('<a class="bouton secondaire" target="_blank" rel="noopener" href="' + echapper(CONFIG.cafe.instagram) + '">Instagram</a>');
+    zone.innerHTML = liens.join("");
+  }
+
+  /* ========================= Vue organisateur ============================ */
+
+  function lireFormulaire() {
+    return {
+      evenement: $("evenement").value.trim(),
+      date: $("date").value,
+      budget: $("budget").value.trim(),
+      message: $("message").value.trim(),
+      noms: $("noms").value.split("\n").map(function (n) { return n.trim(); }).filter(Boolean)
+    };
+  }
+
+  function remplirFormulaire(f) {
+    if (!f) return;
+    $("evenement").value = f.evenement || "";
+    $("date").value = f.date || "";
+    $("budget").value = f.budget || "";
+    $("message").value = f.message || "";
+    $("noms").value = (f.noms || []).join("\n");
+    majCompteur();
+  }
+
+  function majCompteur() {
+    var n = $("noms").value.split("\n").map(function (x) { return x.trim(); }).filter(Boolean).length;
+    $("compteur").textContent = n <= 1 ? n + " participant" : n + " participants";
+  }
+
+  function verifier(f) {
+    var min = CONFIG.tirage.min, max = CONFIG.tirage.max;
+    if (!f.evenement) return "Indiquez le nom du groupe ou de l'événement.";
+    if (f.noms.length < min) return "Il faut au moins " + min + " participants.";
+    if (f.noms.length > max) {
+      return max + " participants au maximum. Vous en avez " + f.noms.length +
+             " : retirez-en " + (f.noms.length - max) + ".";
+    }
+    var vus = {};
+    for (var i = 0; i < f.noms.length; i++) {
+      var k = f.noms[i].toLocaleLowerCase("fr");
+      if (vus[k]) return "« " + f.noms[i] + " » apparaît deux fois. Ajoutez l'initiale du nom pour les distinguer.";
+      vus[k] = true;
+    }
+    return "";
+  }
+
+  function lancerTirage() {
+    var f = lireFormulaire();
+    var probleme = verifier(f);
+    $("erreur").textContent = probleme;
+    if (probleme) { $("erreur").scrollIntoView({ block: "center" }); return; }
+
+    var numero = numeroTirage();
+    var paires = tirage(f.noms);
+    var resultats = paires.map(function (p) {
+      return {
+        donneur: p.donneur,
+        lien: adresseBase() + "#t=" + encoder({
+          e: f.evenement, d: f.date, b: f.budget, m: f.message,
+          g: p.donneur, r: p.ami, n: numero
+        })
+      };
+    });
+
+    memoriser("amigo-formulaire", f);
+    var etat = { numero: numero, resultats: resultats, evenement: f.evenement };
+    memoriser("amigo-resultats", etat);
+    afficherResultats(etat);
+  }
+
+  function afficherResultats(etat) {
+    var liste = $("liste");
+    liste.innerHTML = "";
+
+    etat.resultats.forEach(function (r) {
+      var ligne = document.createElement("div");
+      ligne.className = "participant";
+
+      var nom = document.createElement("span");
+      nom.className = "nom";
+      nom.textContent = r.donneur;
+
+      var actions = document.createElement("div");
+      actions.className = "actions";
+
+      var btnCopier = document.createElement("button");
+      btnCopier.className = "secondaire";
+      btnCopier.textContent = "Copier";
+      btnCopier.addEventListener("click", function () { copier(r.lien, btnCopier); });
+      actions.appendChild(btnCopier);
+
+      var texte = "Olá " + r.donneur + " ! Voici ton lien personnel pour l'Amigo Secreto « " +
+                  etat.evenement + " » : " + r.lien;
+
+      var btnWA = document.createElement("a");
+      btnWA.className = "bouton whatsapp";
+      btnWA.textContent = "WhatsApp";
+      btnWA.href = "https://wa.me/?text=" + encodeURIComponent(texte);
+      btnWA.target = "_blank";
+      btnWA.rel = "noopener";
+      actions.appendChild(btnWA);
+
+      if (navigator.share) {
+        var btnPartage = document.createElement("button");
+        btnPartage.className = "partage";
+        btnPartage.textContent = "Partager";
+        btnPartage.addEventListener("click", function () {
+          navigator.share({ title: "Amigo Secreto", text: texte }).catch(function () { /* annulé */ });
+        });
+        actions.appendChild(btnPartage);
+      }
+
+      ligne.appendChild(nom);
+      ligne.appendChild(actions);
+      liste.appendChild(ligne);
+    });
+
+    $("note-resultats").textContent =
+      "Tirage n° " + etat.numero + " — " + etat.resultats.length + " participants. " +
+      "Si vous refaites le tirage, les anciens liens ne fonctionneront plus : il faudra renvoyer les nouveaux à tout le monde.";
+
+    montrer("vue-resultats");
+  }
+
+  /* ========================== Vue participant ============================ */
+
+  function afficherParticipant(t) {
+    $("p-donneur").textContent = t.g;
+    $("p-evenement").textContent = t.e + (t.d ? " · " + dateLisible(t.d) : "");
+    $("p-ami").textContent = t.r;
+    $("p-budget").textContent = t.b ? "Budget indicatif du cadeau : environ CHF " + t.b + "." : "";
+    $("p-date").textContent = t.d ? "Échange des cadeaux le " + dateLisible(t.d) + "." : "";
+    $("p-message").textContent = t.m ? "Mot de l'organisateur : " + t.m : "";
+    $("p-tirage").textContent = t.n ? "Tirage n° " + t.n : "";
+
+    $("reveler").addEventListener("click", function () {
+      $("p-avant").classList.add("cache");
+      $("p-apres").classList.remove("cache");
+    });
+
+    document.title = "Amigo Secreto — " + t.e;
+    montrer("vue-participant");
+  }
+
+  /* ============================= Démarrage =============================== */
+
+  function brancherFormulaire() {
+    $("regle-noms").textContent =
+      "— un prénom par ligne, de " + CONFIG.tirage.min + " à " + CONFIG.tirage.max +
+      ". Ajoutez l'initiale du nom s'il y a deux prénoms identiques.";
+
+    $("noms").addEventListener("input", majCompteur);
+    $("tirer").addEventListener("click", lancerTirage);
+
+    $("aller-formulaire").addEventListener("click", function () {
+      $("formulaire").scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(function () { $("evenement").focus({ preventScroll: true }); }, 400);
+    });
+
+    $("refaire").addEventListener("click", function () {
+      if (confirm("Refaire le tirage ? Il faudra renvoyer un nouveau lien à chaque participant.")) {
+        remplirFormulaire(relire("amigo-formulaire"));
+        lancerTirage();
+      }
+    });
+
+    $("nouveau").addEventListener("click", function () {
+      try {
+        localStorage.removeItem("amigo-formulaire");
+        localStorage.removeItem("amigo-resultats");
+      } catch (e) { /* rien */ }
+      remplirFormulaire({ noms: [] });
+      $("erreur").textContent = "";
+      montrer("vue-organisateur");
+    });
+
+    $("copier-tout").addEventListener("click", function (e) {
+      var etat = relire("amigo-resultats");
+      if (!etat || !etat.resultats) return;
+      var texte = etat.resultats.map(function (r) { return r.donneur + " : " + r.lien; }).join("\n\n");
+      copier(texte, e.currentTarget);
+    });
+  }
+
+  function demarrer() {
+    remplirBlocsCommerciaux();
+    remplirLiensCafe();
+    brancherFormulaire();
+
+    var hash = location.hash;
+    if (hash.indexOf("#t=") === 0) {
+      try {
+        var t = decoder(hash.slice(3));
+        if (!t.g || !t.r) throw new Error("incomplet");
+        afficherParticipant(t);
+      } catch (e) {
+        montrer("vue-invalide");
+      }
+      return;
+    }
+
+    var etat = relire("amigo-resultats");
+    remplirFormulaire(relire("amigo-formulaire"));
+    if (etat && etat.resultats && etat.resultats.length) afficherResultats(etat);
+    else montrer("vue-organisateur");
+  }
+
+  window.addEventListener("hashchange", function () { location.reload(); });
+
+  // Exposé uniquement pour les tests automatisés.
+  window.__amigo = { tirage: tirage, encoder: encoder, decoder: decoder, verifier: verifier, CONFIG: CONFIG };
+
+  demarrer();
+})();
+</script>
+
+<script data-goatcounter="https://bossanova.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
