@@ -703,12 +703,24 @@
     return p[2] + " " + MOIS[p[1] - 1] + " " + p[0];
   }
 
+  /* Préfixe propre à cette application.
+     Toutes les pages de bossa-nova-cafe.github.io partagent la même origine,
+     donc le même localStorage. Sans préfixe distinct, un tirage fait ici
+     réapparaîtrait dans l'application des soirées privées, et inversement.
+     NE PAS reprendre les clés « amigo-formulaire » / « amigo-resultats »,
+     qui appartiennent à /soirees/amigo-secreto/. */
+  var PREFIXE = "amigo-noel-";
+
   function memoriser(cle, valeur) {
-    try { localStorage.setItem(cle, JSON.stringify(valeur)); } catch (e) { /* indisponible */ }
+    try { localStorage.setItem(PREFIXE + cle, JSON.stringify(valeur)); } catch (e) { /* indisponible */ }
   }
 
   function relire(cle) {
-    try { return JSON.parse(localStorage.getItem(cle)); } catch (e) { return null; }
+    try { return JSON.parse(localStorage.getItem(PREFIXE + cle)); } catch (e) { return null; }
+  }
+
+  function oublier(cle) {
+    try { localStorage.removeItem(PREFIXE + cle); } catch (e) { /* rien */ }
   }
 
   function confirmerCopie(bouton) {
@@ -916,9 +928,9 @@
       };
     });
 
-    memoriser("amigo-formulaire", f);
+    memoriser("formulaire", f);
     var etat = { numero: numero, resultats: resultats, evenement: f.evenement };
-    memoriser("amigo-resultats", etat);
+    memoriser("resultats", etat);
     afficherResultats(etat);
   }
 
@@ -1013,23 +1025,21 @@
 
     $("refaire").addEventListener("click", function () {
       if (confirm("Refaire le tirage ? Il faudra renvoyer un nouveau lien à chaque participant.")) {
-        remplirFormulaire(relire("amigo-formulaire"));
+        remplirFormulaire(relire("formulaire"));
         lancerTirage();
       }
     });
 
     $("nouveau").addEventListener("click", function () {
-      try {
-        localStorage.removeItem("amigo-formulaire");
-        localStorage.removeItem("amigo-resultats");
-      } catch (e) { /* rien */ }
+      oublier("formulaire");
+      oublier("resultats");
       remplirFormulaire({ noms: [] });
       $("erreur").textContent = "";
       montrer("vue-organisateur");
     });
 
     $("copier-tout").addEventListener("click", function (e) {
-      var etat = relire("amigo-resultats");
+      var etat = relire("resultats");
       if (!etat || !etat.resultats) return;
       var texte = etat.resultats.map(function (r) { return r.donneur + " : " + r.lien; }).join("\n\n");
       copier(texte, e.currentTarget);
@@ -1053,8 +1063,8 @@
       return;
     }
 
-    var etat = relire("amigo-resultats");
-    remplirFormulaire(relire("amigo-formulaire"));
+    var etat = relire("resultats");
+    remplirFormulaire(relire("formulaire"));
     if (etat && etat.resultats && etat.resultats.length) afficherResultats(etat);
     else montrer("vue-organisateur");
   }
