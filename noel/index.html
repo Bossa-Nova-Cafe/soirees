@@ -673,11 +673,15 @@
       code: "AMIGO2026"
     },
     /* Ces conditions doivent rester le reflet exact de l'événement configuré
-       dans le système de réservation. Si tu modifies l'un, modifie l'autre. */
+       dans le système de réservation. Si tu modifies l'un, modifie l'autre.
+       La période court jusqu'au 23 décembre dans le système, mais l'événement
+       ne tourne que les jeudis, vendredis et samedis : la dernière soirée
+       réservable est le samedi 19 décembre. C'est cette date qui est annoncée
+       au client, sinon il cherche une date qui n'existe pas. */
     offre: {
       intitule: "Une planche apéro brésilienne offerte à votre groupe !",
       minPersonnes: 6,
-      periode: "du 20 novembre au 23 décembre 2026",
+      periode: "du 20 novembre au 19 décembre 2026",
       jours: "les jeudis, vendredis et samedis",
       conditions: [
         "Groupe de 6 personnes minimum.",
@@ -686,7 +690,7 @@
         "Consommation sur place.",
         "Offre valable les jeudis, vendredis et samedis, de 18h00 à 21h00.",
         "Offre non échangeable contre de l'argent, sous réserve des disponibilités.",
-        "Validité : du 20 novembre au 23 décembre 2026."
+        "Validité : du 20 novembre au 19 décembre 2026, dernière soirée le samedi 19."
       ]
     },
     cafe: {
