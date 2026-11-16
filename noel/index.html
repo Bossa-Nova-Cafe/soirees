@@ -366,6 +366,47 @@
   .invitation h2 { color: var(--jaune); font-size: 20px; }
   .invitation p { color: rgba(251,246,233,.92); font-size: 14.5px; }
 
+  /* ---------- Agenda du café ---------- */
+  .agenda h2 { font-size: 19px; margin-bottom: 14px; }
+  .soiree {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 11px 0;
+    border-bottom: 1px solid #e6dfca;
+    text-decoration: none;
+    color: inherit;
+  }
+  .soiree:last-child { border-bottom: 0; padding-bottom: 0; }
+  /* La vignette est toujours présente, même sans image : sinon les lignes
+     ne s'alignent plus dès qu'une soirée n'en a pas, ou qu'elle ne charge pas. */
+  .soiree .vignette {
+    width: 76px;
+    height: 51px;
+    border-radius: 9px;
+    flex-shrink: 0;
+    background: linear-gradient(140deg, #e6dfca, #d3c9ad);
+    overflow: hidden;
+  }
+  .soiree .vignette img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .soiree .texte { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .soiree .quand {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--violet);
+  }
+  .soiree .quoi {
+    font-weight: 600;
+    font-size: 14.5px;
+    line-height: 1.3;
+    color: var(--texte);
+    overflow-wrap: anywhere;
+  }
+  .soiree .reserver { font-size: 12.5px; color: var(--gris); }
+  .soiree:hover .reserver { color: var(--violet); }
+
   footer {
     text-align: center;
     color: var(--creme);
@@ -503,6 +544,7 @@
     </div>
 
     <div class="carte" id="carte-offre-resultats"></div>
+    <div class="carte" id="carte-evenements-resultats"></div>
 
   </section>
 
@@ -543,7 +585,12 @@
       <p class="note-tirage" id="p-tirage"></p>
     </div>
 
-    <div class="carte" id="carte-invitation-participant"></div>
+    <!-- Invitation et agenda n'apparaissent qu'une fois l'ami secret révélé :
+         avant, le visiteur n'est venu que pour ça. -->
+    <div id="p-extras" class="cache">
+      <div class="carte" id="carte-invitation-participant"></div>
+      <div class="carte" id="carte-evenements-participant"></div>
+    </div>
 
     <div class="carte">
       <p class="aide" style="text-align:center;margin:0">
@@ -592,10 +639,32 @@
 
   var CAMPAGNE_ACTIVE = false;
 
+  /* EVENEMENTS_CAFE : interrupteur séparé, indépendant du précédent.
+       true  → un encart « En ce moment au Bossa Nova » affiche les deux
+               prochaines soirées du café, lues en direct dans le même
+               système que la page de réservation. Rien à tenir à jour :
+               une soirée créée dans Gestion apparaît toute seule, une
+               soirée passée disparaît.
+       false → aucun encart.
+     Si le service ne répond pas, l'encart ne s'affiche simplement pas.
+     Le tirage au sort n'en dépend jamais. */
+
+  var EVENEMENTS_CAFE = true;
+
   var CONFIG = {
     tirage: {
       min: 3,
       max: 20
+    },
+    evenements: {
+      // Collection « soirees », en lecture publique d'après les règles
+      // Firestore du projet (allow read: if true).
+      source: "https://firestore.googleapis.com/v1/projects/bossa-nova-reservations/databases/(default)/documents/soirees",
+      // Clé web publique du projet, déjà visible dans la page de réservation.
+      // Ce n'est pas un secret : l'accès est gouverné par les règles Firestore.
+      cle: "AIzaSyBThArHa0NGg6uofH3Ettv-tLuyx_h3qMs",
+      base: "https://bossa-nova-cafe.github.io/bossa-nova-reservations/",
+      maximum: 2
     },
     reservation: {
       url: "https://bossa-nova-cafe.github.io/bossa-nova-reservations/?e=QNhThU0CHGbjs0qtVPtK",
@@ -856,6 +925,147 @@
     }
   }
 
+  /* ============== Agenda du café, lu en direct (facultatif) ==============
+     Lecture seule de la collection « soirees » par l'API REST de Firestore,
+     sans la bibliothèque Firebase : un simple fetch, aucun cookie, aucun
+     stockage. Les règles de filtrage reproduisent celles de la page de
+     réservation, pour ne jamais proposer une soirée fermée, passée, complète
+     ou dont la date limite est dépassée.
+  ---------------------------------------------------------------------- */
+
+  function valeurFirestore(v) {
+    if (!v || typeof v !== "object") return null;
+    if ("stringValue" in v) return v.stringValue;
+    if ("integerValue" in v) return Number(v.integerValue);
+    if ("doubleValue" in v) return Number(v.doubleValue);
+    if ("booleanValue" in v) return v.booleanValue;
+    if ("nullValue" in v) return null;
+    if ("arrayValue" in v) return (v.arrayValue.values || []).map(valeurFirestore);
+    if ("mapValue" in v) return champsFirestore(v.mapValue.fields || {});
+    return null;
+  }
+
+  function champsFirestore(champs) {
+    var o = {};
+    Object.keys(champs).forEach(function (k) { o[k] = valeurFirestore(champs[k]); });
+    return o;
+  }
+
+  function aujourdhui() { return new Date().toLocaleDateString("sv-SE"); }
+
+  function datesPeriode(debut, fin, jours) {
+    var d = new Date(debut + "T12:00"), stop = new Date(fin + "T12:00"), liste = [];
+    var garde = 0;
+    while (d <= stop && garde++ < 400) {
+      if (!jours || !jours.length || jours.indexOf(d.getDay()) !== -1) {
+        liste.push(d.toLocaleDateString("sv-SE"));
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    return liste;
+  }
+
+  function soireePassee(ev) {
+    var borne = ev.mode === "periode" ? ev.dateFin : ev.date;
+    if (!borne) return true;
+    return new Date(borne + "T" + (ev.fin || "23:59")) < new Date();
+  }
+
+  function placesRestantes(ev) {
+    var parDate = ev.paxByDate || {};
+    if (ev.mode === "periode") {
+      var dates = datesPeriode(ev.dateDebut, ev.dateFin, ev.jours);
+      var mini = ev.cap;
+      dates.forEach(function (d) { mini = Math.min(mini, ev.cap - (parDate[d] || 0)); });
+      return mini;
+    }
+    var pris = Object.keys(parDate).reduce(function (a, k) { return a + parDate[k]; }, 0) || ev.pax || 0;
+    return ev.cap - pris;
+  }
+
+  function soireeOuverte(ev) {
+    if (!ev || !ev.titre) return false;
+    if (ev.ferme) return false;
+    if (soireePassee(ev)) return false;
+    if (ev.limit && ev.limit < aujourdhui()) return false;
+    return placesRestantes(ev) >= (ev.min || 1);
+  }
+
+  var MOIS_COURT = ["janv.", "févr.", "mars", "avril", "mai", "juin",
+                    "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+
+  function dateCourte(iso) {
+    var p = iso.split("-").map(Number);
+    return p[2] + " " + MOIS_COURT[p[1] - 1];
+  }
+
+  function periodeLisible(ev) {
+    if (ev.mode !== "periode") return dateCourte(ev.date);
+    var d1 = ev.dateDebut.split("-").map(Number), d2 = ev.dateFin.split("-").map(Number);
+    if (d1[1] === d2[1]) return d1[2] + "–" + d2[2] + " " + MOIS_COURT[d1[1] - 1];
+    return dateCourte(ev.dateDebut) + " – " + dateCourte(ev.dateFin);
+  }
+
+  function adresseImage(img) {
+    if (!img) return "";
+    return /^https?:\/\//.test(img) ? img : CONFIG.evenements.base + img;
+  }
+
+  function chargerEvenements() {
+    if (!EVENEMENTS_CAFE || !window.fetch) return Promise.resolve([]);
+    var url = CONFIG.evenements.source + "?key=" + encodeURIComponent(CONFIG.evenements.cle);
+    return fetch(url, { mode: "cors" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.documents) return [];
+        return data.documents.map(function (doc) {
+          var ev = champsFirestore(doc.fields || {});
+          ev.id = doc.name.split("/").pop();
+          return ev;
+        })
+        .filter(soireeOuverte)
+        .sort(function (a, b) {
+          var da = a.mode === "periode" ? a.dateDebut : a.date;
+          var db = b.mode === "periode" ? b.dateDebut : b.date;
+          return String(da).localeCompare(String(db));
+        })
+        .slice(0, CONFIG.evenements.maximum);
+      })
+      .catch(function () { return []; });
+  }
+
+  function dessinerEvenements(zone, soirees) {
+    if (!zone) return;
+    if (!soirees.length) { zone.classList.add("cache"); return; }
+    zone.className = "carte agenda";
+    zone.innerHTML =
+      '<h2>🇧🇷 En ce moment au Bossa Nova</h2>' +
+      soirees.map(function (ev) {
+        var img = adresseImage(ev.img);
+        return '<a class="soiree" target="_blank" rel="noopener" href="' +
+            echapper(CONFIG.evenements.base + "?e=" + ev.id) + '">' +
+            '<span class="vignette">' +
+              (img ? '<img src="' + echapper(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') +
+            '</span>' +
+            '<span class="texte">' +
+              '<span class="quand">' + echapper(periodeLisible(ev)) + '</span>' +
+              '<span class="quoi">' + echapper(ev.titre) + '</span>' +
+              '<span class="reserver">Réserver →</span>' +
+            '</span>' +
+          '</a>';
+      }).join("");
+    zone.classList.remove("cache");
+  }
+
+  function remplirAgenda() {
+    var zones = [$("carte-evenements-resultats"), $("carte-evenements-participant")];
+    zones.forEach(function (z) { if (z) z.classList.add("cache"); });
+    if (!EVENEMENTS_CAFE) return;
+    chargerEvenements().then(function (soirees) {
+      zones.forEach(function (z) { dessinerEvenements(z, soirees); });
+    });
+  }
+
   function remplirLiensCafe() {
     var zone = $("liens-cafe");
     if (!zone) return;
@@ -1002,6 +1212,9 @@
     $("reveler").addEventListener("click", function () {
       $("p-avant").classList.add("cache");
       $("p-apres").classList.remove("cache");
+      // L'invitation et l'agenda n'apparaissent qu'ici : une fois que le
+      // visiteur a obtenu ce pour quoi il est venu.
+      $("p-extras").classList.remove("cache");
     });
 
     document.title = "Amigo Secreto — " + t.e;
@@ -1048,6 +1261,7 @@
 
   function demarrer() {
     remplirBlocsCommerciaux();
+    remplirAgenda();
     remplirLiensCafe();
     brancherFormulaire();
 
@@ -1072,7 +1286,12 @@
   window.addEventListener("hashchange", function () { location.reload(); });
 
   // Exposé uniquement pour les tests automatisés.
-  window.__amigo = { tirage: tirage, encoder: encoder, decoder: decoder, verifier: verifier, CONFIG: CONFIG };
+  window.__amigo = {
+    tirage: tirage, encoder: encoder, decoder: decoder, verifier: verifier, CONFIG: CONFIG,
+    champsFirestore: champsFirestore, soireeOuverte: soireeOuverte,
+    placesRestantes: placesRestantes, periodeLisible: periodeLisible,
+    adresseImage: adresseImage, chargerEvenements: chargerEvenements
+  };
 
   demarrer();
 })();
